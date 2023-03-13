@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs/';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,7 @@ export class OpenaiService {
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer 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'
+      'Authorization': `Bearer ${environment.contentful.OpenAIAPIKey}`
     })
   }
 
