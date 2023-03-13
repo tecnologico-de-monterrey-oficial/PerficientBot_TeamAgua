@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { HomeComponent } from './home.component';
-import { SmartbotComponent } from "../smartbot/smartbot.component";
+import { SmartbotComponent } from "./smartbot/smartbot.component";
 
 @NgModule({
     declarations: [
@@ -10,7 +10,6 @@ import { SmartbotComponent } from "../smartbot/smartbot.component";
     ],
     exports: [
         HomeComponent,
-        SmartbotComponent
     ],
     imports: [
         CommonModule

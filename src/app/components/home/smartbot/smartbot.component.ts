@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { OpenaiService } from '../../services/openai.service';
+import { OpenaiService } from '../../../services/openai.service';
 
 export interface Message {
   type: string,
@@ -12,7 +12,8 @@ export interface Message {
   templateUrl: './smartbot.component.html',
   styleUrls: ['./smartbot.component.scss']
 })
-export class SmartbotComponent {
+export class SmartbotComponent implements OnInit {
+  isOpen = false;
   loading = false;
   messages: Message[] = [];
   chatForm = new FormGroup({
@@ -33,7 +34,11 @@ export class SmartbotComponent {
   result: string = "";
   myprompt: string = '';
 
-  sendMessage() {
+  openSmartBot() : void {
+    this.isOpen = !this.isOpen;
+  }
+
+  sendMessage() : void {
     const sentMessage = this.chatForm.value.message!;
     this.loading = true;
     this.messages.push({
@@ -66,7 +71,7 @@ export class SmartbotComponent {
       });
   }
 
-  scrollToBottom() {
+  scrollToBottom() : void {
     setTimeout(() => {
       try {
         this.myScrollContainer.nativeElement.scrollTop = this.myScrollContainer.nativeElement.scrollHeight + 500;
