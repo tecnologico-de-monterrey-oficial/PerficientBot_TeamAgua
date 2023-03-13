@@ -1,0 +1,39 @@
+<section id="Smartbot">
+    <button id="Smartbot__popupButton" (click)="openSmartBot()">
+        SmartBot
+    </button>
+    <div id="Smartbot__popup" [style.display]="isOpen ? 'block' : 'none'">
+        <div id="Smartbot__popup--header">
+            Smartbot Interface
+            <button id="Smartbot__popupCloseButton" (click)="openSmartBot()">
+                Close
+            </button>
+        </div>
+    
+        <div id="Smartbot__body">
+            <div class="messages" #scrollMe>
+                <div *ngFor="let message of messages" class="message">
+                    <div [class]="message.type">
+                        {{message.message}}
+                    </div>
+                </div>
+                <div *ngIF="loading" class="message" style="width: 100%; display: block;">
+                    <div [class]="'client'">...</div>
+                </div>
+            </div>
+        </div>
+        <form id="Smartbot__footer" [formGroup]="chatForm">
+            <input
+                formControlName="message"
+                type="text"
+                id="Smartbot__footer--input"
+                name="myprompt"
+                placeholder="Type your message here..."
+                [(ngModel)] = 'myprompt'
+            />
+            <button id="Smartbot__footer--submitButton" [disabled]="!chatForm.valid" (click)="sendMessage()">
+                Send
+            </button>
+        </form>
+    </div>
+</section>
