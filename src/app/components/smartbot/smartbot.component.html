@@ -1,0 +1,27 @@
+<section id="Smartbot">
+    <section id="Smartbot__body">
+        <div class="messages" #scrollMe>
+            <div *ngFor="let message of messages" class="message">
+                <div [class]="message.type">
+                    {{message.message}}
+                </div>
+            </div>
+            <div *ngIF="loading" class="message" style="width: 100%; display: block;">
+                <div [class]="'client'">...</div>
+            </div>
+        </div>
+    </section>
+    <form id="Smartbot__footer" [formGroup]="chatForm">
+        <input
+            formControlName="message"
+            type="text"
+            id="Smartbot__footer--input"
+            name="myprompt"
+            placeholder="Type your message here..."
+            [(ngModel)] = 'myprompt'
+        />
+        <button id="Smartbot__footer--submitButton" [disabled]="!chatForm.valid" (click)="sendMessage()">
+            Send
+        </button>
+    </form>
+</section>
