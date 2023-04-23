@@ -1,0 +1,96 @@
+Frontend/package-lock.json
+.env
+.DS_Store
+
+
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+
+# Environment
+Frontend/src/environments/
+
+# Compiled output
+Frontend/dist
+Frontend/tmp
+Frontend/out-tsc
+Frontend/bazel-out
+
+# Node
+Frontend//node_modules
+Frontend/npm-debug.log
+Frontend/yarn-error.log
+
+# IDEs and editors
+Frontend/.idea/
+Frontend/.project
+Frontend/.classpath
+Frontend/.c9/
+*.launch
+Frontend/.settings/
+*.sublime-workspace
+
+# Visual Studio Code
+Frontend/.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# Miscellaneous
+Frontend/.angular/cache
+Frontend/.sass-cache/
+Frontend/connect.lock
+Frontend/coverage
+Frontend/libpeerconnection.log
+Frontend/testem.log
+Frontend/typings
+
+# System files
+Frontend/Thumbs.db
+Frontend/src/environments/environment.ts
+Frontend/src/environments/environment.development.ts
+
+
+
+
+# Node.js files
+Backend/node_modules/
+package-lock.json
+
+# Logs and debugging files
+Backend/logs/
+*.log
+Backend/npm-debug.log*
+Backend/yarn-debug.log*
+Backend/yarn-error.log*
+Backend/.pnp.*
+
+# Build files
+Backend/dist/
+Backend/build/
+Backend/out/
+*.tsbuildinfo
+*.tgz
+
+# Editor files
+Backend/.vscode/
+Backend/.idea/
+*.iml
+*.ipr
+*.iws
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Dependency directories
+Backend/.pnp/
+Backend/.pnp.js
+
+# Miscellaneous
+.DS_Store
+Backend/Thumbs.db

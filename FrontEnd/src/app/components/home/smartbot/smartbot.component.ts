@@ -47,7 +47,7 @@ export class SmartbotComponent implements OnInit {
     });
 
       var payload = {
-        model: "curie:ft-personal-2023-03-11-06-30-42",
+        model: "davinci:ft-personal-2023-04-11-22-14-14",
         prompt: this.myprompt,
         temperature: 0,
         max_tokens: 60,
