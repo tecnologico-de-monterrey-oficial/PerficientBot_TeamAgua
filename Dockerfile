@@ -22,6 +22,6 @@ RUN npm run build
 FROM node:16.18.1-alpine3.17 AS prod
 WORKDIR /app
 COPY --from=back /app/backend .
-COPY --from=builder /app/frontend/dist/frontend /app/public
+COPY --from=builder /app/frontend/dist /app/public
 CMD ["npm", "start"]
 EXPOSE 3000
