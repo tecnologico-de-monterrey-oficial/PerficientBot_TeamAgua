@@ -23,7 +23,7 @@ jobs:
           fail_on_empty: false
 
       - name: Frontend
-        run: cd frontend/
+        run: cd Frontend/
 
       - name: Checar posición actual
         run: pwd
