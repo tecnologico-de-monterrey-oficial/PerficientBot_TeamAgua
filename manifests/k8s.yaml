@@ -31,7 +31,7 @@ metadata:
   name: {model_name}-service
 spec:
   ports:
-  - name: http
+  - name: frontend
     port: 80
     targetPort: 80
   - name: backend
