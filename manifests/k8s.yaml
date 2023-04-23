@@ -6,17 +6,20 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: {model_name}-server
+      app: {model_name}
   replicas: 1
   template:
     metadata:
       labels:
-        app: {model_name}-server
+        app: {model_name}
     spec:
       containers:
-      - name: {model_name}-container
-        #image: gcr.io/tensorflow-serving/resnet 
-        image: docker.io/{docker_user}/{model_name}:{github.sha}
+      - name: frontend
+        image: docker.io/{docker_user}/{model_name}-frontend:{github.sha}
+        ports:
+        - containerPort: 80
+      - name: backend
+        image: docker.io/{docker_user}/{model_name}-backend:{github.sha}
         ports:
         - containerPort: 3000
 ---
@@ -28,8 +31,12 @@ metadata:
   name: {model_name}-service
 spec:
   ports:
-  - port: 3000
+  - name: http
+    port: 80
+    targetPort: 80
+  - name: backend
+    port: 3000
     targetPort: 3000
   selector:
-    app: {model_name}-server
+    app: {model_name}
   type: LoadBalancer
