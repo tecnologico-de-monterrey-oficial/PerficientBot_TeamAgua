@@ -17,6 +17,8 @@ WORKDIR /app/frontend
 COPY --from=dev-deps-front /app/frontend/node_modules ./node_modules
 COPY Frontend/ .
 RUN npm install -g @angular/cli@15.1.6
+RUN ng config --global cli.packageManager yarn
+RUN ng config projects.frontend.architect.build.options.budgets[0].maximumWarning=1mb
 RUN ng build
 
 
