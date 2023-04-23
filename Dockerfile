@@ -1,7 +1,7 @@
 FROM node:16.18.1-alpine3.17 AS dev-deps-front
 WORKDIR /app/frontend
 COPY Frontend/package.json package.json
-RUN npm install
+RUN npm install --save-dev @types/node
 
 FROM node:16.18.1-alpine3.17 AS back
 WORKDIR /app/backend

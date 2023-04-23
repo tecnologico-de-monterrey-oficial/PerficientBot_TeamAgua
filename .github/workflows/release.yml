@@ -21,14 +21,6 @@ jobs:
           file_name: .env
           fail_on_empty: false
 
-      - name: Checar elementos
-        run: ls
-
-      - name: Checar elementos parte 2
-        run: |
-          cd Frontend/
-          ls
-
       - name: docker login
         env:
           DOCKER_USER: ${{secrets.DOCKER_USER}}
