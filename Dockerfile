@@ -12,9 +12,8 @@ CMD ["npm", "start"]
 EXPOSE 3000
 
 
-FROM node:16.18.1-alpine3.17 AS builder
+FROM dev-deps-front AS builder
 WORKDIR /app/frontend
-COPY --from=dev-deps-front /app/frontend/node_modules ./node_modules
 COPY Frontend/ .
 RUN ng build
 
