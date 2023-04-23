@@ -16,8 +16,7 @@ FROM node:16.18.1-alpine3.17 AS builder
 WORKDIR /app/frontend
 COPY --from=dev-deps-front /app/frontend/node_modules ./node_modules
 COPY Frontend/ .
-RUN npm install -g @angular/cli@15.1.6
-RUN ng build
+RUN npm run build
 
 
 FROM node:16.18.1-alpine3.17 AS prod
