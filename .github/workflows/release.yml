@@ -55,6 +55,7 @@ jobs:
         run: |
           cd Frontend/
           docker commit --change "ENV MODEL_NAME ${{secrets.MODEL_NAME}}" serving_base ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-frontend:${{github.sha}}
+          docker commit --change "ENV MODEL_NAME ${{secrets.MODEL_NAME}}" serving_base ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-frontend:latest
 
       - name: show docker images
         run: |
@@ -91,11 +92,6 @@ jobs:
           envKey_PORT: ${{ secrets.PORT }}
           file_name: .env
           fail_on_empty: false
-      
-      - name: CI
-        run: |
-          cd Backend/
-          npm ci
 
       - name: docker login
         env:
