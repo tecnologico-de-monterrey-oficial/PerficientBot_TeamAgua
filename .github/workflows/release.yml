@@ -117,6 +117,20 @@ jobs:
     needs: [Release-frontend, Release-backend]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: make .env 
+        uses: SpicyPizza/create-envfile@v1.3
+        with:
+          envKey_APP_VERSION: ${{ secrets.APP_VERSION }}
+          envKey_STAGE: ${{ secrets.STAGE }}
+          envkey_NG_APP_KEY: ${{ secrets.OPENAI_KEY }}
+          envKey_PORT: ${{ secrets.PORT }}
+          file_name: .env
+          fail_on_empty: false
+
       - name: update docker user in k8 
         run: sed -i 's/{docker_user}/${{secrets.DOCKER_USER}}/g' manifests/k8s.yaml
 
