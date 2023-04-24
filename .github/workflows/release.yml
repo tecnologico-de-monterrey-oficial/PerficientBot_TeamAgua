@@ -27,6 +27,9 @@ jobs:
         with:
           node-version: 16.x
 
+      - name: CI
+        run: npm ci
+
       - name: build angular, output in dist/client
         run: |
           cd Frontend/
@@ -87,6 +90,9 @@ jobs:
           file_name: .env
           fail_on_empty: false
       
+      - name: CI
+        run: npm ci
+        
       - name: docker login
         env:
           DOCKER_USER: ${{secrets.DOCKER_USER}}
