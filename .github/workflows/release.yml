@@ -5,19 +5,13 @@ on:
   pull_request:
     branches: [ "release"]
 jobs:
-  release:
+  Release-frontend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js 16.x
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v3
         with:
-          node-version: 16.x
-      - name: CI
-        run: npm ci
-      - name: Test
-        run: |
-          npm test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+          fetch-depth: 0
+
       - name: make .env 
         uses: SpicyPizza/create-envfile@v1.3
         with:
@@ -27,9 +21,20 @@ jobs:
           envKey_PORT: ${{ secrets.PORT }}
           file_name: .env
           fail_on_empty: false
-          
-      - name: build angular, output in dist/openai
+
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+
+      - name: CI
         run: |
+          cd Frontend/
+          npm ci
+
+      - name: build angular, output in dist/client
+        run: |
+          cd Frontend/
           npm run build
       
       - name: show dir, .env file
@@ -38,28 +43,94 @@ jobs:
           
       - name: download, run httpd image, container name serving_base
         run: |
+          cd Frontend/
           docker run -d --name serving_base httpd
           
       - name: cp angular build to container
         run: |
-          docker cp dist/openai/.  serving_base:/usr/local/apache2/htdocs
+          cd Frontend/
+          docker cp dist/client/.  serving_base:/usr/local/apache2/htdocs
           
       - name: Build the custom Docker image
-        run: docker commit --change "ENV MODEL_NAME ${{secrets.MODEL_NAME}}" serving_base ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}:${{github.sha}}
+        run: |
+          cd Frontend/
+          docker commit --change "ENV MODEL_NAME ${{secrets.MODEL_NAME}}" serving_base ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-frontend:${{github.sha}}
+          docker commit --change "ENV MODEL_NAME ${{secrets.MODEL_NAME}}" serving_base ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-frontend:latest
 
       - name: show docker images
-        run: docker images
+        run: |
+          cd Frontend/
+          docker images
 
       - name: docker login
         env:
           DOCKER_USER: ${{secrets.DOCKER_USER}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
         run: |
+          cd Frontend/
           docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
           
       - name: Docker Push
-        run: docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}:${{github.sha}}
+        run: |
+          cd Frontend/
+          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-frontend:${{github.sha}}
+          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-frontend:latest
+
+  Release-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: make .env 
+        uses: SpicyPizza/create-envfile@v1.3
+        with:
+          envKey_APP_VERSION: ${{ secrets.APP_VERSION }}
+          envKey_STAGE: ${{ secrets.STAGE }}
+          envkey_NG_APP_KEY: ${{ secrets.OPENAI_KEY }}
+          envKey_PORT: ${{ secrets.PORT }}
+          file_name: .env
+          fail_on_empty: false
+
+      - name: docker login
+        env:
+          DOCKER_USER: ${{secrets.DOCKER_USER}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        run: |
+          cd Frontend/
+          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
+
+      - name: Build Docker Backend image
+        run: |
+          cd Backend/
+          docker build -t ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend:${{github.sha}} .
+          docker build -t ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend:latest .
+
+      - name: Docker Push
+        run: |
+          cd Backend/
+          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend:${{github.sha}}
+          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend:latest
       
+  Deploy:
+    needs: [Release-frontend, Release-backend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: make .env 
+        uses: SpicyPizza/create-envfile@v1.3
+        with:
+          envKey_APP_VERSION: ${{ secrets.APP_VERSION }}
+          envKey_STAGE: ${{ secrets.STAGE }}
+          envkey_NG_APP_KEY: ${{ secrets.OPENAI_KEY }}
+          envKey_PORT: ${{ secrets.PORT }}
+          file_name: .env
+          fail_on_empty: false
+
       - name: update docker user in k8 
         run: sed -i 's/{docker_user}/${{secrets.DOCKER_USER}}/g' manifests/k8s.yaml
 
@@ -83,6 +154,6 @@ jobs:
         env:
           KUBECONFIG: ${{ steps.namespace.outputs.kubeconfig }}
         with:
-          namespace: ${{secrets.OKTETO_NAMESPACE }}
+          namespace: ${{ secrets.OKTETO_NAMESPACE }}
           manifest: manifests/k8s.yaml
           tag: ${{ secrets.DOCKER_USERNAME }}/${{secrets.MODEL_NAME}}:${{github.sha}}

@@ -32,7 +32,7 @@ const prompt = "Following this code as a reference, return the value of $TaskVal
     "\n" +
     "The text is: Create a epc called new big epic"; //Replace with your prompt
 const model = "text-davinci-002";
-const apiKey = "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"; // replace with your API key
+const apiKey = `${process.env['NG_APP_KEY']}`; // replace with your API key
 
 const ChatGPTapiUrl = "https://api.openai.com/v1/engines/" + model + "/completions";
 
