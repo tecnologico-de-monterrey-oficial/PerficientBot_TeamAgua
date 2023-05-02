@@ -1,113 +1,158 @@
-var express = require('express');
-var router = express.Router();
-const axios = require('axios');
+const express = require("express");
+const cors = require("cors");
+const { Configuration, OpenAIApi } = require("openai");
+const router = require("express").Router();
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+const app = express();
+app.use(express.json());
+app.use(cors());
+
+
+require("dotenv").config({ path: '../.env' });
+
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
-module.exports = router;
+const port = process.env.PORT;
+const openai = new OpenAIApi(configuration);
+const history = [];
 
+async function classification(input) {
+  const response = await openai.createCompletion({
+    model:'text-davinci-003',
+    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Microsoft tools (Outlook, GitHub, and Azure DevOps). You are also able to answer questions about the company because you have a knowledge base. Given this sentence "${input}". According to the main action of the sentence, determine which of the following options it belongs to: 
 
-console.log("Hello World!");
+    1.- General Question about Perficient. 
+    2.- Request to Outlook. 
+    3.- Request to Azure DevOps. 
+    4.- Request to GitHub. 
+    5.- General Conversation. 
+    
+    Remember, there are only these 5 options, there are no others available. Just answer with the number of the option, without the period.
+    Answer format: "[number]"
+    Example: "2"
+    
+    In such case that none of the options are related to the sentence, write "I am sorry, can you rephrase your query.".`,
+    max_tokens: 150,
+    temperature: 0,
+    n: 1,
+    stream: false
+  });
 
+  return decisionClassification(parseInt(response.data.choices[0].text), input);
+}
 
-//OpenAiApi Call
-const prompt = "Following this code as a reference, return the value of $TaskValue and $Value that the text at the end would subtitute when making an api call to azure dev ops to create a new work item (tasktype in this case). The Return String should be in the format of: [\"End-to-End Testing\", \"Task\"]\n" +
-    "\n" +
-    "Return only the values as a js array.\n" +
-    "\n" +
-    "const devOpsApiUrl = `https://dev.azure.com/${organization}/${project}/_apis/wit/workitems/$${Tasktype}?api-version=7.0`;\n" +
-    "\n" +
-    "const createTask = async () => {\n" +
-    "  const requestBody = [\n" +
-    "    {\n" +
-    "      \"op\": \"add\",\n" +
-    "      \"path\": \"/fields/System.Title\",\n" +
-    "      \"from\": null,\n" +
-    "      \"value\": \"${value}\"\n" +
-    "    }\n" +
-    "  ];\n" +
-    "\n" +
-    "The text is: Create a epc called new big epic"; //Replace with your prompt
-const model = "text-davinci-002";
-const apiKey = "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"; // replace with your API key
+function decisionClassification(responseOpenAI, input) {
+  let decision = "";
 
-const ChatGPTapiUrl = "https://api.openai.com/v1/engines/" + model + "/completions";
-
-const generateText = async () => {
-  const headers = {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${apiKey}`
-  };
-
-  const data = {
-    "prompt": prompt,
-    "max_tokens": 100,
-    "temperature": 0.5,
-  };
-
-  try {
-    const response = await axios.post(ChatGPTapiUrl, data, { headers });
-    const generatedText = response.data.choices[0].text;
-    console.log("Generated text:", response.data.choices[0].text);
-    return generatedText;
-  } catch (error) {
-    console.error("Error generating text:", error.message);
+  switch (responseOpenAI) {
+    case 1:
+      decision = questionPerficient(input);
+      break;
+    case 2:
+      decision = requestOutlook();
+      break;
+    case 3:
+      decision = requestAzureDevOps();
+      break;
+    case 4:
+      decision = requestGitHub();
+      break;
+    case 5:
+      decision = 'General Conversation.';
+      break;
+    default:
+      decision = '';
+      break;
   }
-};
 
-const createTask = async () => {
-  const requestBody = [
-    {
-      "op": "add",
-      "path": "/fields/System.Title",
-      "from": null,
-      "value": `${value}` //El error esta que value queda vacío
-    }
-  ];
+  return decision;
+}
 
-  const headers = {
-    "Content-Type": "application/json-patch+json",
-    "Authorization": `Basic ${Buffer.from(`:${personalAccessToken}`).toString('base64')}`
-  };
+async function questionPerficient(input) {
+  const response = await openai.createCompletion({
+    model:'davinci:ft-personal-2023-04-28-18-40-02',
+    prompt: input,
+    max_tokens: 150,
+    temperature: 0,
+    n: 1,
+    stream: false
+  });
 
-  try {
-    const response = await axios.post(devOpsApiUrl, requestBody, { headers });
-    console.log("Azure DevOps response:", response.data);
-  } catch (error) {
-    console.error("Error creating task:", error.message);
-    console.error("Error details:", error.response.data);
-  }
-};
+  return response.data.choices[0].text;
+}
 
+function requestOutlook() {
+  // Aquí iría la llamada a la API de Outlook
+  const message_bot = 'I see that you want to schedule a meeting in Outlook.';
 
-//Microsoft Azure DevOps Connection
-const organization = "EquipoAgua";
-const project = "Agua";
-const personalAccessToken = "4s2oaetcyfqsl252bib2egvkqmnzfe2pbwzqtckrlh2xid2uacyq"; // replace with your PAT
+  return message_bot;
+}
 
-generateText().then(async (generatedText) => {
-  const OpenAIResult = JSON.parse(generatedText);
-  global.value = OpenAIResult[0]; //Se puede hacer global
-  const taskType = OpenAIResult[1];
-  console.log("Parsed values:", value, taskType);
-  console.log("Tasktype:", taskType);
-  console.log("value:", value);
-  global.devOpsApiUrl = `https://dev.azure.com/${organization}/${project}/_apis/wit/workitems/$${taskType}?api-version=7.0`;
-  console.log("Apiurl:", devOpsApiUrl);
-  await createTask();
-}).catch((error) => {
-  console.error("Error generating text:", error.message);
+function requestAzureDevOps() {
+  // Aquí iría la llamada a la API de DevOps
+  const message_bot = 'I see that you want to create a new project in Azure DevOps.';
+
+  return message_bot;
+}
+
+function requestGitHub() {
+  // Aquí iría la llamada a la API de GitHub
+  const message_bot = 'I see that you want to create a new repository on GitHub.';
+
+  return message_bot;
+}
+
+app.post('/', async (req, res) => {
+  const { user_message } = req.body;
+  const messages = [];
+
+  history.forEach(mensajeHis => {
+    messages.push(mensajeHis);
+  });
+
+  const classificationResult = await classification(user_message);
+  messages.push({role: "user", content: user_message});
+
+  console.log("Último mensaje.");
+  console.log(messages[messages.length - 1])
+
+  history.push(messages[messages.length - 1]);
+
+  // If it returns 1
+  if (classificationResult === 'General Conversation.') {
+    const completion = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: history,
+      max_tokens: 150,
+      n: 1,
+      stop: null
+    });
+
+    console.log('Conversación General será');
+
+    history.push(completion.data.choices[0].message);
+    console.log('Historial');
+    console.log(history);
+
+    res.send({ response: completion.data.choices[0].message });
+
+    return;
+  } 
+
+  messages.push({role: "assistant", content: classificationResult});
+
+  history.push(messages[messages.length - 1]);
+
+  console.log('Historial');
+  console.log(history);
+
+  res.send({ response: classificationResult });
 });
 
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
 
-//const devOpsApiUrl = `https://dev.azure.com/${organization}/${project}/_apis/wit/workitems/$${Tasktype}?api-version=7.0`;
-//console.log("Apiurl:", devOpsApiUrl);
-
-
-
-//createTask().then(r => console.log(r));
-
-
+module.exports = router
