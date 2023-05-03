@@ -1,55 +1,97 @@
-var express = require('express');
-var router = express.Router();
-const axios = require('axios');
-const Tesseract = require('tesseract.js');
 
-require("dotenv").config();
+//OpenAiApi Call
+const prompt = "Following this code as a reference, return the value of $TaskValue and $Value that the text at the end would subtitute when making an api call to azure dev ops to create a new work item (tasktype in this case). The Return String should be in the format of: [\"End-to-End Testing\", \"Task\"]\n" +
+    "\n" +
+    "Return only the values as a js array.\n" +
+    "\n" +
+    "const devOpsApiUrl = `https://dev.azure.com/${organization}/${project}/_apis/wit/workitems/$${Tasktype}?api-version=7.0`;\n" +
+    "\n" +
+    "const createTask = async () => {\n" +
+    "  const requestBody = [\n" +
+    "    {\n" +
+    "      \"op\": \"add\",\n" +
+    "      \"path\": \"/fields/System.Title\",\n" +
+    "      \"from\": null,\n" +
+    "      \"value\": \"${value}\"\n" +
+    "    }\n" +
+    "  ];\n" +
+    "\n" +
+    "The text is: Create a Task Called HolaTest"; //Replace with your prompt
+const model = "text-davinci-003";
+const apiKey = "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"; // replace with your API key
 
-/* GET home page. */
-router.get('/devops', function(req, res, next) {
-  res.render('devops', { title: 'Express' });
+const ChatGPTapiUrl = "https://api.openai.com/v1/engines/" + model + "/completions";
+
+const generateText = async () => {
+  const headers = {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${apiKey}`
+  };
+
+  const data = {
+    "prompt": prompt,
+    "max_tokens": 100,
+    "temperature": 0.7,
+  };
+
+  try {
+    const response = await axios.post(ChatGPTapiUrl, data, { headers });
+    const generatedText = response.data.choices[0].text;
+    console.log("Generated text:", response.data.choices[0].text);
+    return generatedText;
+  } catch (error) {
+    console.error("Error generating text:", error.message);
+  }
+};
+
+const createTask = async () => {
+  const requestBody = [
+    {
+      "op": "add",
+      "path": "/fields/System.Title",
+      "from": null,
+      "value": `${value}` //El error esta que value queda vacío
+    }
+  ];
+
+  const headers = {
+    "Content-Type": "application/json-patch+json",
+    "Authorization": `Basic ${Buffer.from(`:${personalAccessToken}`).toString('base64')}`
+  };
+
+  try {
+    const response = await axios.post(devOpsApiUrl, requestBody, { headers });
+    console.log("Azure DevOps response:", response.data);
+  } catch (error) {
+    console.error("Error creating task:", error.message);
+    console.error("Error details:", error.response.data);
+  }
+};
+
+
+//Microsoft Azure DevOps Connection
+const organization = "EquipoAgua";
+const project = "Agua";
+const personalAccessToken = "rgnqhlh3yzzd4era2gm2boznzlfkz3ikhy5wypelannskeljyuyq"; // replace with your PAT
+
+generateText().then(async (generatedText) => {
+  const OpenAIResult = JSON.parse(generatedText);
+  global.value = OpenAIResult[0]; //Se puede hacer global
+  const taskType = OpenAIResult[1];
+  console.log("Parsed values:", value, taskType);
+  console.log("Tasktype:", taskType);
+  console.log("value:", value);
+  global.devOpsApiUrl = `https://dev.azure.com/${organization}/${project}/_apis/wit/workitems/$${taskType}?api-version=7.0`;
+  console.log("Apiurl:", devOpsApiUrl);
+  await createTask();
+}).catch((error) => {
+  console.error("Error generating text:", error.message);
 });
 
-router.post('/devops', function(req, res, next) {
-  Tesseract.recognize(
-    '../public/images/cvimg.jpeg',
-    'eng',
-    {logger: m => console.log(m) }
-  ).then(({ data: { text } }) => {
-    console.log(text);
 
-    // Define the input text for ChatGPT with the extracted text from Tesseract
-    const inputText = `Give me a summary of the profile of this person based on the following information available about their CV. ${text}` +" It should not be longer that a paragraph or two at best, you should resume it like i am a recruiter and i want to know if this person is worth my time to interview. Also, the first thing i want to know is the years of experience he has, following with his areas of expertise and finally his education.";
+//const devOpsApiUrl = `https://dev.azure.com/${organization}/${project}/_apis/wit/workitems/$${Tasktype}?api-version=7.0`;
+//console.log("Apiurl:", devOpsApiUrl);
 
-    // Define the API endpoint and parameters
-    const apiUrl = 'https://api.openai.com/v1/engines/text-davinci-003/completions';
-    const maxTokens = 150;
-    const apiKey = process.env.OPENAI_API_KEY; // Replace with your actual API key
 
-    // Define the API headers
-    const headers = {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    };
 
-    // Define the API payload
-    const data = {
-      prompt: inputText,
-      max_tokens: maxTokens
-    };
-
-    // Send API request
-    axios.post(apiUrl, data, { headers: headers })
-        .then(response => {
-          // Extract and display the generated summary
-          const summary = response.data.choices[0].text;
-          console.log('Generated Summary:', summary);
-          res.send({ response: summary });
-        })
-        .catch(error => {
-          console.error('API Request Failed:', error);
-        });
-    });
-});
-
-module.exports = router;
+//createTask().then(r => console.log(r));

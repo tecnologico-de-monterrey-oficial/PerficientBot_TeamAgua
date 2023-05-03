@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const { Configuration, OpenAIApi } = require("openai");
 const router = require("express").Router();
+const axios = require('axios');
 
 const app = express();
 app.use(express.json());
