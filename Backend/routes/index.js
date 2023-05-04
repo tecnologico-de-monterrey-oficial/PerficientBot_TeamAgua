@@ -22,7 +22,7 @@ const history = [];
 async function classification(input) {
   const response = await openai.createCompletion({
     model:'text-davinci-003',
-    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Microsoft tools (Outlook, GitHub, and Azure DevOps). You are also able to answer questions about the company because you have a knowledge base. Given this sentence "${input}". According to the main action of the sentence, determine which of the following options it belongs to: 
+    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Microsoft tools (Outlook, GitHub, and Azure DevOps). You are also able to answer questions about the company because you have a knowledge base. Given this sentence "${input}". According to the main action of the sentence (if necessary, only focus in the main action, imagine where the action will take place considering the best platform to have it), determine which of the following options it belongs to: 
 
     1.- General Question about Perficient. 
     2.- Request to Outlook. 
@@ -34,7 +34,7 @@ async function classification(input) {
     Answer format: "[number]"
     Example: "2"
     
-    In such case that none of the options are related to the sentence, write "I am sorry, can you rephrase your query.".`,
+    In such case that none of the options are related to the sentence, write "I am sorry, can you rephrase your query?".`,
     max_tokens: 150,
     temperature: 0,
     n: 1,
@@ -44,31 +44,59 @@ async function classification(input) {
   return decisionClassification(parseInt(response.data.choices[0].text), input);
 }
 
-function decisionClassification(responseOpenAI, input) {
-  let decision = "";
+async function decisionClassification(responseOpenAI, input) {
+  let decision = '';
 
   switch (responseOpenAI) {
     case 1:
       decision = questionPerficient(input);
       break;
     case 2:
-      decision = requestOutlook();
+      const validationOutlook = await validationClassification(input, 'Outlook');
+      if(validationOutlook) {
+        decision = await requestOutlook();
+      }
       break;
     case 3:
-      decision = requestAzureDevOps();
+      const validationAzureDevOps = await validationClassification(input, 'AzureDevOps');
+      if(validationAzureDevOps) {
+        decision = await requestAzureDevOps();
+      }
       break;
     case 4:
-      decision = requestGitHub();
+      const validationGitHub = await validationClassification(input, 'GitHub');
+      console.log(validationGitHub);
+      if(validationGitHub) {
+        decision = await requestGitHub();
+      }
       break;
     case 5:
       decision = 'General Conversation.';
+      break;
+    case 'I am sorry, can you rephrase your query?':
+      decision = 'I am sorry, can you rephrase your query?';
       break;
     default:
       decision = '';
       break;
   }
 
+  console.log('Decision', decision);
+
   return decision;
+}
+
+async function validationClassification(input, service) {
+  const response = await openai.createCompletion({
+    model: 'text-davinci-003',
+    prompt: `Is it really possible to make this "${input}" happen in ${service}? Is it really possible to make this "Schedule me an appointment to review our GitHub repository." happen in GitHub? Please return a boolean saying if it's 0 or 1. Just return the number.`,
+    max_tokens: 150,
+    temperature: 0,
+    n: 1,
+    stream: false
+  });
+
+  return Boolean(parseInt(response.data.choices[0].text));
 }
 
 async function questionPerficient(input) {
@@ -84,23 +112,23 @@ async function questionPerficient(input) {
   return response.data.choices[0].text;
 }
 
-function requestOutlook() {
+async function requestOutlook() {
   // Aquí iría la llamada a la API de Outlook
-  const message_bot = 'I see that you want to schedule a meeting in Outlook.';
+  const message_bot = await 'I see that you want to schedule a meeting in Outlook.';
 
   return message_bot;
 }
 
-function requestAzureDevOps() {
+async function requestAzureDevOps() {
   // Aquí iría la llamada a la API de DevOps
-  const message_bot = 'I see that you want to create a new project in Azure DevOps.';
+  const message_bot = await 'I see that you want to create a new project in Azure DevOps.';
 
   return message_bot;
 }
 
-function requestGitHub() {
+async function requestGitHub() {
   // Aquí iría la llamada a la API de GitHub
-  const message_bot = 'I see that you want to create a new repository on GitHub.';
+  const message_bot = await 'I see that you want to create a new repository on GitHub.';
 
   return message_bot;
 }
@@ -122,7 +150,7 @@ app.post('/', async (req, res) => {
   history.push(messages[messages.length - 1]);
 
   // If it returns 1
-  if (classificationResult === 'General Conversation.') {
+  if(classificationResult === 'General Conversation.') {
     const completion = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: history,
@@ -131,8 +159,6 @@ app.post('/', async (req, res) => {
       stop: null
     });
 
-    console.log('Conversación General será');
-
     history.push(completion.data.choices[0].message);
     console.log('Historial');
     console.log(history);
@@ -140,7 +166,19 @@ app.post('/', async (req, res) => {
     res.send({ response: completion.data.choices[0].message });
 
     return;
-  } 
+  }
+
+  if(classificationResult === '') {
+    res.send({ response: 'Please rephrase your query. Consider being clearer and more specific.'});
+
+    return;
+  }
+
+  if(classificationResult === 'I am sorry, can you rephrase your query?') {
+    res.send({ response: classification});
+
+    return;
+  }
 
   messages.push({role: "assistant", content: classificationResult});
 
