@@ -53,6 +53,7 @@ async function decisionClassification(responseOpenAI, input) {
       break;
     case 2:
       const validationOutlook = await validationClassification(input, 'Outlook');
+      console.log('Validacion', validationOutlook);
       if(validationOutlook) {
         decision = await requestOutlook();
       }
@@ -89,7 +90,7 @@ async function decisionClassification(responseOpenAI, input) {
 async function validationClassification(input, service) {
   const response = await openai.createCompletion({
     model: 'text-davinci-003',
-    prompt: `Is it really possible to make this "${input}" happen in ${service}? Is it really possible to make this "Schedule me an appointment to review our GitHub repository." happen in GitHub? Please return a boolean saying if it's 0 or 1. Just return the number.`,
+    prompt: `Is it really possible to make this "${input}" happen in ${service}? Please return a boolean saying if it's 0 or 1. Just return the number.`,
     max_tokens: 150,
     temperature: 0,
     n: 1,
@@ -169,13 +170,21 @@ app.post('/', async (req, res) => {
   }
 
   if(classificationResult === '') {
-    res.send({ response: 'Please rephrase your query. Consider being clearer and more specific.'});
+    history.push({role: "assistant", content: 'Please rephrase your query. Consider being clearer and more specific.'});
+    console.log('Historial');
+    console.log(history);
+
+    res.send({ response: {role: 'assistant', content: 'Please rephrase your query. Consider being clearer and more specific.'}});
 
     return;
   }
 
   if(classificationResult === 'I am sorry, can you rephrase your query?') {
-    res.send({ response: classification});
+    history.push({role: "assistant", content: classificationResult});
+    console.log('Historial');
+    console.log(history);
+
+    res.send({ response: {role: 'assistant', content: classificationResult}});
 
     return;
   }
@@ -187,7 +196,7 @@ app.post('/', async (req, res) => {
   console.log('Historial');
   console.log(history);
 
-  res.send({ response: classificationResult });
+  res.send({ response: {role: 'assistant', content: classificationResult}});
 });
 
 app.listen(port, () => {

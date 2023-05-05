@@ -8,11 +8,11 @@ export interface Message {
 }
 
 @Component({
-  selector: 'app-smartbot',
-  templateUrl: './smartbot.component.html',
-  styleUrls: ['./smartbot.component.scss']
+  selector: 'app-chatbot',
+  templateUrl: './chatbot.component.html',
+  styleUrls: ['./chatbot.component.scss']
 })
-export class SmartbotComponent implements OnInit {
+export class ChatbotComponent implements OnInit {
   isOpen = false;
   loading = false;
   messages: Message[] = [];
@@ -21,10 +21,10 @@ export class SmartbotComponent implements OnInit {
   });
   @ViewChild('scrollMe') private myScrollContainer: any;
 
-  constructor(private Smartbot : OpenaiService) {
+  constructor(private Chatbot : OpenaiService) {
     this.messages.push({
-      type: 'client',
-      message: 'Hello, I am your personal assistant Smartbot. How can I help you today?'
+      type: 'assistant',
+      message: 'Hello, I am your personal assistant for Perficient. How can I help you today?'
     });
   }
 
@@ -46,25 +46,20 @@ export class SmartbotComponent implements OnInit {
       message: sentMessage
     });
 
-      var payload = {
-        model: "davinci:ft-personal-2023-04-11-22-14-14",
-        prompt: this.myprompt,
-        temperature: 0,
-        max_tokens: 60,
-        stop: "."
-      }
+      var body = { user_message: this.myprompt }
 
       this.chatForm.reset();
       this.scrollToBottom();
 
-      this.Smartbot.sendMessage(payload) // Don't put sentMessage here?
+
+      this.Chatbot.sendMessage(body) // Don't put sentMessage here?
       .subscribe((data: any) => {
         //alert(JSON.stringify(data));
         console.log(data);
-        this.result = data.choices[0].text;
+        this.result = data.response.content;
         this.loading = false;
         this.messages.push({
-          type: 'client',
+          type: 'assistant',
           message: this.result
         });
         this.scrollToBottom();

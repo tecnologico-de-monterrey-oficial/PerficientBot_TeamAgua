@@ -8,7 +8,7 @@ import { AuthModule } from '@auth0/auth0-angular';
 import { LoginComponent } from './components/login/login.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { SmartbotComponent } from './components/home/smartbot/smartbot.component';
+import { ChatbotComponent } from './components/home/chatbot/chatbot.component';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HomeComponent } from './components/home/home.component';
@@ -19,7 +19,7 @@ import { HomeComponent } from './components/home/home.component';
     AppComponent,
     LoginComponent,
     ProfileComponent,
-    SmartbotComponent,
+    ChatbotComponent,
     HomeComponent
   ],
   imports: [

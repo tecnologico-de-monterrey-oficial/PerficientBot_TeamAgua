@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { SmartbotComponent } from './smartbot/smartbot.component';
+import { ChatbotComponent } from './chatbot/chatbot.component';
 
 @Component({
   selector: 'app-home',
