@@ -36,9 +36,11 @@ export class ChatbotComponent implements OnInit {
 
   openSmartBot() : void {
     this.isOpen = !this.isOpen;
+    console.log('Hola');
   }
 
   sendMessage() : void {
+    console.log('Activar send Message');
     const sentMessage = this.chatForm.value.message!;
     this.loading = true;
     this.messages.push({

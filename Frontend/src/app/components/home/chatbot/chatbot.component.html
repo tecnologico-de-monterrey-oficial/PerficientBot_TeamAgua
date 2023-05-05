@@ -17,7 +17,7 @@
                         {{message.message}}
                     </div>
                 </div>
-                <div *ngIF="loading" class="message" style="width: 100%; display: block;">
+                <div *ngIf="loading" class="message" style="width: 100%; display: block;">
                     <div [class]="'assistant'">...</div>
                 </div>
             </div>
