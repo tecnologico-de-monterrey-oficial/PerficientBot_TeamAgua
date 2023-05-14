@@ -49,7 +49,8 @@ async function decisionClassification(responseOpenAI, input) {
 
   switch (responseOpenAI) {
     case 1:
-      decision = questionPerficient(input);
+      inputFinetune = input + ''
+      decision = questionPerficient(inputFinetune);
       break;
     case 2:
       const validationOutlook = await validationClassification(input, 'Outlook');
