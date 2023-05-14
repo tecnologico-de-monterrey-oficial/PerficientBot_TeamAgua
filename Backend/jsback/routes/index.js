@@ -1,15 +1,20 @@
 const express = require("express");
 const cors = require("cors");
 const { Configuration, OpenAIApi } = require("openai");
-const router = require("express").Router();
+const router = express.Router();
 const axios = require('axios');
+const session = require('express-session');
+
+// const devops = require('../functions/devops');
+// const github = require('../functions/github');
+// const outlook = require('../functions/outlook');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
 
-require("dotenv").config({ path: '../.env' });
+require("dotenv").config({ path: '../../.env' });
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -17,7 +22,23 @@ const configuration = new Configuration({
 
 const port = process.env.PORT;
 const openai = new OpenAIApi(configuration);
-const history = [];
+// const history = [];
+
+/* function checkInactive() {
+  const currentTime = Date.now();
+  const elapsedTime = currentTime - lastRequestTime;
+  const thirtyMinutes = 30 * 60 * 1000; // 30 minutes in milliseconds
+
+  if (elapsedTime > thirtyMinutes) {
+    // Perform actions when no requests have been received for 30 minutes
+    history = [];
+  }
+
+  // Schedule the next check after a certain interval
+  setTimeout(checkInactive, thirtyMinutes);
+}
+
+checkInactive(); */
 
 async function classification(input) {
   const response = await openai.createCompletion({
@@ -49,7 +70,7 @@ async function decisionClassification(responseOpenAI, input) {
 
   switch (responseOpenAI) {
     case 1:
-      inputFinetune = input + ''
+      inputFinetune = input + '\\n\\n###\\n\\n'
       decision = questionPerficient(inputFinetune);
       break;
     case 2:
@@ -114,7 +135,7 @@ async function questionPerficient(input) {
   return response.data.choices[0].text;
 }
 
-async function requestOutlook() {
+async function requestOutlook(input) {
   // Aquí iría la llamada a la API de Outlook
   const message_bot = await 'I see that you want to schedule a meeting in Outlook.';
 
@@ -135,35 +156,47 @@ async function requestGitHub() {
   return message_bot;
 }
 
+// Configure session middleware
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: true,
+}));
+
 app.post('/', async (req, res) => {
   const { user_message } = req.body;
-  const messages = [];
+  const userId = req.session.id;
 
-  history.forEach(mensajeHis => {
-    messages.push(mensajeHis);
-  });
+  // Retrieve or initialize conversation data from the session
+  const conversationData = req.session.conversation || {
+    messages: [],
+    // other conversation-related data
+  };
+
+  // Update the conversation data in the session
+  if(!req.session.conversation) {
+    req.session.conversation = conversationData.messages;
+  }
 
   const classificationResult = await classification(user_message);
-  messages.push({role: "user", content: user_message});
+  req.session.conversation.push({role: "user", content: user_message});
 
   console.log("Último mensaje.");
-  console.log(messages[messages.length - 1])
-
-  history.push(messages[messages.length - 1]);
+  console.log(req.session.conversation[req.session.conversation.length - 1])
 
   // If it returns 1
   if(classificationResult === 'General Conversation.') {
     const completion = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
-      messages: history,
+      messages: req.session.conversation,
       max_tokens: 150,
       n: 1,
       stop: null
     });
 
-    history.push(completion.data.choices[0].message);
-    console.log('Historial');
-    console.log(history);
+    req.session.conversation.push(completion.data.choices[0].message);
+    console.log('Conversación General - Historial');
+    console.log(req.session.conversation);
 
     res.send({ response: completion.data.choices[0].message });
 
@@ -171,9 +204,9 @@ app.post('/', async (req, res) => {
   }
 
   if(classificationResult === '') {
-    history.push({role: "assistant", content: 'Please rephrase your query. Consider being clearer and more specific.'});
+    req.session.conversation.push({role: "assistant", content: 'Please rephrase your query. Consider being clearer and more specific.'});
     console.log('Historial');
-    console.log(history);
+    console.log(req.session.conversation);
 
     res.send({ response: {role: 'assistant', content: 'Please rephrase your query. Consider being clearer and more specific.'}});
 
@@ -181,23 +214,23 @@ app.post('/', async (req, res) => {
   }
 
   if(classificationResult === 'I am sorry, can you rephrase your query?') {
-    history.push({role: "assistant", content: classificationResult});
+    req.session.conversation.push({role: "assistant", content: classificationResult});
     console.log('Historial');
-    console.log(history);
+    console.log(req.session.conversation);
 
     res.send({ response: {role: 'assistant', content: classificationResult}});
 
     return;
   }
 
-  messages.push({role: "assistant", content: classificationResult});
-
-  history.push(messages[messages.length - 1]);
+  req.session.conversation.push({role: "assistant", content: classificationResult});
 
   console.log('Historial');
-  console.log(history);
+  console.log(req.session.conversation);
 
   res.send({ response: {role: 'assistant', content: classificationResult}});
+
+  // let lastRequestTime = Date.now();
 });
 
 app.listen(port, () => {
