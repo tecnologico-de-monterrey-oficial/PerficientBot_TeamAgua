@@ -1,0 +1,6 @@
+flask
+dotenv
+requests
+base64
+json
+datetime
