@@ -1,6 +1,2 @@
-flask
-dotenv
-requests
-base64
-json
-datetime
+flask==2.2.3
+requests==2.28.2
