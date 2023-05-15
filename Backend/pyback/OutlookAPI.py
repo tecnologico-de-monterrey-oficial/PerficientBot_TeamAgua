@@ -19,7 +19,6 @@ API_OUT_ALLEVENTS = 'https://graph.microsoft.com/v1.0/me/events?$select=subject,
 
 # Método GET
 # Trae todos los events que se tengan agendados en Outlook
-@app.route('/Outlook/AllEvents', methods=['GET'])
 def OutlookAllEvents():
     # Defino Header específico para hacer el call
     headers = {'Authorization': f'Bearer {API_OUT_KEY}', 'Content-Type': CONTENT_TYPE}
@@ -40,7 +39,6 @@ def OutlookAllEvents():
 
 # Método GET
 # Trae todos los events que se tengan agendados en Outlook de hoy a una semana
-@app.route('/Outlook/WeekEvents', methods=['GET'])
 def OutlookWeekEvents():
     # Defino variables de tiempo actual y una semana depués 
     current_date = datetime.now()
@@ -65,7 +63,6 @@ def OutlookWeekEvents():
     
 # Método GET
 # Trae todos los events que se tengan agendados en Outlook de hoy a un mes
-@app.route('/Outlook/MonthEvents', methods=['GET'])
 def OutlookMonthEvents():
     # Defino variables de tiempo actual y una semana depués 
     current_date = datetime.now()
@@ -96,7 +93,6 @@ def OutlookMonthEvents():
 #    "dateStart": "2023-05-02T00:10:40.099Z",
 #    "dateEnd": "2023-05-03T00:10:50.099Z"
 #}
-@app.route('/Outlook/ScheduleMeeting', methods=['POST'])
 def OutlookScheduleMeeting():
     # Defino Header específico para hacer el call
     headers = {'Authorization': f'Bearer {API_OUT_KEY}', 'Content-Type': CONTENT_TYPE}
