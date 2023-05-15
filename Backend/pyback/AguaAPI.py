@@ -29,7 +29,7 @@ def getMonthEvents():
 def postScheduleMeeting():
     return OutlookScheduleMeeting()
 
-@app.route('Outlook/AllEvents')
+@app.route('/Outlook/AllEvents')
 def getAllEvents():
     return OutlookAllEvents()
 
