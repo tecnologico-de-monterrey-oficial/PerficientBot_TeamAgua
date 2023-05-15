@@ -179,7 +179,11 @@ app.post('/save-current-data', async (req, res) => {
 });
 
 app.get('/get-request-status', (req, res) => {
-  res.send({ status: req.session.query_status });
+  res.send(req.session.query_status);
+});
+
+app.get('/get-current-data', (req, res) => {
+  res.send(req.session.current_data);
 });
 
 app.post('/', async (req, res) => {
