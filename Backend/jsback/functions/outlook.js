@@ -1,3 +1,12 @@
+const axios = require('axios');
+const tough = require('tough-cookie');
+const axiosCookieJarSupport = require('axios-cookiejar-support').default;
+
+axiosCookieJarSupport(axios);
+
+const cookieJar = new tough.CookieJar();
+const baseURL = 'http://localhost:3000';
+
 export async function outlookClassification(input) {
     const response = await openai.createCompletion({
         model:'text-davinci-003',
@@ -12,14 +21,14 @@ export async function outlookClassification(input) {
         Answer format: "[number]"
         Example: "2"
         
-        In such case that none of the options are related to the sentence, write "I am sorry, can you rephrase your query?".`,
+        In such case that none of the options are related to the sentence, write "I am sorry, can you rephrase your request?".`,
         max_tokens: 150,
         temperature: 0,
         n: 1,
         stream: false
       });
     
-    //   return decisionClassification(parseInt(response.data.choices[0].text), input);
+      return outlookDecisionClassification(parseInt(response.data.choices[0].text), input);
 }
 
 async function outlookDecisionClassification(responseOpenAI, input) {
@@ -38,10 +47,10 @@ async function outlookDecisionClassification(responseOpenAI, input) {
             // Llama al endpoint indicado
             break;
         case 4:
-            // LLama al endpoint indicado
+            decision = await scheduleMeeting(input);
             break;
-        case 'I am sorry, can you rephrase your query?':
-            decision = 'I am sorry, can you rephrase your query?';
+        case 'I am sorry, can you rephrase your request?':
+            decision = 'I am sorry, can you rephrase your request?';
             break;
         default:
         decision = '';
@@ -75,12 +84,38 @@ async function scheduleMeeting(input) {
       const obj = JSON.parse(JSONresponse.data.choices[0].text);
 
       if(!obj.start_date || !obj.end_date) {
-        obj = requestStatus(obj);
+        modifyQueryStatus();
       }
+
+      saveCurrentData(obj);
     
-    //   return decisionClassification(parseInt(response.data.choices[0].text), input);
+      return normalResponse;
 }
 
-async function requestStatus(obj) {
+async function modifyQueryStatus() {
+    try {
+        const response = await axios.post(`${baseURL}/modify-request-status`, null, {
+          jar: cookieJar,
+          withCredentials: true
+        });
+        console.log(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+}
 
+async function saveCurrentData(currentData) {
+    try {
+        const payload = {
+            currentData: currentData
+        }
+
+        const response = await axios.post(`${baseURL}/save-current-data`, payload, {
+          jar: cookieJar,
+          withCredentials: true
+        });
+        console.log(response.data);
+      } catch (error) {
+        console.error(error);
+      }
 }

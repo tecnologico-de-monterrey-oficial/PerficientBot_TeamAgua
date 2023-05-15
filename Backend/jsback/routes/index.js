@@ -22,7 +22,6 @@ const configuration = new Configuration({
 
 const port = process.env.PORT;
 const openai = new OpenAIApi(configuration);
-// const history = [];
 
 /* function checkInactive() {
   const currentTime = Date.now();
@@ -55,7 +54,7 @@ async function classification(input) {
     Answer format: "[number]"
     Example: "2"
     
-    In such case that none of the options are related to the sentence, write "I am sorry, can you rephrase your query?".`,
+    In such case that none of the options are related to the sentence, write "I am sorry, can you rephrase your request?".`,
     max_tokens: 150,
     temperature: 0,
     n: 1,
@@ -70,7 +69,7 @@ async function decisionClassification(responseOpenAI, input) {
 
   switch (responseOpenAI) {
     case 1:
-      inputFinetune = input + '\\n\\n###\\n\\n'
+      inputFinetune = input + '\\n\\n###\\n\\n';
       decision = questionPerficient(inputFinetune);
       break;
     case 2:
@@ -96,8 +95,8 @@ async function decisionClassification(responseOpenAI, input) {
     case 5:
       decision = 'General Conversation.';
       break;
-    case 'I am sorry, can you rephrase your query?':
-      decision = 'I am sorry, can you rephrase your query?';
+    case 'I am sorry, can you rephrase your request?':
+      decision = 'I am sorry, can you rephrase your request?';
       break;
     default:
       decision = '';
@@ -163,6 +162,26 @@ app.use(session({
   saveUninitialized: true,
 }));
 
+app.post('/modify-request-status', async (req, res) => {
+  req.session.query_status = !req.session.query_status;
+  res.send('request status modified');
+});
+
+app.post('/save-current-data', async (req, res) => {
+  const { currentData } = req.body;
+
+  // Handle the value as needed
+  console.log(`Received value: ${currentData}`);
+
+  req.session.current_data = currentData;
+
+  res.send('Current data saved');
+});
+
+app.get('/get-request-status', (req, res) => {
+  res.send({ status: req.session.query_status });
+});
+
 app.post('/', async (req, res) => {
   const { user_message } = req.body;
   const userId = req.session.id;
@@ -176,6 +195,18 @@ app.post('/', async (req, res) => {
   // Update the conversation data in the session
   if(!req.session.conversation) {
     req.session.conversation = conversationData.messages;
+  }
+
+  const queryStatus = req.session.query_status || false;
+
+  if(!req.session.query_status) {
+    req.session.query_status = queryStatus;
+  }
+
+  const currentData = req.session.current_data || '';
+
+  if(!req.session.current_data) {
+    req.session.current_data = currentData;
   }
 
   const classificationResult = await classification(user_message);
@@ -204,16 +235,16 @@ app.post('/', async (req, res) => {
   }
 
   if(classificationResult === '') {
-    req.session.conversation.push({role: "assistant", content: 'Please rephrase your query. Consider being clearer and more specific.'});
+    req.session.conversation.push({role: "assistant", content: 'Please rephrase your request. Consider being clearer and more specific.'});
     console.log('Historial');
     console.log(req.session.conversation);
 
-    res.send({ response: {role: 'assistant', content: 'Please rephrase your query. Consider being clearer and more specific.'}});
+    res.send({ response: {role: 'assistant', content: 'Please rephrase your request. Consider being clearer and more specific.'}});
 
     return;
   }
 
-  if(classificationResult === 'I am sorry, can you rephrase your query?') {
+  if(classificationResult === 'I am sorry, can you rephrase your request?') {
     req.session.conversation.push({role: "assistant", content: classificationResult});
     console.log('Historial');
     console.log(req.session.conversation);
@@ -238,3 +269,4 @@ app.listen(port, () => {
 });
 
 module.exports = router
+
