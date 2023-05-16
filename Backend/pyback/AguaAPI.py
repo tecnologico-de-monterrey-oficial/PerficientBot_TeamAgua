@@ -1,6 +1,6 @@
 from flask import Flask
 from GithubAPI import GithubRepos, GithubIssues, GithubPulls
-from OutlookAPI import OutlookWeekEvents, OutlookMonthEvents, OutlookScheduleMeeting, OutlookAllEvents
+from OutlookAPI import OutlookWeekEvents, OutlookMonthEvents, OutlookScheduleMeeting, OutlookAllEvents, OutlookGroups
 from AzureAPI import AzureCreateItem, AzureOneItem, AzureWorkItems
 
 app = Flask(__name__)
@@ -16,6 +16,10 @@ def getGithubIssues():
 @app.route('/Github/Pulls')   
 def getGithubPulls():
     return GithubPulls()
+
+@app.route('/Outlook/Groups')
+def getOutlookGroups():
+    return OutlookGroups()
 
 @app.route('/Outlook/WeekEvents')
 def getWeekEvents():
