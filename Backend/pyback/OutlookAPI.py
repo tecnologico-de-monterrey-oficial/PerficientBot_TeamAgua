@@ -27,13 +27,14 @@ def OutlookAllEvents():
     # Verifica si el call devuelve un error
     if response.status_code == 200:
         json_response = response.json()
-        subjects = []
+        #subjects = []
         # Itero sobre el json de respuesta para extraer el subject de cada meeting
-        for item in json_response['value']:
-            subjects.append(item['subject'])
-            subjects.append(item['start'])
-            subjects.append(item['end'])
-        return subjects
+        #for item in json_response['value']:
+        #    subjects.append(item['subject'])
+        #    subjects.append(item['start'])
+        #    subjects.append(item['end'])
+        #
+        return json_response
     else:
         return 'Error: unable to retrieve data from external API ' + response.text
 
@@ -76,13 +77,14 @@ def OutlookMonthEvents():
     # Verifica si el call devuelve un error
     if response.status_code == 200:
         json_response = response.json()
-        subjects = []
+        #subjects = []
         # Itero sobre el json de respuesta para extraer el subject de cada meeting
-        for item in json_response['value']:
-            subjects.append(item['subject'])
-            subjects.append(item['start'])
-            subjects.append(item['end'])
-        return subjects
+        #for item in json_response['value']:
+        #    subjects.append(item['subject'])
+        #    subjects.append(item['start'])
+        #    subjects.append(item['end'])
+        #
+        return json_response
     else:
         return 'Error: unable to retrieve data from external API ' + response.text
     
