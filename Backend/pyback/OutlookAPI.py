@@ -145,3 +145,21 @@ def OutlookGroups():
     else:
         return 'Error: unable to retrieve data from external API ' + response.text
     
+# Metodo Delete para borrar meeting
+# Requiere JSON en formato:
+#{
+# "id":"sdfsfddsf"
+# }
+def OutlookDelete():
+    # Defino Header específico para hacer el call
+    headers = {'Authorization': f'Bearer {API_OUT_KEY}', 'Content-Type': CONTENT_TYPE}
+    event_id = request.json.get('id')
+    response = requests.delete(f'https://graph.microsoft.com/v1.0/me/events/{event_id}', headers=headers)
+
+    if response.status_code == 204:
+        return jsonify({'message': 'Event deleted successfully'})
+    else:
+        return jsonify({'message': 'Failed to delete event'})
+
+
+    
