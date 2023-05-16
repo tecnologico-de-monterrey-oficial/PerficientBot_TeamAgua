@@ -1,3 +1,4 @@
+// Imports
 const express = require("express");
 const cors = require("cors");
 const { Configuration, OpenAIApi } = require("openai");
@@ -9,11 +10,12 @@ const session = require('express-session');
 // const github = require('../functions/github');
 // const outlook = require('../functions/outlook');
 
+// Initial configuration
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-
+// .env configuration
 require("dotenv").config({ path: '../../.env' });
 
 const configuration = new Configuration({
@@ -23,6 +25,7 @@ const configuration = new Configuration({
 const port = process.env.PORT;
 const openai = new OpenAIApi(configuration);
 
+// Inactive function
 /* function checkInactive() {
   const currentTime = Date.now();
   const elapsedTime = currentTime - lastRequestTime;
@@ -39,6 +42,7 @@ const openai = new OpenAIApi(configuration);
 
 checkInactive(); */
 
+// Function that classifies the message of the user according to these 5 categories.
 async function classification(input) {
   const response = await openai.createCompletion({
     model:'text-davinci-003',
@@ -61,43 +65,58 @@ async function classification(input) {
     stream: false
   });
 
-  return decisionClassification(parseInt(response.data.choices[0].text), input);
+  return decisionClassification(parseInt(response.data.choices[0].text), input); // Calls this function in order to get the response of OpenAI. This is the message that will be displayed to the user.
 }
 
+// Function that decides which other functions to call depending on the choice that was made in the previous function.
 async function decisionClassification(responseOpenAI, input) {
-  let decision = '';
+  let decision = ''; // By default this is an empty string. It most likely means that something went wrong, for example, the user's request cannot be made in a certain service or platform.
 
+  // A switch to determine which set of actions to execute depending of the classification of the answer.
   switch (responseOpenAI) {
+    // General Question about Perficient
     case 1:
-      inputFinetune = input + '\\n\\n###\\n\\n';
-      decision = questionPerficient(inputFinetune);
+      const inputFinetune = input + '\\n\\n###\\n\\n'; // The user's message must be concatenated with these symbols in order to for the fine-tuned model to generate a proper answer, because it was fine-tuned like that.
+      decision = questionPerficient(inputFinetune); // Calls this function in order to get the response of OpenAI. This is the message that will be displayed to the user.
       break;
+    // Request to Outlook
     case 2:
-      const validationOutlook = await validationClassification(input, 'Outlook');
-      console.log('Validacion', validationOutlook);
+      const validationOutlook = await validationClassification(input, 'Outlook'); // Calls this function in order to fully assure that the user's request can be made in Outlook.
+      // console.log('Validacion', validationOutlook);
+
+      // If the user's request can be made in Outlook, it calls the respective function.
       if(validationOutlook) {
         decision = await requestOutlook();
       }
       break;
+    // Request to Azure DevOps
     case 3:
-      const validationAzureDevOps = await validationClassification(input, 'AzureDevOps');
+      const validationAzureDevOps = await validationClassification(input, 'AzureDevOps'); // Calls this function in order to fully assure that the user's request can be made in Azure DevOps.
+
+      // If the user's request can be made in Azure DevOps, it calls the respective function.
       if(validationAzureDevOps) {
         decision = await requestAzureDevOps();
       }
       break;
+    // Request to GitHub
     case 4:
-      const validationGitHub = await validationClassification(input, 'GitHub');
-      console.log(validationGitHub);
+      const validationGitHub = await validationClassification(input, 'GitHub'); // Calls this function in order to fully assure that the user's request can be made in GitHub.
+      // console.log(validationGitHub);
+
+      // If the user's request can be made in GitHub, it calls the respective function.
       if(validationGitHub) {
         decision = await requestGitHub();
       }
       break;
+    // General Conversation
     case 5:
       decision = 'General Conversation.';
       break;
+    // It was impossible to classify the user's message.
     case 'I am sorry, can you rephrase your request?':
       decision = 'I am sorry, can you rephrase your request?';
       break;
+    // The user's request cannot be made in the platform that was classified.
     default:
       decision = '';
       break;
@@ -105,9 +124,10 @@ async function decisionClassification(responseOpenAI, input) {
 
   console.log('Decision', decision);
 
-  return decision;
+  return decision; // Returns the response that will be displayed to the user.
 }
 
+// Function that validates if the user's request can be made in the platform that was decided according to the previous function.
 async function validationClassification(input, service) {
   const response = await openai.createCompletion({
     model: 'text-davinci-003',
@@ -118,9 +138,10 @@ async function validationClassification(input, service) {
     stream: false
   });
 
-  return Boolean(parseInt(response.data.choices[0].text));
+  return Boolean(parseInt(response.data.choices[0].text)); // Returns a boolean.
 }
 
+// Function that makes a request to our OpenAI fine-tuned model.
 async function questionPerficient(input) {
   const response = await openai.createCompletion({
     model:'davinci:ft-personal-2023-04-28-18-40-02',
@@ -131,25 +152,25 @@ async function questionPerficient(input) {
     stream: false
   });
 
-  return response.data.choices[0].text;
+  return response.data.choices[0].text; // Returns the response.
 }
 
+// Function that makes a request to the main function of the Outlook.js file.
 async function requestOutlook(input) {
-  // Aquí iría la llamada a la API de Outlook
   const message_bot = await 'I see that you want to schedule a meeting in Outlook.';
 
   return message_bot;
 }
 
+// Function that makes a request to the main function of the devops.js file.
 async function requestAzureDevOps() {
-  // Aquí iría la llamada a la API de DevOps
   const message_bot = await 'I see that you want to create a new project in Azure DevOps.';
 
   return message_bot;
 }
 
+// Function that makes a request to the main function of the github.js file.
 async function requestGitHub() {
-  // Aquí iría la llamada a la API de GitHub
   const message_bot = await 'I see that you want to create a new repository on GitHub.';
 
   return message_bot;
@@ -162,30 +183,35 @@ app.use(session({
   saveUninitialized: true,
 }));
 
+// Endpoint to modify the request's status of the user's session.
 app.post('/modify-request-status', async (req, res) => {
-  req.session.query_status = !req.session.query_status;
+  req.session.request_status = !req.session.request_status; // Changes from true to false.
   res.send('request status modified');
 });
 
+// Endpoint to save the current data of the current request that is trying to mkae to any platform or service.
 app.post('/save-current-data', async (req, res) => {
   const { currentData } = req.body;
 
   // Handle the value as needed
   console.log(`Received value: ${currentData}`);
 
-  req.session.current_data = currentData;
+  req.session.current_data = currentData; // Updates the current data in the session.
 
   res.send('Current data saved');
 });
 
+// Endpoint to get the request's status of the user's session.
 app.get('/get-request-status', (req, res) => {
-  res.send(req.session.query_status);
+  res.send(req.session.request_status);
 });
 
+// Endpoint to get the current data of the current request that is trying to mkae to any platform or service.
 app.get('/get-current-data', (req, res) => {
   res.send(req.session.current_data);
 });
 
+// Endpoint that handles everything of the chatbot.
 app.post('/', async (req, res) => {
   const { user_message } = req.body;
   const userId = req.session.id;
@@ -196,30 +222,32 @@ app.post('/', async (req, res) => {
     // other conversation-related data
   };
 
-  // Update the conversation data in the session
+  // If the conversation data from the session has not been initialized, it assigns the variable that was previously declared.
   if(!req.session.conversation) {
     req.session.conversation = conversationData.messages;
   }
 
-  const queryStatus = req.session.query_status || false;
+  const requestStatus = req.session.request_status || false; // Retrieve or initialize request's status data from the session.
 
-  if(!req.session.query_status) {
-    req.session.query_status = queryStatus;
+  // If the request's status data from the session has not been initialized, it assigns the variable that was previously declared.
+  if(!req.session.request_status) {
+    req.session.request_status = requestStatus;
   }
 
-  const currentData = req.session.current_data || '';
+  const currentData = req.session.current_data || ''; // Retrieve or initialize current data of the current request to any platform or service from the session.
 
+  // If the current data of the current request to any platform or service from the session has not been initialized, it assigns the variable that was previously declared.
   if(!req.session.current_data) {
     req.session.current_data = currentData;
   }
 
-  const classificationResult = await classification(user_message);
-  req.session.conversation.push({role: "user", content: user_message});
+  const classificationResult = await classification(user_message); // Classifies the user's message.
+  req.session.conversation.push({role: "user", content: user_message}); // Saves the user's message in the session's history of the conversation.
 
-  console.log("Último mensaje.");
-  console.log(req.session.conversation[req.session.conversation.length - 1])
+  // console.log("Último mensaje.");
+  // console.log(req.session.conversation[req.session.conversation.length - 1])
 
-  // If it returns 1
+  // If OpenAI classifies the user's message as General Conversation, it answers normally.
   if(classificationResult === 'General Conversation.') {
     const completion = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
@@ -229,48 +257,53 @@ app.post('/', async (req, res) => {
       stop: null
     });
 
-    req.session.conversation.push(completion.data.choices[0].message);
+    req.session.conversation.push(completion.data.choices[0].message); // Save OpenAI's response in the session's history of the conversation.
+
     console.log('Conversación General - Historial');
     console.log(req.session.conversation);
 
-    res.send({ response: completion.data.choices[0].message });
+    res.send({ response: completion.data.choices[0].message }); // Returns the response to the user.
 
-    return;
+    return; // Ends execution of this endpoint.
   }
 
+  // If the user's request cannot be made in a certain platform or service, it returns a specific response.
   if(classificationResult === '') {
-    req.session.conversation.push({role: "assistant", content: 'Please rephrase your request. Consider being clearer and more specific.'});
+    req.session.conversation.push({role: "assistant", content: 'Please rephrase your request. Consider being clearer and more specific.'}); // Saves the response in the session's history of the conversation.
     console.log('Historial');
     console.log(req.session.conversation);
 
-    res.send({ response: {role: 'assistant', content: 'Please rephrase your request. Consider being clearer and more specific.'}});
+    res.send({ response: {role: 'assistant', content: 'Please rephrase your request. Consider being clearer and more specific.'}}); // Returns the response to the user.
 
-    return;
+    return; // Ends execution of this endpoint.
   }
 
+  // If OpenAI cannot classify the user's message, it returns a specific response.
   if(classificationResult === 'I am sorry, can you rephrase your request?') {
-    req.session.conversation.push({role: "assistant", content: classificationResult});
+    req.session.conversation.push({role: "assistant", content: classificationResult}); // Saves the response in the session's history of the conversation.
     console.log('Historial');
     console.log(req.session.conversation);
 
-    res.send({ response: {role: 'assistant', content: classificationResult}});
+    res.send({ response: {role: 'assistant', content: classificationResult}}); // Returns the response to the user.
 
     return;
   }
 
-  req.session.conversation.push({role: "assistant", content: classificationResult});
+  req.session.conversation.push({role: "assistant", content: classificationResult}); // Saves OpenAI's response in the session's history of the conversation.
 
   console.log('Historial');
   console.log(req.session.conversation);
 
-  res.send({ response: {role: 'assistant', content: classificationResult}});
+  res.send({ response: {role: 'assistant', content: classificationResult}}); // Returns the response to the user.
 
   // let lastRequestTime = Date.now();
 });
 
+// Listens
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
+// Exports
 module.exports = router
 
