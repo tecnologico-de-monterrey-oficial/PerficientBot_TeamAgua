@@ -1,30 +1,26 @@
 // Imports
 const express = require("express");
 const cors = require("cors");
-const { Configuration, OpenAIApi } = require("openai");
 const router = express.Router();
+
+const tough = require('tough-cookie');
 const axios = require('axios');
+const { CookieJar } = tough;
+
 const session = require('express-session');
+
+const cookieJar = new CookieJar();
+
+const { port, openai, getCurrentDateAndHour } = require('../functions/imports');
 
 // const devops = require('../functions/devops');
 // const github = require('../functions/github');
-// const outlook = require('../functions/outlook');
+const outlook = require('../functions/outlook');
 
 // Initial configuration
 const app = express();
 app.use(express.json());
 app.use(cors());
-
-// .env configuration
-require("dotenv").config({ path: '../../.env' });
-
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-const port = process.env.PORT;
-const openai = new OpenAIApi(configuration);
-
 // Inactive function
 /* function checkInactive() {
   const currentTime = Date.now();
@@ -82,11 +78,11 @@ async function decisionClassification(responseOpenAI, input) {
     // Request to Outlook
     case 2:
       const validationOutlook = await validationClassification(input, 'Outlook'); // Calls this function in order to fully assure that the user's request can be made in Outlook.
-      // console.log('Validacion', validationOutlook);
+      console.log('Validacion', validationOutlook);
 
       // If the user's request can be made in Outlook, it calls the respective function.
       if(validationOutlook) {
-        decision = await requestOutlook();
+        decision = await outlook.outlookClassification(input);
       }
       break;
     // Request to Azure DevOps
@@ -155,13 +151,6 @@ async function questionPerficient(input) {
   return response.data.choices[0].text; // Returns the response.
 }
 
-// Function that makes a request to the main function of the Outlook.js file.
-async function requestOutlook(input) {
-  const message_bot = await 'I see that you want to schedule a meeting in Outlook.';
-
-  return message_bot;
-}
-
 // Function that makes a request to the main function of the devops.js file.
 async function requestAzureDevOps() {
   const message_bot = await 'I see that you want to create a new project in Azure DevOps.';
@@ -189,16 +178,26 @@ app.post('/modify-request-status', async (req, res) => {
   res.send('request status modified');
 });
 
-// Endpoint to save the current data of the current request that is trying to mkae to any platform or service.
+// Endpoint to save the current data of the current request that is trying to make to any platform or service.
 app.post('/save-current-data', async (req, res) => {
   const { currentData } = req.body;
 
   // Handle the value as needed
-  console.log(`Received value: ${currentData}`);
+  // console.log(`Received value:`, currentData);
 
   req.session.current_data = currentData; // Updates the current data in the session.
 
   res.send('Current data saved');
+});
+
+// Endpoint to save the current service of the current request that is trying to mkae to any platform or service.
+app.post('/save-current-service', async (req, res) => {
+  const { currentService } = req.body;
+  console.log(`Received value: ${currentService}`);
+  req.session.current_service = currentService; // Updates the current service in the session.
+
+  // console.log('Servicio actual:', req.session.current_service);
+  res.send('Current service saved');
 });
 
 // Endpoint to get the request's status of the user's session.
@@ -219,7 +218,6 @@ app.post('/', async (req, res) => {
   // Retrieve or initialize conversation data from the session
   const conversationData = req.session.conversation || {
     messages: [],
-    // other conversation-related data
   };
 
   // If the conversation data from the session has not been initialized, it assigns the variable that was previously declared.
@@ -234,11 +232,40 @@ app.post('/', async (req, res) => {
     req.session.request_status = requestStatus;
   }
 
-  const currentData = req.session.current_data || ''; // Retrieve or initialize current data of the current request to any platform or service from the session.
+  const currentData = req.session.current_data || null; // Retrieve or initialize current data of the current request to any platform or service from the session.
 
   // If the current data of the current request to any platform or service from the session has not been initialized, it assigns the variable that was previously declared.
   if(!req.session.current_data) {
     req.session.current_data = currentData;
+  }
+
+  const currentService = req.session.current_service || null; // Retrieve or initialize current service of the current request to any platform or service from the session.
+
+  // If the current service from the session has not been initialized, it assigns the variable that was previously declared.
+  if(!req.session.current_service) {
+    req.session.current_service = currentService;
+  }
+
+  console.log('Este es el servicio actual:', req.session.current_service);
+  console.log('Este es el estado de la request actual:', req.session.request_status);
+  console.log('Este es el current data actual:', req.session.current_data);
+
+  if(req.session.current_service === 'Outlook') {
+    console.log('Vamos a continuar con esta request de Outlook.');
+
+    console.log('Datos actuales', req.session.current_data);
+    const dateAndHour = getCurrentDateAndHour();
+    // Checks if the user's message has anything to do with the initial request
+    const outlookResponse = await outlook.scheduleMeetingContinue(user_message, req.session.current_data, dateAndHour);
+
+    req.session.conversation.push({role: "assistant", content: outlookResponse});
+
+    console.log('Historial');
+    console.log(req.session.conversation);
+
+    res.send({ response: {role: 'assistant', content: outlookResponse}}); // Returns the response to the user.
+
+    return; // Ends execution of this endpoint.
   }
 
   const classificationResult = await classification(user_message); // Classifies the user's message.
@@ -306,4 +333,3 @@ app.listen(port, () => {
 
 // Exports
 module.exports = router
-
