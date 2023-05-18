@@ -4,8 +4,6 @@ const cors = require("cors");
 const router = express.Router();
 
 const jwt = require('jsonwebtoken');
-
-const tough = require('tough-cookie');
 const axios = require('axios');
 
 const { port, openai, getCurrentDateAndHour } = require('../functions/imports');
