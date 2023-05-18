@@ -4,14 +4,16 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
+import { CommonModule } from '@angular/common';
 import { AuthModule } from '@auth0/auth0-angular';
 import { LoginComponent } from './components/login/login.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { SmartbotComponent } from './components/home/smartbot/smartbot.component';
+import { ChatbotComponent } from './components/home/chatbot/chatbot.component';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HomeComponent } from './components/home/home.component';
+import { NavbarComponent } from './components/home/navbar/navbar.component';
 
 
 @NgModule({
@@ -19,8 +21,9 @@ import { HomeComponent } from './components/home/home.component';
     AppComponent,
     LoginComponent,
     ProfileComponent,
-    SmartbotComponent,
-    HomeComponent
+    ChatbotComponent,
+    HomeComponent,
+    NavbarComponent
   ],
   imports: [
     BrowserModule,
@@ -35,7 +38,8 @@ import { HomeComponent } from './components/home/home.component';
     NgbModule,
     HttpClientModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    CommonModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -10,13 +10,12 @@ import { BehaviorSubject } from 'rxjs/';
 export class OpenaiService {
 
   constructor(private http: HttpClient) { }
-  apiURL = 'https://api.openai.com/v1/completions';
+  apiURL = 'http://localhost:3000/';
 
   // Http Options
   httpOptions = {
     headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env['NG_APP_KEY']}`
+      'Content-Type': 'application/json'
     })
   }
 
