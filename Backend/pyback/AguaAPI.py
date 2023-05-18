@@ -25,11 +25,11 @@ def getWeekEvents():
 def getMonthEvents():
     return OutlookMonthEvents()
 
-@app.route('/Outlook/ScheduleMeeting')
+@app.route('/Outlook/ScheduleMeeting', methods=['POST'])
 def postScheduleMeeting():
     return OutlookScheduleMeeting()
 
-@app.route('Outlook/AllEvents')
+@app.route('/Outlook/AllEvents')
 def getAllEvents():
     return OutlookAllEvents()
 
@@ -41,7 +41,7 @@ def getAllWI():
 def getWI():
     return AzureOneItem()
 
-@app.route('/Azure/CreateItem')
+@app.route('/Azure/CreateItem', methods=['POST'])
 def postCreateItem():
     return AzureCreateItem()
 
