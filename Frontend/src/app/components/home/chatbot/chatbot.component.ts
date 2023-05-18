@@ -13,7 +13,6 @@ export interface Message {
   styleUrls: ['./chatbot.component.scss']
 })
 export class ChatbotComponent implements OnInit {
-  isOpen = false;
   loading = false;
   messages: Message[] = [];
   chatForm = new FormGroup({
@@ -34,10 +33,7 @@ export class ChatbotComponent implements OnInit {
   result: string = "";
   myprompt: string = '';
 
-  openSmartBot() : void {
-    this.isOpen = !this.isOpen;
-    console.log('Hola');
-  }
+ 
 
   sendMessage() : void {
     console.log('Activar send Message');

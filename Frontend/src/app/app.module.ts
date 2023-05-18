@@ -13,6 +13,7 @@ import { ChatbotComponent } from './components/home/chatbot/chatbot.component';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HomeComponent } from './components/home/home.component';
+import { NavbarComponent } from './components/home/navbar/navbar.component';
 
 
 @NgModule({
@@ -21,7 +22,8 @@ import { HomeComponent } from './components/home/home.component';
     LoginComponent,
     ProfileComponent,
     ChatbotComponent,
-    HomeComponent
+    HomeComponent,
+    NavbarComponent
   ],
   imports: [
     BrowserModule,
