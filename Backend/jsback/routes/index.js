@@ -17,10 +17,12 @@ app.use(cors());
 require("dotenv").config({ path: '../../.env' });
 
 const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
+  //apiKey: process.env.OPENAI_API_KEY,
+  apiKey: "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",
 });
 
-const port = process.env.PORT;
+//const port = process.env.PORT;
+const port = 3001
 const openai = new OpenAIApi(configuration);
 
 /* function checkInactive() {
@@ -136,14 +138,14 @@ async function questionPerficient(input) {
 
 async function requestOutlook(input) {
   // Aquí iría la llamada a la API de Outlook
-  const message_bot = await 'I see that you want to schedule a meeting in Outlook.';
+  const message_bot = await 'I see that you want to schedule a meeting in Outlook.\nPlease provide some details about it.';
 
   return message_bot;
 }
 
 async function requestAzureDevOps() {
   // Aquí iría la llamada a la API de DevOps
-  const message_bot = await 'I see that you want to create a new project in Azure DevOps.';
+  const message_bot = await 'I see that you want to create a new project in Azure DevOps. \nPlease provide more information so I can assist you';
 
   return message_bot;
 }
@@ -184,6 +186,13 @@ app.get('/get-request-status', (req, res) => {
 
 app.get('/get-current-data', (req, res) => {
   res.send(req.session.current_data);
+});
+
+app.post('/clear-conversation', (req, res) => {
+  // Borra la conversación actual en la sesión
+  req.session.conversation = [];
+
+  res.send('Conversación reiniciada');
 });
 
 app.post('/', async (req, res) => {
@@ -239,11 +248,11 @@ app.post('/', async (req, res) => {
   }
 
   if(classificationResult === '') {
-    req.session.conversation.push({role: "assistant", content: 'Please rephrase your request. Consider being clearer and more specific.'});
+    req.session.conversation.push({role: "assistant", content: 'I apologize, but I\'m having trouble understanding your request. Could you please rephrase it or provide more specific details so that I can assist you better?'});
     console.log('Historial');
     console.log(req.session.conversation);
 
-    res.send({ response: {role: 'assistant', content: 'Please rephrase your request. Consider being clearer and more specific.'}});
+    res.send({ response: {role: 'assistant', content: 'I apologize, but I\'m having trouble understanding your request. Could you please rephrase it or provide more specific details so that I can assist you better?'}});
 
     return;
   }

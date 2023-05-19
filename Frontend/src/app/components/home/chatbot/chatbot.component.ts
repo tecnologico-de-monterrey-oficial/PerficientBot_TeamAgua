@@ -34,6 +34,14 @@ export class ChatbotComponent implements OnInit {
   myprompt: string = '';
 
  
+  clearConversation(){
+    this.messages = [];
+    this.messages.push({
+      type: 'assistant',
+      message: 'Hello, I am your personal assistant for Perficient. How can I help you today?'
+    });
+    this.Chatbot.clearConversation()
+  }
 
   sendMessage() : void {
     console.log('Activar send Message');

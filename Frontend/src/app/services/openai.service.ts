@@ -10,7 +10,7 @@ import { BehaviorSubject } from 'rxjs/';
 export class OpenaiService {
 
   constructor(private http: HttpClient) { }
-  apiURL = 'http://localhost:3000/';
+  apiURL = 'http://localhost:3001/';
 
   // Http Options
   httpOptions = {
@@ -21,6 +21,14 @@ export class OpenaiService {
 
   sendMessage(payload: any): Observable<any> {
     return this.http.post<any>(this.apiURL, JSON.stringify(payload), this.httpOptions)
+    .pipe(
+      retry(1),
+      catchError(this.handleError)
+    )
+  }
+
+  clearConversation(): Observable<any> {
+    return this.http.post<any>(this.apiURL + 'clear-conversation', this.httpOptions)
     .pipe(
       retry(1),
       catchError(this.handleError)

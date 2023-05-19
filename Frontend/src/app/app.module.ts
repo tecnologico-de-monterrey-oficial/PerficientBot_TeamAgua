@@ -16,6 +16,7 @@ import { HomeComponent } from './components/home/home.component';
 import { NavbarComponent } from './components/home/navbar/navbar.component';
 
 
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -23,7 +24,7 @@ import { NavbarComponent } from './components/home/navbar/navbar.component';
     ProfileComponent,
     ChatbotComponent,
     HomeComponent,
-    NavbarComponent
+    NavbarComponent,
   ],
   imports: [
     BrowserModule,

@@ -4,38 +4,49 @@
         
         <div id="Smartbot__body">
             <div class="messages" #scrollMe>
-                <div *ngFor="let message of messages" class="message" >
-                    
-                    
-                    <img *ngIf="message.type === 'assistant'" class="profile-pic" src="..\assets\img\botPic.png" alt="Bot">
 
-                    <div [class]="message.type">
-                        
-                        {{message.message}}
-                    </div>
+                <div *ngFor="let message of messages" [ngClass]="message.type === 'user' ? 'message prueba' : 'message'">
+                    
+                        <img *ngIf="message.type === 'assistant'" class="chatpic" src="..\assets\img\botPic.png" alt="Bot">
 
-                    <img *ngIf="message.type === 'user'" class="profile-pic" src="..\assets\img\profilePic.png" alt="User">
+                        <div [class]="message.type">  {{message.message}} </div>
+
+                        <img *ngIf="message.type === 'user'" class="chatpic" src="..\assets\img\profilePic.png" alt="User">
 
                 </div>
-                <div *ngIf="loading" class="message" style="width: 100%; display: block;">
-                    <img class="profile-pic" src="..\assets\img\botPic.png" alt="Bot">
+                <div *ngIf="loading" class="message" >
+                    <img class="chatpic" src="..\assets\img\botPic.png" alt="Bot">
                     <div [class]="'assistant'">...</div>
                 </div>
             </div>
         </div>
 
+       
         <form id="Smartbot__footer" [formGroup]="chatForm">
-            <input
+            <button type="button" id="Smartbot__footer--clearButton" (click)="clearConversation()">
+                <img src="../assets/img/BroomW.svg" alt="Clear">
+            </button>
+
+           <!--  <input
                 formControlName="message"
                 type="text"
                 id="Smartbot__footer--input"
                 name="myprompt"
                 placeholder="Send message to PerficientBot..."
                 [(ngModel)] = 'myprompt'
-            />
+            /> -->
+
+            <textarea 
+                formControlName="message"
+                type="text"
+                id="Smartbot__footer--input"
+                name="myprompt"
+                placeholder="Send message to PerficientBot..."
+                [(ngModel)] = 'myprompt'>
+            </textarea>
             
             <button id="Smartbot__footer--submitButton" [disabled]="!chatForm.valid" (click)="sendMessage()">
-                <img class="send-button" src="../assets/img/Sent.png" alt="Send"/>
+                <img src="../assets/img/Sent.svg" alt="Send"/>
             </button>
         </form>
    </div> 

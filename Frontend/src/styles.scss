@@ -3,7 +3,7 @@
 /* Importing Bootstrap SCSS file. */
 @import 'bootstrap/scss/bootstrap';
 
-html {
+/* html {
     height: 100%;
     margin: 0;
     padding: 2%;
@@ -12,8 +12,16 @@ html {
     overflow-x: hidden;
     justify-content: center;
     border-color: #202020;
-}
+} */
 
+html {
+    
+    padding: 2%;
+    padding-inline: 10%;
+    height: 100%;
+    overflow-x: hidden;
+    justify-content: center;
+}
 body {
     background-color: #202020;
     font-family: 'Lato', sans-serif;
