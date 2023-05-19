@@ -87,26 +87,31 @@ app.post('/', authenticateToken, async (req, res) => {
     return; // Ends execution of this endpoint.
   }
 
+  // Checa los demás datos de la sesión
   console.log('Este es el servicio actual:', req.user.current_service);
   console.log('Este es el estado de la request actual:', req.user.request_status);
   console.log('Este es el current data actual:', req.user.current_data);
 
   if(req.user.current_service === 'Outlook') {
+    // Aquí íría la verificación.
     console.log('Vamos a continuar con esta request de Outlook.');
 
-    console.log('Datos actuales', req.user.current_data);
     const dateAndHour = getCurrentDateAndHour();
     // Checks if the user's message has anything to do with the initial request
     const outlookResponse = await outlook.scheduleMeetingContinue(user_message, req.user.current_data, dateAndHour);
 
-    req.user.conversation.push({role: "assistant", content: outlookResponse});
+    // Saves the messages into the history of conversation
+    req.user.conversation.push({role: "user", content: user_message});
+    req.user.conversation.push({role: "assistant", content: outlookResponse[0]});
 
-    console.log('Historial');
+    req.user.current_data = outlookResponse[1];
+
+    console.log('Historial - Outlook Service');
     console.log(req.user.conversation);
 
     const newToken = generateNewToken(req.user);
 
-    res.send({ response: {role: 'assistant', content: outlookResponse}, new_token: newToken}); // Returns the response to the user.
+    res.send({ response: {role: 'assistant', content: outlookResponse[0]}, new_token: newToken}); // Returns the response to the user.
 
     return; // Ends execution of this endpoint.
   }

@@ -126,9 +126,9 @@ async function scheduleMeetingContinue(input, currentData, dateAndHour) {
   // This response is sent to the function that creates a meeting in Outlook.
   const JSONresponse = await openai.createCompletion({
     model:'text-davinci-003',
-    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this sentence "${input}", determine if it corresponds to the missing information in this JSON (analyze if the sentence talks about specific fields, if it does not mention an end date, the end_date field must remain null) "${currentData}". And also determine if it wants to modify already existing information in that JSON. If the information in the JSON would complete, please let it know. If something else would be missing in the JSON (if there is a field with null value), please let it know too (there must not be any field with null value, analyze if the sentence talks about specific fields, if it does not mention an end date, the end_date field must remain null). Please also consider this is the current date and hour: ${dateAndHour} , but it does not necessarily mean that this is the start date or end date. Remember, just determine the information based on the given sentence and the current JSON.
+    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this sentence "${input}", determine if it corresponds to the missing information in this JSON (analyze if the sentence talks about specific fields, if it does not mention an end date, the endDate field must remain null) "${currentData}". And also determine if it wants to modify already existing information in that JSON. Please also consider this is the current date and hour: ${dateAndHour} , but it does not necessarily mean that this is the start date or end date. Remember, just determine the information based on the given sentence and the current JSON. Please do not omit any of the fields and do not change their name in the new JSON. Keep the same structure and order as in the current JSON, just update the values according to the given sentence. For example, if in this sentence you are receving, yo do not see the subject of the meeting in the given sentence, please still include that field in the new JSON as null. Please do not include additional fields in the new JSON (respect the fields that are in the current JSON). I do not want extra fields in the new JSON. Please do not change the name of the fields in the new JSON:
 
-    Just return the JSON, nothing else. I just want the new JSON you are going to generate (do not omit any of the fields that came in the original JSON, it must follow the same structure and order as in the original JSON), nothing else, only the JSON. Please do not start your answer with "The new JSON would be:". I just want the JSON.`,
+    Just return the JSON, nothing else. Please do not start your answer with "The new JSON would be:". I just want the JSON.`,
     max_tokens: 150,
     temperature: 0,
     n: 1,
@@ -149,7 +149,22 @@ async function scheduleMeetingContinue(input, currentData, dateAndHour) {
   // This response is sent to determine if the user's message completes the request.
   const determineResponse = await openai.createCompletion({
     model:'text-davinci-003',
-    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this JSON "${JSONresponse}", determine if there are any fields with a null value, if it is the case, just return a number 0, if it is not, just return a number 1, only the number.`,
+    prompt: `Given this JSON "${obj}", if there is at least one field in the JSON object with a value of 'null', return the integer 0. Conversely, if there are no fields with a 'null' value within the JSON object, return the integer 1.
+
+    Note that only a numerical value should be returned, with no additional formatting or message text. Your answer must be only one digit and nothing else.`,
+    max_tokens: 150,
+    temperature: 0,
+    n: 1,
+    stream: false
+  });
+
+  console.log('¿Está terminada o no?', determineResponse.data.choices[0].text);
+
+  const normalResponse = await openai.createCompletion({
+    model:'text-davinci-003',
+    prompt: `Consider this scenario: You are an automated assistant for Perficient, a company capable of streamlining tasks related to Microsoft Outlook, including setting up meetings. Using the phrase "${input}", discern if it pertains to missing information in this existing dataset "${currentData}". Investigate whether the phrase discusses certain fields. If no mention of a conclusion time is given, the corresponding field must be kept empty. Additionally, ascertain if the phrase intends to alter any data already present in the dataset. If a field is left vacant, be sure to highlight this (none of the fields should be empty, investigate whether the phrase talks about specific fields, yet if a closing time is not specified, that field must be empty). Please also remember that this is the current date and time: ${dateAndHour}.
+
+    Your answer should avoid the use of the following terms: "JSON", "object", "sentence", "null", "startDate", and "endDate".`,
     max_tokens: 150,
     temperature: 0,
     n: 1,
@@ -162,10 +177,11 @@ async function scheduleMeetingContinue(input, currentData, dateAndHour) {
   if(Boolean(parseInt(determineResponse.data.choices[0].text))) {
     // modifyRequestStatus();
     // saveCurrentService(null);
-    scheduleMeetingOutlook(JSONresponse);
+    scheduleMeetingOutlook(obj);
+    return ['Request a Outlook terminada', obj];
   }
   
-  return 'Excelente, sigue así cibernauta.'; // Returns the response that will be displayed to the user.
+  return [normalResponse.data.choices[0].text, obj]; // Returns the response that will be displayed to the user.
 }
 
 async function scheduleMeetingOutlook(JSONData) {
