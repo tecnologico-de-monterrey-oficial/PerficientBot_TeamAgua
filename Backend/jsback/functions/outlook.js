@@ -126,18 +126,20 @@ async function scheduleMeetingContinue(input, currentData, dateAndHour) {
   // This response is sent to the function that creates a meeting in Outlook.
   const JSONresponse = await openai.createCompletion({
     model:'text-davinci-003',
-    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this sentence "${input}", determine if it corresponds to the missing information in this JSON (analyze if the sentence talks about specific fields, if it does not mention an end date, the endDate field must remain null) "${currentData}". And also determine if it wants to modify already existing information in that JSON. Please also consider this is the current date and hour: ${dateAndHour} , but it does not necessarily mean that this is the start date or end date. Remember, just determine the information based on the given sentence and the current JSON. Please do not omit any of the fields and do not change their name in the new JSON. Keep the same structure and order as in the current JSON, just update the values according to the given sentence. For example, if in this sentence you are receving, yo do not see the subject of the meeting in the given sentence, please still include that field in the new JSON as null. Please do not include additional fields in the new JSON (respect the fields that are in the current JSON). I do not want extra fields in the new JSON. Please do not change the name of the fields in the new JSON:
+    prompt: `As a chatbot for Perficient, you're designed to automate Outlook-related workflow tasks, like scheduling meetings. Your task is to analyze the sentence "${input}" to see if it supplies missing information for this JSON: "${currentData}". Verify whether the sentence refers to specific fields in the JSON. If the sentence does not mention an end date, keep the "endDate" field null only if it already is null in the JSON you received, if not, leave it like it was as you originally received it.
 
-    Just return the JSON, nothing else. Please do not start your answer with "The new JSON would be:". I just want the JSON.`,
+    Additionally, discern whether the sentence suggests modifications to the existing information in the JSON. The current date and time are "${dateAndHour}", but they aren't necessarily the start or end date, so please do not update those values in the new JSON unless it is strictly necessary (like as a last resource method).
+    
+    Your task is to update the JSON based on the given sentence, ensuring you maintain its structure and order. If a field, like 'subject', isn't mentioned in the sentence, include it in the JSON as null only if it already is null in the JSON you received, if not, leave it like it was as you originally received it. Please do not add extra fields or change field names in the JSON.
+    
+    You are to return the updated JSON as your response, without prefacing your answer with "The new JSON would be:". The output should strictly be the JSON.`,
     max_tokens: 150,
     temperature: 0,
     n: 1,
     stream: false
   });
 
-  console.log('Antes de JSON response');
-  console.log('JSON response:', JSONresponse.data.choices[0].text.trim());
-  console.log('Después de JSON response');
+  console.log('Antes de parsear JSON:', JSONresponse.data.choices[0].text);
 
   // Parses the JSON that OpenAI returns.
   const jsonString = JSONresponse.data.choices[0].text.trim();
@@ -162,16 +164,14 @@ async function scheduleMeetingContinue(input, currentData, dateAndHour) {
 
   const normalResponse = await openai.createCompletion({
     model:'text-davinci-003',
-    prompt: `Consider this scenario: You are an automated assistant for Perficient, a company capable of streamlining tasks related to Microsoft Outlook, including setting up meetings. Using the phrase "${input}", discern if it pertains to missing information in this existing dataset "${currentData}". Investigate whether the phrase discusses certain fields. If no mention of a conclusion time is given, the corresponding field must be kept empty. Additionally, ascertain if the phrase intends to alter any data already present in the dataset. If a field is left vacant, be sure to highlight this (none of the fields should be empty, investigate whether the phrase talks about specific fields, yet if a closing time is not specified, that field must be empty). Please also remember that this is the current date and time: ${dateAndHour}.
+    prompt: `Consider this scenario: You are an automated assistant for Perficient, a company capable of streamlining tasks related to Microsoft Outlook, including setting up meetings. Using the phrase "${input}", discern if it pertains to missing information comparing this exisitng dataset (old) "${currentData}" with this one (new) "${obj}". Investigate whether the phrase discusses certain fields. If no mention of a conclusion time is given, the corresponding field must be kept empty. Additionally, ascertain if the phrase intends to alter any data already present in the dataset. If a field is left vacant, be sure to highlight this (none of the fields should be empty, investigate whether the phrase talks about specific fields, yet if a closing time is not specified, that field must be empty). Please also remember that this is the current date and time: ${dateAndHour}.
 
-    Your answer should avoid the use of the following terms: "JSON", "object", "sentence", "null", "startDate", and "endDate".`,
+    Your answer should avoid the use of the following terms: "JSON", "object", "sentence", "null", "startDate", "dataset", "based", "phrase" and "endDate". Your also should avoid mentioning the JSON as dataset, just call it information or somehting related.`,
     max_tokens: 150,
     temperature: 0,
     n: 1,
     stream: false
   });
-
-  // saveCurrentData(obj); // Saves the current data of the current request in the session.
 
   // If the user's message completes the request, it modifies the request's status and calls the function to create the meeting in Outlook.
   if(Boolean(parseInt(determineResponse.data.choices[0].text))) {
