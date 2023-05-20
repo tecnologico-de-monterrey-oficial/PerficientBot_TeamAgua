@@ -1,6 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {AuthService} from '@auth0/auth0-angular';
 import {map} from "rxjs";
+import {UploadFormComponent} from "./upload-form/upload-form.component";
+
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',

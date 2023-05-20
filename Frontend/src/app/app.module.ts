@@ -14,7 +14,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HomeComponent } from './components/home/home.component';
 import { NavbarComponent } from './components/home/navbar/navbar.component';
-import { UploadFormComponent } from './components/home/upload-form/upload-form.component';
+import {UploadFormComponent} from "./components/profile/upload-form/upload-form.component";
 
 
 
