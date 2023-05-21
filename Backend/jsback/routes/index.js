@@ -176,6 +176,10 @@ app.post('/', authenticateToken, async (req, res) => {
   req.user.current_data = classificationResult[2];
   req.user.current_service = classificationResult[3];
 
+  console.log('Request Status después de asignar:', req.user.request_status);
+  console.log('Current Data después de asignar:', req.user.current_data);
+  console.log('Current Service después de asignar:', req.user.current_service);
+
   const newToken = generateNewToken(req.user);
 
   res.send({ response: {role: 'assistant', content: classificationResult[0]}, new_token: newToken}); // Returns the response to the user.

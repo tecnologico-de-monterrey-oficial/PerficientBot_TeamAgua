@@ -2,7 +2,7 @@
 const axios = require('axios');
 
 // OpenAI API
-const { openai, hasNullValues } = require('../functions/imports');
+const { openai, hasNullValues, mergeJSONObjects } = require('../functions/imports');
 
 // Main function that classifies the user's response in one of the options that can be made with Outlook's API.
 // TODO: Si se quiere reagendar, se debería de asignar la función de eliminar y después la de crear.
@@ -115,7 +115,7 @@ async function scheduleMeeting(input, dateAndHour) {
 
 
   // If the JSON has the startDate or endDate with null values, it modifies the request's status in order to indicate that a request is going on.
-  if(!hasNullValues(obj)) {
+  if(hasNullValues(obj)) {
     console.log('No está completa la request');
     requestStatus = true;
     currentService = 'Outlook';
@@ -132,11 +132,11 @@ async function scheduleMeetingContinue(input, currentData, dateAndHour) {
     model:'text-davinci-003',
     prompt: `As a chatbot for Perficient, you're designed to automate Outlook-related workflow tasks, like scheduling meetings. Your task is to analyze the sentence "${input}" to see if it supplies missing information for this JSON: "${currentData}". Verify whether the sentence refers to specific fields in the JSON. If the sentence does not mention an end date, keep the "endDate" field null only if it already is null in the JSON you received, if not, leave it like it was as you originally received it.
 
-    Additionally, discern whether the sentence suggests modifications to the existing information in the JSON. The current date and time are "${dateAndHour}", but they aren't necessarily the start or end date, so please do not update those values in the new JSON unless it is strictly necessary (like as a last resource method).
+    Additionally, discern whether the sentence suggests modifications to the existing information in the JSON. The current date and time are "${dateAndHour}", but they aren't the startDate or endDate, so please do not update those values in the new JSON with the current date and time.
     
     Your task is to update the JSON based on the given sentence, ensuring you maintain its structure and order. If a field, like 'subject', isn't mentioned in the sentence, include it in the JSON as null only if it already is null in the JSON you received, if not, leave it like it was as you originally received it. Please do not add extra fields or change field names in the JSON.
     
-    You are to return the updated JSON as your response, without prefacing your answer with "The new JSON would be:". The output should strictly be the JSON.`,
+    Return the updated JSON without any prefacing statement - the output should be the JSON and nothing else.`,
     max_tokens: 150,
     temperature: 0,
     n: 1,
@@ -152,28 +152,29 @@ async function scheduleMeetingContinue(input, currentData, dateAndHour) {
 
   console.log('Actual JSON Outlook:', obj);
 
-  console.log('¿Está terminada o no?', determineResponse.data.choices[0].text);
-
-  const normalResponse = await openai.createCompletion({
-    model:'text-davinci-003',
-    prompt: `Consider this scenario: You are an automated assistant for Perficient, a company capable of streamlining tasks related to Microsoft Outlook, including setting up meetings. Using the phrase "${input}", discern if it pertains to missing information comparing this exisitng dataset (old) "${currentData}" with this one (new) "${obj}". Investigate whether the phrase discusses certain fields. If no mention of a conclusion time is given, the corresponding field must be kept empty. Additionally, ascertain if the phrase intends to alter any data already present in the dataset. If a field is left vacant, be sure to highlight this (none of the fields should be empty, investigate whether the phrase talks about specific fields, yet if a closing time is not specified, that field must be empty). Please also remember that this is the current date and time: ${dateAndHour}.
-
-    Your answer should avoid the use of the following terms: "JSON", "object", "sentence", "null", "startDate", "dataset", "based", "phrase" and "endDate". Your also should avoid mentioning the JSON as dataset, just call it information or somehting related.`,
-    max_tokens: 150,
-    temperature: 0,
-    n: 1,
-    stream: false
-  });
+  // Merge JSONs
+  const mergedJSON = mergeJSONObjects(currentData, obj);
+  console.log('JSON merge:', mergedJSON);
 
   // If the user's message completes the request, it modifies the request's status and calls the function to create the meeting in Outlook.
-  if(!hasNullValues(obj)) {
+  if(hasNullValues(mergedJSON)) {
+    const normalResponse = await openai.createCompletion({
+      model:'text-davinci-003',
+      prompt: `Consider this scenario: You are an automated assistant for Perficient, a company capable of streamlining tasks related to Microsoft Outlook, including setting up meetings. Using the phrase "${input}", discern if it pertains to missing information comparing this exisitng dataset (old) "${currentData}" with this one (new) "${mergedJSON}". Investigate whether the phrase discusses certain fields. If no mention of a conclusion time is given, the corresponding field must be kept empty. Additionally, ascertain if the phrase intends to alter any data already present in the dataset. If a field is left vacant, be sure to highlight this (none of the fields should be empty, investigate whether the phrase talks about specific fields, yet if a closing time is not specified, that field must be empty). Please also remember that this is the current date and time: ${dateAndHour}.
+  
+      Your answer should avoid the use of the following terms: "JSON", "object", "sentence", "null", "startDate", "dataset", "based", "phrase" and "endDate". Your also should avoid mentioning the JSON as dataset, just call it information or somehting related.`,
+      max_tokens: 150,
+      temperature: 0,
+      n: 1,
+      stream: false
+    });
     // modifyRequestStatus();
     // saveCurrentService(null);
-    scheduleMeetingOutlook(obj);
-    return ['Request a Outlook terminada', obj];
+    return [normalResponse.data.choices[0].text, mergedJSON]; // Returns the response that will be displayed to the user.
   }
-  
-  return [normalResponse.data.choices[0].text, obj]; // Returns the response that will be displayed to the user.
+
+  scheduleMeetingOutlook(mergedJSON);
+  return ['Request a Outlook terminada', mergedJSON];
 }
 
 async function scheduleMeetingOutlook(JSONData) {

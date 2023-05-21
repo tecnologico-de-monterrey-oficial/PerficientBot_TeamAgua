@@ -29,32 +29,70 @@ const openai = new OpenAIApi(configuration);
     console.log(`Current date: ${year}-${month}-${day}`);
     console.log(`Current time: ${hours}:${minutes}:${seconds}`);
 
-    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`; // Returns the current date and hour in a concatenated string.
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.099Z`; // Returns the current date and hour in a concatenated string.
   }
 
-  function hasNullValues(obj) {
-    if (typeof obj !== 'object') {
-      return false;
+  function hasNullValues(jsonObj) {
+    for (let key in jsonObj) {
+      if (jsonObj[key] === null) {
+        return true;
+      }
     }
+    return false;
+  }
+
+  function mergeJSONObjects(json1, json2) {
+    const mergedJSON = { ...json1 };
   
-    for (var key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        if (obj[key] === null) {
-          return true;
-        }
+    for (const key in json2) {
+      if (json2.hasOwnProperty(key)) {
+        const value1 = json1[key];
+        const value2 = json2[key];
   
-        if (typeof obj[key] === 'object' && hasNullValues(obj[key])) {
-          return true;
+        if (value2 !== null) {
+          if (value1 === null || value1 === undefined) {
+            mergedJSON[key] = value2;
+          } else if (typeof value1 === 'object' && typeof value2 === 'object') {
+            mergedJSON[key] = mergeJSON(value1, value2);
+          }
         }
       }
     }
   
-    return false;
+    return mergedJSON;
+  }
+
+  function extractJSONFromString(inputString) {
+    let jsonString = inputString;
+    let jsonObject;
+  
+    // Check if the input string starts with '[' and ends with ']'
+    // If it does, assume it's an array of JSON objects
+    if (inputString.startsWith("[") && inputString.endsWith("]")) {
+      // Find the index of the first '[' and the last ']'
+      const startIndex = inputString.indexOf("[");
+      const endIndex = inputString.lastIndexOf("]");
+  
+      // Extract the JSON substring from the input string
+      jsonString = inputString.substring(startIndex, endIndex + 1);
+    }
+  
+    try {
+      // Try parsing the extracted JSON string
+      jsonObject = JSON.parse(jsonString);
+    } catch (error) {
+      console.error("Invalid JSON format");
+      return null;
+    }
+  
+    return jsonObject;
   }
 
 module.exports = {
     port,
     openai,
     getCurrentDateAndHour,
-    hasNullValues
+    hasNullValues,
+    mergeJSONObjects,
+    extractJSONFromString
 };
