@@ -15,6 +15,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HomeComponent } from './components/home/home.component';
 import { NavbarComponent } from './components/home/navbar/navbar.component';
 import {UploadFormComponent} from "./components/profile/upload-form/upload-form.component";
+import { HrSearchComponent } from './components/profile/hr-search/hr-search.component';
 
 
 
@@ -27,6 +28,7 @@ import {UploadFormComponent} from "./components/profile/upload-form/upload-form.
     HomeComponent,
     NavbarComponent,
     UploadFormComponent,
+    HrSearchComponent,
   ],
   imports: [
     BrowserModule,
