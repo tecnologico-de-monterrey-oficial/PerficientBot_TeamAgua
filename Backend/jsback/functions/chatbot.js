@@ -61,7 +61,10 @@ async function EnglishOrNot(input) {
   
         // If the user's request can be made in Outlook, it calls the respective function.
         if(validationOutlook) {
-          decision = await outlook.outlookClassification(input, requestStatus);
+            // TODO: Validar que no se pidan eventos dentro de más 31 días.
+            // TODO: Validar que no se pueda agendar una reunión dentro de más de un año (o mes si es que resulta muy díficl implementarlo.)
+            dateAndHour = getCurrentDateAndHour();
+            decision = await outlook.outlookClassification(input, requestStatus, dateAndHour);
         }
         break;
       // Request to Azure DevOps
