@@ -17,12 +17,11 @@ app.use(cors());
 require("dotenv").config({ path: '../../.env' });
 
 const configuration = new Configuration({
-  //apiKey: process.env.OPENAI_API_KEY,
-  apiKey: "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",
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
-//const port = process.env.PORT;
-const port = 3001
+const port = process.env.PORT;
+//const port = 3001
 const openai = new OpenAIApi(configuration);
 
 /* function checkInactive() {

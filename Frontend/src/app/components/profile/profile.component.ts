@@ -15,8 +15,6 @@ export class ProfileComponent implements OnInit{
   user$ = this.auth.user$;
   code$ = this.user$.pipe(map((user) => JSON.stringify(user, null, 2)));
 
-
-
   constructor(public auth: AuthService) { }
 
 
