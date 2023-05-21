@@ -2,8 +2,21 @@ from flask import Flask
 from GithubAPI import GithubRepos, GithubIssues, GithubPulls
 from OutlookAPI import OutlookWeekEvents, OutlookMonthEvents, OutlookScheduleMeeting, OutlookAllEvents, OutlookGroups, OutlookDelete
 from AzureAPI import AzureCreateItem, AzureOneItem, AzureWorkItems
+from CVAPI import getCV, getGPTtext, upload
 
 app = Flask(__name__)
+
+@app.route('/upload/<user_id>', methods=['POST'])
+def uploadCV():
+    return upload()
+
+@app.route('/CV/<user_id>', methods=['GET'])
+def getCVimg():
+    return getCV()
+
+@app.route('/GPTtext/<user_id>', methods=['GET'])
+def getSummary():
+    return getGPTtext()
 
 # Input: N/A
 """ Output: {
