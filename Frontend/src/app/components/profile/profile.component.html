@@ -22,6 +22,7 @@
       <button type="button" (click)="logout()" class="btn btn-outline-primary me-2">LogOut</button>
     </div>
   </header>
+<!--
   <section *ngIf="auth.user$ | async as user" class="py-5 text-center container">
     <div class="row py-lg-5">
       <div class="col-lg-6 col-md-8 mx-auto">
@@ -33,4 +34,28 @@
       </div>
     </div>
   </section>
+-->
+  <ng-container *ngIf="user$ | async as user">
+    <div class="profile-grid">
+      <div class="profile__header">
+        <img [src]="user.picture" alt="Profile" class="profile__avatar" />
+        <div class="profile__headline">
+          <h2 class="profile__title">{{ user.name }}</h2>
+          <span class="profile__description">{{ user.email }}</span>
+          <h2 class="profile__title">{{ user.sub }}</h2>
+        </div>
+      </div>
+      <ng-container *ngIf="code$ | async as code">
+        <div class="profile__details">
+          <div class="profile__detail">
+            <span class="profile__detail-title">Código</span>
+            <span class="profile__detail-value">{{ code }}</span>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </ng-container>
+
+  <app-upload-form></app-upload-form>
+  <app-hr-search></app-hr-search>
 </div>

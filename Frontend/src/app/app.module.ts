@@ -13,7 +13,10 @@ import { ChatbotComponent } from './components/home/chatbot/chatbot.component';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HomeComponent } from './components/home/home.component';
-import { NavbarComponent } from './components/home/navbar/navbar.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import {UploadFormComponent} from "./components/profile/upload-form/upload-form.component";
+import { HrSearchComponent } from './components/profile/hr-search/hr-search.component';
+
 
 
 @NgModule({
@@ -23,14 +26,16 @@ import { NavbarComponent } from './components/home/navbar/navbar.component';
     ProfileComponent,
     ChatbotComponent,
     HomeComponent,
-    NavbarComponent
+    NavbarComponent,
+    UploadFormComponent,
+    HrSearchComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     AuthModule.forRoot({
-      domain: 'dev-ftucps8os2hlzcae.us.auth0.com',
-      clientId: 'qMj17VDgcYRi5DsdfexJr2omDPCLhkSR',
+      domain: 'dev-2mvs0z4f2xdgez6l.us.auth0.com',
+      clientId: 'rfKvWNyqMVcEOJ5Im6jQ9Ffo29x3LnfZ',
       authorizationParams: {
         redirect_uri: window.location.origin
       }

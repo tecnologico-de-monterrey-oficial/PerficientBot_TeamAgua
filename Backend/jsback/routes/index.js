@@ -142,14 +142,15 @@ app.post('/', authenticateToken, async (req, res) => {
   }
 
   // If the user's request cannot be made in a certain platform or service, it returns a specific response.
-  if(classificationResult[0] === '') {
-    req.user.conversation.push({role: "assistant", content: 'Please rephrase your request. Consider being clearer and more specific.'}); // Saves the response in the session's history of the conversation.
+  if(classificationResult === '') {
+    req.session.conversation.push({role: "assistant", content: 'I apologize, but I am having trouble understanding your request. Could you please rephrase it or provide more specific details so that I can assist you better?'}); // Saves the response in the session's history of the conversation.
+
     console.log('Historial');
     console.log(req.user.conversation);
 
     const newToken = generateNewToken(req.user);
 
-    res.send({ response: {role: 'assistant', content: 'Please rephrase your request. Consider being clearer and more specific.'}, new_token: newToken}); // Returns the response to the user.
+    res.send({ response: {role: 'assistant', content: 'I apologize, but I am having trouble understanding your request. Could you please rephrase it or provide more specific details so that I can assist you better?'}}); // Returns the response to the user.
 
     return; // Ends execution of this endpoint.
   }
