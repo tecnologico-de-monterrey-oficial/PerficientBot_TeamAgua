@@ -1,208 +1,201 @@
+// Imports
 const axios = require('axios');
-const tough = require('tough-cookie');
-const axiosCookieJarSupport = require('axios-cookiejar-support').default;
 
-axiosCookieJarSupport(axios);
+// OpenAI API
+const { openai, hasNullValues, mergeJSONObjects } = require('../functions/imports');
 
-const cookieJar = new tough.CookieJar();
-const baseURL = 'http://localhost:3000';
+// Main function that classifies the user's response in one of the options that can be made with Outlook's API.
+// TODO: Si se quiere reagendar, se debería de asignar la función de eliminar y después la de crear.
+async function outlookClassification(input, requestStatus, dateAndHour) {
+  const response = await openai.createCompletion({
+    model:'text-davinci-003',
+    prompt: `Imagine you are an AI assistant for a company named Perficient, equipped to automate tasks related to Outlook's workflow. Evaluate the provided statement, denoted as "${input}". Identify the main action within this statement, focusing solely on that if required.
 
-export async function outlookClassification(input) {
-    const response = await openai.createCompletion({
-        model:'text-davinci-003',
-        prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. Given this sentence "${input}". According to the main action of the sentence (if necessary, only focus in the main action, imagine where the action will take place considering the best platform to have it), determine which of the following options it belongs to: 
-
-        1.- Get all scheduled events starting today.
-        2.- Get all scheduled events starting today, but up to the following 7 days. 
-        3.- Get all scheduled events starting today, but up to the following 31 days.
-        4.- Schedule a meeting.
-            
-        Remember, there are only these 4 options, there are no others available. Just answer with the number of the option, without the period.
-        Answer format: "[number]"
-        Example: "2"
-        
-        In such case that none of the options are related to the sentence, write "I am sorry, can you rephrase your request?".`,
-        max_tokens: 150,
-        temperature: 0,
-        n: 1,
-        stream: false
-      });
+    Visualize where this action would ideally take place, considering the optimal platform for execution. Then, determine which of the following options best fits the action described in the statement:
     
-      return outlookDecisionClassification(parseInt(response.data.choices[0].text), input);
+    1.- Retrieve all scheduled events starting today, extending to the next 7 days.
+    2.- Retrieve all scheduled events starting today, extending to the next 31 days.
+    3.- Arrange a new meeting.
+    4.- Cancel an existing meeting.
+    
+    In the context of options 1-2, always prioritize optimization. For instance, if the given statement pertains to events or meetings occurring today, you should select option 1 as the best choice. Please be aware of the range date that the given statement is making reference too, for example if the given statement wants to see the events of the following two weeks, the best option should be 2 because it fits in the range of the following two weeks, on the other hand, option 1 number cannot fulfill this request because the following two does not fit in the range of the following 7 days. Consider this is the current date and time: ${dateAndHour}
+
+    Remember, there are only these 5 options, there are no others available. Just answer with the number of the option, without the period.
+    Answer format: "[number]"
+    Example: "2"
+    
+    In such case that none of the options are related to the sentence, write "I am sorry, can you rephrase your request?".`,
+    max_tokens: 150,
+    temperature: 0,
+    n: 1,
+    stream: false
+  });
+    
+  return outlookDecisionClassification(parseInt(response.data.choices[0].text), input, requestStatus, dateAndHour); // Calls this function in order to get the response of OpenAI. This is the message that will be displayed to the user.
 }
 
-async function outlookDecisionClassification(responseOpenAI, input) {
-    let decision = '';
+// Function that decides which other functions to call depending on the choice that was made in the previous function.
+async function outlookDecisionClassification(responseOpenAI, input, requestStatus) {
+  let decision = ['', false, null, null]; // By default this is an empty string. It most likely means that something went wrong.
 
-    switch (responseOpenAI) {
-        case 1:
-            // Llama al endpoint indicado
-            // inputFinetune = input + '\\n\\n###\\n\\n'
-            // decision = questionPerficient(inputFinetune);
-            break;
-        case 2:
-            // Llama al endpoint indicado
-            break;
-        case 3:
-            // Llama al endpoint indicado
-            break;
-        case 4:
-            const requestStatus = await getRequestStatus();
-            const dateAndHour = getCurrentDateAndHour();
+  // A switch to determine which set of actions to execute depending of the classification of the answer.
+  switch (responseOpenAI) {
+    // Get all scheduled events starting today.
+    case 1:
+      // Llama al endpoint indicado
+      return ['Debo llamar solo a los eventos de los siguientes 7 días', false, null, null];
+      break;
+    // Get all scheduled events starting today, but up to the following 7 days.
+    case 2:
+      // Llama al endpoint indicado
+      return ['Debo llamar solo a los eventos de los siguientes 31 días', false, null, null];
+      break;
+    // Schedule a meeting.
+    case 3:
+      console.log('Es el caso 4 de Outlook.');
 
-            if(!requestStatus) {
-                decision = await scheduleMeeting(input, dateAndHour);
-            } else {
-                const currentData = await getCurrentData();
-                decision = await scheduleMeetingContinue(input, currentData, dateAndHour);
-            }
-            break;
-        case 'I am sorry, can you rephrase your request?':
-            decision = 'I am sorry, can you rephrase your request?';
-            break;
-        default:
-        decision = '';
-        break;
+      // If a request to schedule a meeting has not been made, it calls this function in order to start one.
+      if(!requestStatus) {
+        console.log('Aún no tiene una request.');
+        decision = await scheduleMeeting(input, dateAndHour);
+      }
+      break;
+    case 4:
+      // Llama al endpoint indicado
+      return ['Debo cancelar un evento', false, null, null];
+      break;
+    // In such case that none of the options are related to the sentence, write "I am sorry, can you rephrase your request?".
+    case 'I am sorry, can you rephrase your request?':
+      decision = ['I am sorry, can you rephrase your request?', false, null, null];
+      break;
+    // In such case that something goes wrong.
+    default:
+      decision = ['', false, null, null];
+      break;
   }
 
-  console.log('Decision', decision);
-
-  return decision;
+  return decision; // Returns the response that will be displayed to the user.
 }
 
+// Function that anaylyzes the user's message in order to prepare the information to make the request to Outlook's API.
+// This function is only when there is no other request going on.
 async function scheduleMeeting(input, dateAndHour) {
-    const normalResponse = await openai.createCompletion({
-        model:'text-davinci-003',
-        prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this sentence "${input}", determine if there is a subject, start date, and end date. If something is missing, please ask for those details.`,
-        max_tokens: 150,
-        temperature: 0,
-        n: 1,
-        stream: false
-      });
+  // This response will be displayed to the user.
+  const normalResponse = await openai.createCompletion({
+    model:'text-davinci-003',
+    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this sentence "${input}", determine if there is a subject, start date, and end date. If something is missing, please ask for those details, do not tell what you got, just what you are missing.`,
+    max_tokens: 150,
+    temperature: 0,
+    n: 1,
+    stream: false
+  });
 
-      const JSONresponse = await openai.createCompletion({
-        model:'text-davinci-003',
-        prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this sentence "${input}", determine if there is a subject, start date, and end date. Consider this is the current date and hour: ${dateAndHour}
-        
-        If something is missing, please ask for those details and return in a JSON all the required fields in order to create a meeting with the info you currently have, just return the output, without the input. I just want one pair of curly brackets. Please use Snake Case for the fields. If a field is missing, write it in the JSON as null.`,
-        max_tokens: 150,
-        temperature: 0,
-        n: 1,
-        stream: false
-      });
-
-      const obj = JSON.parse(JSONresponse.data.choices[0].text);
-
-      if(!obj.start_date || !obj.end_date) {
-        modifyQueryStatus();
-      }
-
-      saveCurrentData(obj);
+  // This response is sent to the function that creates a meeting in Outlook.
+  const JSONresponse = await openai.createCompletion({
+    model:'text-davinci-003',
+    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this sentence "${input}", determine if there is a subject, start date, and end date. Consider this is the current date and hour: ${dateAndHour} , but it does not necessarily mean that this is the start date. Remember, just determine the information based on the given sentence.
     
-      return normalResponse;
+    If something is missing, please ask for those details and return in a JSON all the required fields in order to create a meeting with the info you currently have, just return the output, without the input. I just want one pair of curly brackets. Please use camelCase for the fields. If a field is missing, write it in the JSON as null.`,
+    max_tokens: 256,
+    temperature: 0,
+    n: 1,
+    stream: false
+  });
+
+  // Parses the JSON that OpenAI returns.
+  const jsonString = JSONresponse.data.choices[0].text.trim();
+  const fixedJsonString = jsonString.replace(/([{,])(\s*)([A-Za-z0-9_\-]+?)\s*:/g, '$1"$3":');
+  const obj = JSON.parse(fixedJsonString);
+
+
+  console.log('Actual JSON Outlook:', obj);
+
+  let requestStatus = false;
+  let currentService = null;
+
+
+  // If the JSON has the startDate or endDate with null values, it modifies the request's status in order to indicate that a request is going on.
+  if(hasNullValues(obj)) {
+    console.log('No está completa la request');
+    requestStatus = true;
+    currentService = 'Outlook';
+  }
+    
+  return [normalResponse.data.choices[0].text, requestStatus, obj, currentService]; // Returns the response that will be displayed to the user.
 }
 
+// Function that anaylyzes the user's message in order to prepare the information to make the request to Outlook's API.
+// This function is only when there is a request going on.
 async function scheduleMeetingContinue(input, currentData, dateAndHour) {
-      const JSONresponse = await openai.createCompletion({
-        model:'text-davinci-003',
-        prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this sentence "${input}", determine if it corresponds to the missing information in this JSON (analyze if the sentence talks about specific fields, if it does not mention an end date, the end_date field must remain null) "${currentData}". And also determine if it wants to modify already existing information in that JSON. If the information in the JSON would complete, please let it know. If something else would be missing in the JSON (if there is a field with null value), please let it know too (there must not be any field with null value, analyze if the sentence talks about specific fields, if it does not mention an end date, the end_date field must remain null). Please also consider this is the current date and hour: ${dateAndHour}
-            
-        Just return the JSON, nothing else.`,
-        max_tokens: 150,
-        temperature: 0,
-        n: 1,
-        stream: false
-      });
+  // This response is sent to the function that creates a meeting in Outlook.
+  const JSONresponse = await openai.createCompletion({
+    model:'text-davinci-003',
+    prompt: `As a chatbot for Perficient, you're designed to automate Outlook-related workflow tasks, like scheduling meetings. Your task is to analyze the sentence "${input}" to see if it supplies missing information for this JSON: "${currentData}". Verify whether the sentence refers to specific fields in the JSON. If the sentence does not mention an end date, keep the "endDate" field null only if it already is null in the JSON you received, if not, leave it like it was as you originally received it.
 
-      const determineResponse = await openai.createCompletion({
-        model:'text-davinci-003',
-        prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this JSON "${JSONresponse}", determine if there are any fields with a null value, if it is the case, just return a number 0, if it is not, just return a number 1, only the number.`,
-        max_tokens: 150,
-        temperature: 0,
-        n: 1,
-        stream: false
-      });
-
-      const obj = JSON.parse(JSONresponse.data.choices[0].text);
-
-      if(!obj.start_date || !obj.end_date) {
-        modifyRequestStatus();
-      }
-
-      saveCurrentData(obj);
+    Additionally, discern whether the sentence suggests modifications to the existing information in the JSON. The current date and time are "${dateAndHour}", but they aren't the startDate or endDate, so please do not update those values in the new JSON with the current date and time.
     
-      return normalResponse;
+    Your task is to update the JSON based on the given sentence, ensuring you maintain its structure and order. If a field, like 'subject', isn't mentioned in the sentence, include it in the JSON as null only if it already is null in the JSON you received, if not, leave it like it was as you originally received it. Please do not add extra fields or change field names in the JSON.
+    
+    Return the updated JSON without any prefacing statement - the output should be the JSON and nothing else.`,
+    max_tokens: 150,
+    temperature: 0,
+    n: 1,
+    stream: false
+  });
+
+  console.log('Antes de parsear JSON:', JSONresponse.data.choices[0].text);
+
+  // Parses the JSON that OpenAI returns.
+  const jsonString = JSONresponse.data.choices[0].text.trim();
+  const fixedJsonString = jsonString.replace(/([{,])(\s*)([A-Za-z0-9_\-]+?)\s*:/g, '$1"$3":');
+  const obj = JSON.parse(fixedJsonString);
+
+  console.log('Actual JSON Outlook:', obj);
+
+  // Merge JSONs
+  const mergedJSON = mergeJSONObjects(currentData, obj);
+  console.log('JSON merge:', mergedJSON);
+
+  // If the user's message completes the request, it modifies the request's status and calls the function to create the meeting in Outlook.
+  if(hasNullValues(mergedJSON)) {
+    const normalResponse = await openai.createCompletion({
+      model:'text-davinci-003',
+      prompt: `Consider this scenario: You are an automated assistant for Perficient, a company capable of streamlining tasks related to Microsoft Outlook, including setting up meetings. Using the phrase "${input}", discern if it pertains to missing information comparing this exisitng dataset (old) "${currentData}" with this one (new) "${mergedJSON}". Investigate whether the phrase discusses certain fields. If no mention of a conclusion time is given, the corresponding field must be kept empty. Additionally, ascertain if the phrase intends to alter any data already present in the dataset. If a field is left vacant, be sure to highlight this (none of the fields should be empty, investigate whether the phrase talks about specific fields, yet if a closing time is not specified, that field must be empty). Please also remember that this is the current date and time: ${dateAndHour}.
+  
+      Your answer should avoid the use of the following terms: "JSON", "object", "sentence", "null", "startDate", "dataset", "based", "phrase" and "endDate". Your also should avoid mentioning the JSON as dataset, just call it information or somehting related.`,
+      max_tokens: 150,
+      temperature: 0,
+      n: 1,
+      stream: false
+    });
+    // modifyRequestStatus();
+    // saveCurrentService(null);
+    return [normalResponse.data.choices[0].text, mergedJSON]; // Returns the response that will be displayed to the user.
+  }
+
+  // TODO: Mostrar en pantalla el JSON o la información en lenguaje natural para confirmar los datos.
+/*   const verifyResponse = await openai.createCompletion({
+    model:'text-davinci-003',
+    prompt: `Consider this scenario: You are an automated assistant for Perficient, a company capable of streamlining tasks related to Microsoft Outlook, including setting up meetings. Using the phrase "${input}", discern if it pertains to missing information comparing this exisitng dataset (old) "${currentData}" with this one (new) "${mergedJSON}". Investigate whether the phrase discusses certain fields. If no mention of a conclusion time is given, the corresponding field must be kept empty. Additionally, ascertain if the phrase intends to alter any data already present in the dataset. If a field is left vacant, be sure to highlight this (none of the fields should be empty, investigate whether the phrase talks about specific fields, yet if a closing time is not specified, that field must be empty). Please also remember that this is the current date and time: ${dateAndHour}.
+
+    Your answer should avoid the use of the following terms: "JSON", "object", "sentence", "null", "startDate", "dataset", "based", "phrase" and "endDate". Your also should avoid mentioning the JSON as dataset, just call it information or somehting related.`,
+    max_tokens: 150,
+    temperature: 0,
+    n: 1,
+    stream: false
+  }); */
+
+  scheduleMeetingOutlook(mergedJSON);
+  return ['Request a Outlook terminada', mergedJSON];
 }
 
-async function modifyRequestStatus() {
-    try {
-        const response = await axios.post(`${baseURL}/modify-request-status`, null, {
-          jar: cookieJar,
-          withCredentials: true
-        });
-        console.log(response.data);
-      } catch (error) {
-        console.error(error);
-      }
+async function scheduleMeetingOutlook(JSONData) {
+  // Here it calls the Flask API.
+  console.log('HACIENDO LA LLAMADA A FLASK');
 }
 
-async function saveCurrentData(currentData) {
-    try {
-        const payload = {
-            currentData: currentData
-        }
-
-        const response = await axios.post(`${baseURL}/save-current-data`, payload, {
-          jar: cookieJar,
-          withCredentials: true
-        });
-        console.log(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-}
-
-async function getRequestStatus() {
-    try {
-        const response = await axios.get(`${baseURL}/get-request-status`, {
-          jar: cookieJar,
-          withCredentials: true
-        });
-        console.log(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-}
-
-async function getCurrentData() {
-    try {
-        const response = await axios.get(`${baseURL}/get-current-data`, {
-          jar: cookieJar,
-          withCredentials: true
-        });
-        console.log(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-}
-
-function getCurrentDateAndHour() {
-    // Create a new Date object
-    const currentDate = new Date();
-
-    // Get the current date
-    const year = currentDate.getFullYear();
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-    const day = String(currentDate.getDate()).padStart(2, '0');
-
-    // Get the current hour
-    const hours = String(currentDate.getHours()).padStart(2, '0');
-    const minutes = String(currentDate.getMinutes()).padStart(2, '0');
-    const seconds = String(currentDate.getSeconds()).padStart(2, '0');
-
-    // Print the current date and hour
-    console.log(`Current date: ${year}-${month}-${day}`);
-    console.log(`Current time: ${hours}:${minutes}:${seconds}`);
-
-    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
-}
+// Exports
+module.exports = {
+  outlookClassification,
+  scheduleMeetingContinue,
+};

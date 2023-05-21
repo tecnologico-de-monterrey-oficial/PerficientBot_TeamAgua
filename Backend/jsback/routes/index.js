@@ -1,284 +1,197 @@
+// Imports
 const express = require("express");
 const cors = require("cors");
-const { Configuration, OpenAIApi } = require("openai");
 const router = express.Router();
-const axios = require('axios');
-const session = require('express-session');
 
+const jwt = require('jsonwebtoken');
+const axios = require('axios');
+
+const { port, openai, getCurrentDateAndHour } = require('../functions/imports');
+
+const chatbot = require('../functions/chatbot');
 // const devops = require('../functions/devops');
 // const github = require('../functions/github');
-// const outlook = require('../functions/outlook');
+const outlook = require('../functions/outlook');
 
+// Initial configuration
 const app = express();
 app.use(express.json());
 app.use(cors());
 
+// Middleware to authenticate the token
+function authenticateToken(req, res, next) {
+  const token = req.headers.authorization.split(' ')[1];
 
-require("dotenv").config({ path: '../../.env' });
+  const secretKey = 'your_secret_key';
 
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-const port = process.env.PORT;
-//const port = 3001
-const openai = new OpenAIApi(configuration);
-
-/* function checkInactive() {
-  const currentTime = Date.now();
-  const elapsedTime = currentTime - lastRequestTime;
-  const thirtyMinutes = 30 * 60 * 1000; // 30 minutes in milliseconds
-
-  if (elapsedTime > thirtyMinutes) {
-    // Perform actions when no requests have been received for 30 minutes
-    history = [];
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' });
   }
 
-  // Schedule the next check after a certain interval
-  setTimeout(checkInactive, thirtyMinutes);
-}
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: 'Invalid token' });
+    }
 
-checkInactive(); */
-
-async function classification(input) {
-  const response = await openai.createCompletion({
-    model:'text-davinci-003',
-    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Microsoft tools (Outlook, GitHub, and Azure DevOps). You are also able to answer questions about the company because you have a knowledge base. Given this sentence "${input}". According to the main action of the sentence (if necessary, only focus in the main action, imagine where the action will take place considering the best platform to have it), determine which of the following options it belongs to: 
-
-    1.- General Question about Perficient. 
-    2.- Request to Outlook. 
-    3.- Request to Azure DevOps. 
-    4.- Request to GitHub. 
-    5.- General Conversation. 
-    
-    Remember, there are only these 5 options, there are no others available. Just answer with the number of the option, without the period.
-    Answer format: "[number]"
-    Example: "2"
-    
-    In such case that none of the options are related to the sentence, write "I am sorry, can you rephrase your request?".`,
-    max_tokens: 150,
-    temperature: 0,
-    n: 1,
-    stream: false
+    // Token is valid
+    req.user = decoded;
+    next();
   });
-
-  return decisionClassification(parseInt(response.data.choices[0].text), input);
 }
 
-async function decisionClassification(responseOpenAI, input) {
-  let decision = '';
+// Example function to generate a new token with updated claims
+function generateNewToken(user) {
+  // Generate a new JWT token with updated claims
+  const secretKey = 'your_secret_key';
 
-  switch (responseOpenAI) {
-    case 1:
-      inputFinetune = input + '\\n\\n###\\n\\n';
-      decision = questionPerficient(inputFinetune);
-      break;
-    case 2:
-      const validationOutlook = await validationClassification(input, 'Outlook');
-      console.log('Validacion', validationOutlook);
-      if(validationOutlook) {
-        decision = await requestOutlook();
-      }
-      break;
-    case 3:
-      const validationAzureDevOps = await validationClassification(input, 'AzureDevOps');
-      if(validationAzureDevOps) {
-        decision = await requestAzureDevOps();
-      }
-      break;
-    case 4:
-      const validationGitHub = await validationClassification(input, 'GitHub');
-      console.log(validationGitHub);
-      if(validationGitHub) {
-        decision = await requestGitHub();
-      }
-      break;
-    case 5:
-      decision = 'General Conversation.';
-      break;
-    case 'I am sorry, can you rephrase your request?':
-      decision = 'I am sorry, can you rephrase your request?';
-      break;
-    default:
-      decision = '';
-      break;
-  }
+  const newToken = jwt.sign(user, secretKey);
 
-  console.log('Decision', decision);
-
-  return decision;
+  return newToken;
 }
 
-async function validationClassification(input, service) {
-  const response = await openai.createCompletion({
-    model: 'text-davinci-003',
-    prompt: `Is it really possible to make this "${input}" happen in ${service}? Please return a boolean saying if it's 0 or 1. Just return the number.`,
-    max_tokens: 150,
-    temperature: 0,
-    n: 1,
-    stream: false
-  });
-
-  return Boolean(parseInt(response.data.choices[0].text));
-}
-
-async function questionPerficient(input) {
-  const response = await openai.createCompletion({
-    model:'davinci:ft-personal-2023-04-28-18-40-02',
-    prompt: input,
-    max_tokens: 150,
-    temperature: 0,
-    n: 1,
-    stream: false
-  });
-
-  return response.data.choices[0].text;
-}
-
-async function requestOutlook(input) {
-  // Aquí iría la llamada a la API de Outlook
-  const message_bot = await 'I see that you want to schedule a meeting in Outlook.\nPlease provide some details about it.';
-
-  return message_bot;
-}
-
-async function requestAzureDevOps() {
-  // Aquí iría la llamada a la API de DevOps
-  const message_bot = await 'I see that you want to create a new project in Azure DevOps. \nPlease provide more information so I can assist you';
-
-  return message_bot;
-}
-
-async function requestGitHub() {
-  // Aquí iría la llamada a la API de GitHub
-  const message_bot = await 'I see that you want to create a new repository on GitHub.';
-
-  return message_bot;
-}
-
-// Configure session middleware
-app.use(session({
-  secret: 'your-secret-key',
-  resave: false,
-  saveUninitialized: true,
-}));
-
-app.post('/modify-request-status', async (req, res) => {
-  req.session.query_status = !req.session.query_status;
-  res.send('request status modified');
-});
-
-app.post('/save-current-data', async (req, res) => {
-  const { currentData } = req.body;
-
-  // Handle the value as needed
-  console.log(`Received value: ${currentData}`);
-
-  req.session.current_data = currentData;
-
-  res.send('Current data saved');
-});
-
-app.get('/get-request-status', (req, res) => {
-  res.send(req.session.query_status);
-});
-
-app.get('/get-current-data', (req, res) => {
-  res.send(req.session.current_data);
-});
-
-app.post('/clear-conversation', (req, res) => {
-  // Borra la conversación actual en la sesión
-  req.session.conversation = [];
-
-  res.send('Conversación reiniciada');
-});
-
-app.post('/', async (req, res) => {
-  const { user_message } = req.body;
-  const userId = req.session.id;
-
-  // Retrieve or initialize conversation data from the session
-  const conversationData = req.session.conversation || {
-    messages: [],
-    // other conversation-related data
+// Route to generate a token with additional variables
+app.post('/login', (req, res) => {
+  // In a real scenario, you would validate the user's credentials here
+  const user = {
+    id: 1,
+    username: 'exampleUser',
+    conversation: [],
+    request_status: false,
+    current_data: null,
+    current_service: null
   };
 
-  // Update the conversation data in the session
-  if(!req.session.conversation) {
-    req.session.conversation = conversationData.messages;
+  const secretKey = 'your_secret_key';
+
+  // Create the JWT token with additional claims
+  const token = jwt.sign(user, secretKey);
+
+  res.json({ token });
+});
+
+// Endpoint that handles everything of the chatbot.
+app.post('/', authenticateToken, async (req, res) => {
+  const { user_message } = req.body;
+
+  // If the user's message is not in English, the bot returns this message.
+  if(!chatbot.EnglishOrNot(user_message)) {
+    req.user.conversation.push({role: "user", content: user_message}); // Saves the user's message in the session's history of the conversation.
+    req.user.conversation.push({role: "assistant", content: 'Please write in English.'}); // Saves the response in the session's history of the conversation.
+    console.log('Historial- No English');
+    console.log(req.user.conversation);
+
+    const newToken = generateNewToken(req.user);
+
+    res.send({ response: {role: 'assistant', content: 'Please write in English.'}, new_token: newToken}); // Returns the response to the user.
+
+    return; // Ends execution of this endpoint.
   }
 
-  const queryStatus = req.session.query_status || false;
+  // Checa los demás datos de la sesión
+  console.log('Este es el servicio actual:', req.user.current_service);
+  console.log('Este es el estado de la request actual:', req.user.request_status);
+  console.log('Este es el current data actual:', req.user.current_data);
 
-  if(!req.session.query_status) {
-    req.session.query_status = queryStatus;
+  if(req.user.current_service === 'Outlook') {
+    // TODO: Aquí íría la verificación para checar que sí se sigue hablando del mismo tema.
+    console.log('Vamos a continuar con esta request de Outlook.');
+
+    const dateAndHour = getCurrentDateAndHour();
+    // Checks if the user's message has anything to do with the initial request
+    const outlookResponse = await outlook.scheduleMeetingContinue(user_message, req.user.current_data, dateAndHour);
+
+    // Saves the messages into the history of conversation
+    req.user.conversation.push({role: "user", content: user_message});
+    req.user.conversation.push({role: "assistant", content: outlookResponse[0]});
+
+    req.user.current_data = outlookResponse[1];
+
+    console.log('Historial - Outlook Service');
+    console.log(req.user.conversation);
+
+    const newToken = generateNewToken(req.user);
+
+    res.send({ response: {role: 'assistant', content: outlookResponse[0]}, new_token: newToken}); // Returns the response to the user.
+
+    return; // Ends execution of this endpoint.
   }
 
-  const currentData = req.session.current_data || '';
+  const classificationResult = await chatbot.classification(user_message, req.user.request_status); // Classifies the user's message.
+  req.user.conversation.push({role: "user", content: user_message}); // Saves the user's message in the session's history of the conversation.
 
-  if(!req.session.current_data) {
-    req.session.current_data = currentData;
-  }
-
-  const classificationResult = await classification(user_message);
-  req.session.conversation.push({role: "user", content: user_message});
-
-  console.log("Último mensaje.");
-  console.log(req.session.conversation[req.session.conversation.length - 1])
-
-  // If it returns 1
-  if(classificationResult === 'General Conversation.') {
+  // If OpenAI classifies the user's message as General Conversation, it answers normally.
+  if(classificationResult[0] === 'General Conversation.') {
     const completion = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
-      messages: req.session.conversation,
+      messages: req.user.conversation,
       max_tokens: 150,
       n: 1,
       stop: null
     });
 
-    req.session.conversation.push(completion.data.choices[0].message);
+    req.user.conversation.push(completion.data.choices[0].message); // Save OpenAI's response in the session's history of the conversation.
+
     console.log('Conversación General - Historial');
-    console.log(req.session.conversation);
+    console.log(req.user.conversation);
 
-    res.send({ response: completion.data.choices[0].message });
+    const newToken = generateNewToken(req.user);
 
-    return;
+    res.send({ response: completion.data.choices[0].message, new_token: newToken }); // Returns the response to the user.
+
+    return; // Ends execution of this endpoint.
   }
 
+  // If the user's request cannot be made in a certain platform or service, it returns a specific response.
   if(classificationResult === '') {
-    req.session.conversation.push({role: "assistant", content: 'I apologize, but I\'m having trouble understanding your request. Could you please rephrase it or provide more specific details so that I can assist you better?'});
+    req.session.conversation.push({role: "assistant", content: 'I apologize, but I am having trouble understanding your request. Could you please rephrase it or provide more specific details so that I can assist you better?'}); // Saves the response in the session's history of the conversation.
+
     console.log('Historial');
-    console.log(req.session.conversation);
+    console.log(req.user.conversation);
 
-    res.send({ response: {role: 'assistant', content: 'I apologize, but I\'m having trouble understanding your request. Could you please rephrase it or provide more specific details so that I can assist you better?'}});
+    const newToken = generateNewToken(req.user);
 
-    return;
+    res.send({ response: {role: 'assistant', content: 'I apologize, but I am having trouble understanding your request. Could you please rephrase it or provide more specific details so that I can assist you better?'}}); // Returns the response to the user.
+
+    return; // Ends execution of this endpoint.
   }
 
-  if(classificationResult === 'I am sorry, can you rephrase your request?') {
-    req.session.conversation.push({role: "assistant", content: classificationResult});
+  // If OpenAI cannot classify the user's message, it returns a specific response.
+  if(classificationResult[0] === 'I am sorry, can you rephrase your request?') {
+    req.user.conversation.push({role: "assistant", content: classificationResult}); // Saves the response in the session's history of the conversation.
     console.log('Historial');
-    console.log(req.session.conversation);
+    console.log(req.user.conversation);
 
-    res.send({ response: {role: 'assistant', content: classificationResult}});
+    const newToken = generateNewToken(req.user);
 
-    return;
+    res.send({ response: {role: 'assistant', content: classificationResult}, new_token: newToken}); // Returns the response to the user.
+
+    return; // Ends execution of this endpoint.
   }
 
-  req.session.conversation.push({role: "assistant", content: classificationResult});
+  req.user.conversation.push({role: "assistant", content: classificationResult[0]}); // Saves OpenAI's response in the session's history of the conversation.
 
   console.log('Historial');
-  console.log(req.session.conversation);
+  console.log(req.user.conversation);
 
-  res.send({ response: {role: 'assistant', content: classificationResult}});
+  req.user.request_status = classificationResult[1];
+  req.user.current_data = classificationResult[2];
+  req.user.current_service = classificationResult[3];
+
+  console.log('Request Status después de asignar:', req.user.request_status);
+  console.log('Current Data después de asignar:', req.user.current_data);
+  console.log('Current Service después de asignar:', req.user.current_service);
+
+  const newToken = generateNewToken(req.user);
+
+  res.send({ response: {role: 'assistant', content: classificationResult[0]}, new_token: newToken}); // Returns the response to the user.
 
   // let lastRequestTime = Date.now();
 });
 
+// Listens
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
+// Exports
 module.exports = router
-
