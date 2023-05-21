@@ -32,8 +32,29 @@ const openai = new OpenAIApi(configuration);
     return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`; // Returns the current date and hour in a concatenated string.
   }
 
+  function hasNullValues(obj) {
+    if (typeof obj !== 'object') {
+      return false;
+    }
+  
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        if (obj[key] === null) {
+          return true;
+        }
+  
+        if (typeof obj[key] === 'object' && hasNullValues(obj[key])) {
+          return true;
+        }
+      }
+    }
+  
+    return false;
+  }
+
 module.exports = {
     port,
     openai,
-    getCurrentDateAndHour
+    getCurrentDateAndHour,
+    hasNullValues
 };

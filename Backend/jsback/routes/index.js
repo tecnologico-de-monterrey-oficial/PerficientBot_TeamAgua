@@ -93,7 +93,7 @@ app.post('/', authenticateToken, async (req, res) => {
   console.log('Este es el current data actual:', req.user.current_data);
 
   if(req.user.current_service === 'Outlook') {
-    // Aquí íría la verificación.
+    // TODO: Aquí íría la verificación para checar que sí se sigue hablando del mismo tema.
     console.log('Vamos a continuar con esta request de Outlook.');
 
     const dateAndHour = getCurrentDateAndHour();

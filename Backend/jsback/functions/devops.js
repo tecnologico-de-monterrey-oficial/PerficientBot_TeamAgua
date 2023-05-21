@@ -19,3 +19,5 @@ export async function funcion(input) {
     
     //   return decisionClassification(parseInt(response.data.choices[0].text), input);
 }
+
+// TODO: Si quiero info de un work item en especifico, primero llamar al endpoint allWI y después al endpoint getWI.
