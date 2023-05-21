@@ -10,7 +10,7 @@ import { BehaviorSubject } from 'rxjs/';
 export class OpenaiService {
 
   constructor(private http: HttpClient) { }
-  apiURL = 'http://localhost:3001/';
+  apiURL = 'http://localhost:3000/';
 
   // Http Options
   httpOptions = {

@@ -67,6 +67,5 @@ module.exports = {
     openai,
     getCurrentDateAndHour,
     hasNullValues,
-    mergeJSONObjects,
-    extractJSONFromString
+    mergeJSONObjects
 };
