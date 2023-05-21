@@ -62,32 +62,6 @@ const openai = new OpenAIApi(configuration);
     return mergedJSON;
   }
 
-  function extractJSONFromString(inputString) {
-    let jsonString = inputString;
-    let jsonObject;
-  
-    // Check if the input string starts with '[' and ends with ']'
-    // If it does, assume it's an array of JSON objects
-    if (inputString.startsWith("[") && inputString.endsWith("]")) {
-      // Find the index of the first '[' and the last ']'
-      const startIndex = inputString.indexOf("[");
-      const endIndex = inputString.lastIndexOf("]");
-  
-      // Extract the JSON substring from the input string
-      jsonString = inputString.substring(startIndex, endIndex + 1);
-    }
-  
-    try {
-      // Try parsing the extracted JSON string
-      jsonObject = JSON.parse(jsonString);
-    } catch (error) {
-      console.error("Invalid JSON format");
-      return null;
-    }
-  
-    return jsonObject;
-  }
-
 module.exports = {
     port,
     openai,

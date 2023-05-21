@@ -173,6 +173,18 @@ async function scheduleMeetingContinue(input, currentData, dateAndHour) {
     return [normalResponse.data.choices[0].text, mergedJSON]; // Returns the response that will be displayed to the user.
   }
 
+  // TODO: Mostrar en pantalla el JSON o la información en lenguaje natural para confirmar los datos.
+/*   const verifyResponse = await openai.createCompletion({
+    model:'text-davinci-003',
+    prompt: `Consider this scenario: You are an automated assistant for Perficient, a company capable of streamlining tasks related to Microsoft Outlook, including setting up meetings. Using the phrase "${input}", discern if it pertains to missing information comparing this exisitng dataset (old) "${currentData}" with this one (new) "${mergedJSON}". Investigate whether the phrase discusses certain fields. If no mention of a conclusion time is given, the corresponding field must be kept empty. Additionally, ascertain if the phrase intends to alter any data already present in the dataset. If a field is left vacant, be sure to highlight this (none of the fields should be empty, investigate whether the phrase talks about specific fields, yet if a closing time is not specified, that field must be empty). Please also remember that this is the current date and time: ${dateAndHour}.
+
+    Your answer should avoid the use of the following terms: "JSON", "object", "sentence", "null", "startDate", "dataset", "based", "phrase" and "endDate". Your also should avoid mentioning the JSON as dataset, just call it information or somehting related.`,
+    max_tokens: 150,
+    temperature: 0,
+    n: 1,
+    stream: false
+  }); */
+
   scheduleMeetingOutlook(mergedJSON);
   return ['Request a Outlook terminada', mergedJSON];
 }
