@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 async def upload(user_id):
     if 'file' not in request.files:
@@ -29,6 +29,10 @@ async def upload(user_id):
     
 def getCV(user_id):
     directory = f'Documents/{user_id}'
+
+    if not os.path.exists(directory):
+        return "The employee has not upload a CV"
+
     file_path = os.path.join(directory, 'CV.png')
 
     with open(file_path, 'rb') as file:
@@ -40,6 +44,10 @@ def getCV(user_id):
 
 def getGPTtext(user_id):
     directory = f'Documents/{user_id}'
+
+    if not os.path.exists(directory):
+        return "The employee has not upload a CV"
+
     file_path = os.path.join(directory, 'CVGPT.txt')
 
     with open(file_path, 'r') as file:
