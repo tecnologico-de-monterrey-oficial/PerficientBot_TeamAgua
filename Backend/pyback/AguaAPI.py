@@ -3,7 +3,7 @@ from flask_cors import CORS
 import aiohttp
 import asyncio
 from GithubAPI import GithubRepos, GithubIssues, GithubPulls
-from OutlookAPI import OutlookWeekEvents, OutlookMonthEvents, OutlookScheduleMeeting, OutlookAllEvents, OutlookGroups, OutlookDelete
+from OutlookAPI import OutlookWeekEvents, OutlookMonthEvents, OutlookScheduleMeeting, OutlookAllEvents, OutlookGroups, OutlookDelete, OutlookFindMeetingTime
 from AzureAPI import AzureCreateItem, AzureOneItem, AzureWorkItems
 from CVAPI import getCV, getGPTtext, upload
 
@@ -320,6 +320,18 @@ def getGithubPulls():
 @app.route('/Outlook/Groups')
 def getOutlookGroups():
     return OutlookGroups()
+
+"""
+{
+    "emailAddress": {"address": "A00831316@tec.mx"},
+    "startDateTime": "2023-05-24T09:00:00",
+    "finishDateTime": "2023-05-26T09:00:00",
+    "duration": "PT1H"
+}
+"""
+@app.route('/Outlook/FindTime', methods=['POST'])
+def getOutlookFreeTime():
+    return OutlookFindMeetingTime()
 
 """ Input: 
 {
