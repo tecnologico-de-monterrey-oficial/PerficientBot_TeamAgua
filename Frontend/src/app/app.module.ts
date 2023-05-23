@@ -12,6 +12,14 @@ import { SmartbotComponent } from './components/home/smartbot/smartbot.component
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HomeComponent } from './components/home/home.component';
+<<<<<<< Updated upstream
+=======
+import { NavbarComponent } from './components/navbar/navbar.component';
+import {UploadFormComponent} from "./components/profile/upload-form/upload-form.component";
+import { HrSearchComponent } from './components/profile/hr-search/hr-search.component';
+import { SearchBarComponent } from './components/searchbar/searchbar.component';
+
+>>>>>>> Stashed changes
 
 
 @NgModule({
@@ -19,8 +27,17 @@ import { HomeComponent } from './components/home/home.component';
     AppComponent,
     LoginComponent,
     ProfileComponent,
+<<<<<<< Updated upstream
     SmartbotComponent,
     HomeComponent
+=======
+    ChatbotComponent,
+    HomeComponent,
+    NavbarComponent,
+    UploadFormComponent,
+    HrSearchComponent,
+    SearchBarComponent,
+>>>>>>> Stashed changes
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,4 @@
+<input type="text" [(ngModel)]="textoBusqueda" (input)="buscar()">
+<ul>
+  <li *ngFor="let persona of resultados">{{ persona.nombre }}</li>
+</ul>
