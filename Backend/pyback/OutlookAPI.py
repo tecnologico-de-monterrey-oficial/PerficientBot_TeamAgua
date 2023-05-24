@@ -162,8 +162,10 @@ def OutlookScheduleMeeting():
     # Hace el POST y verifica si se crea correctamente
     response = requests.post(API_OUT_POSTMEETING, headers=headers, json=data)
     if response.status_code == 201:
-        response_data = {'message': 'Event created successfully.'}
-        return response_data
+        data = response.json()
+        return {'message': 'Event created successfully.',
+                'url': data['webLink']}
+        print('Event created successfully.')
     else:
         response_data = {'message': 'Event failed to be created.'}
         return response_data

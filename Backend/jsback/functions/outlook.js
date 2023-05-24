@@ -5,7 +5,6 @@ const axios = require('axios');
 const { openai, hasNullValues, mergeJSONObjects } = require('../functions/imports');
 
 // Main function that classifies the user's response in one of the options that can be made with Outlook's API.
-// TODO: Si se quiere reagendar, se debería de asignar la función de eliminar y después la de crear.
 async function outlookClassification(input, requestStatus, dateAndHour) {
   const response = await openai.createCompletion({
     model:'text-davinci-003',
@@ -35,7 +34,7 @@ async function outlookClassification(input, requestStatus, dateAndHour) {
 }
 
 // Function that decides which other functions to call depending on the choice that was made in the previous function.
-async function outlookDecisionClassification(responseOpenAI, input, requestStatus) {
+async function outlookDecisionClassification(responseOpenAI, input, requestStatus, dateAndHour) {
   let decision = ['', false, null, null]; // By default this is an empty string. It most likely means that something went wrong.
 
   // A switch to determine which set of actions to execute depending of the classification of the answer.
@@ -95,7 +94,7 @@ async function scheduleMeeting(input, dateAndHour) {
     model:'text-davinci-003',
     prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this sentence "${input}", determine if there is a subject, start date, and end date. Consider this is the current date and hour: ${dateAndHour} , but it does not necessarily mean that this is the start date. Remember, just determine the information based on the given sentence.
     
-    If something is missing, please ask for those details and return in a JSON all the required fields in order to create a meeting with the info you currently have, just return the output, without the input. I just want one pair of curly brackets. Please use camelCase for the fields. If a field is missing, write it in the JSON as null.`,
+    Please use camelCase for the fields. If a field is missing, write it in the JSON as null. Return the JSON without any prefacing statement - the output should be the JSON and nothing else.`,
     max_tokens: 256,
     temperature: 0,
     n: 1,
@@ -110,18 +109,23 @@ async function scheduleMeeting(input, dateAndHour) {
 
   console.log('Actual JSON Outlook:', obj);
 
+  // These are the defualt values in case the request is completed in one single message.
   let requestStatus = false;
   let currentService = null;
 
-
-  // If the JSON has the startDate or endDate with null values, it modifies the request's status in order to indicate that a request is going on.
+  // If the JSON has at least a field with null value, it modifies the request's status in order to indicate that a request is going on.
   if(hasNullValues(obj)) {
     console.log('No está completa la request');
     requestStatus = true;
     currentService = 'Outlook';
+    return [normalResponse.data.choices[0].text, requestStatus, obj, currentService]; // Returns the response that will be displayed to the user.
   }
-    
-  return [normalResponse.data.choices[0].text, requestStatus, obj, currentService]; // Returns the response that will be displayed to the user.
+
+  // If the JSON has all fields with a value, it modifies the JSON itself in order to send it to the Outlook API.
+  const correctedTimeJSON = correctTimeFormat(obj);
+  const confirmResponse = displayMeetingInfo(correctedTimeJSON);
+
+  return [confirmResponse, requestStatus, correctedTimeJSON, currentService];
 }
 
 // Function that anaylyzes the user's message in order to prepare the information to make the request to Outlook's API.
@@ -162,31 +166,87 @@ async function scheduleMeetingContinue(input, currentData, dateAndHour) {
       model:'text-davinci-003',
       prompt: `Consider this scenario: You are an automated assistant for Perficient, a company capable of streamlining tasks related to Microsoft Outlook, including setting up meetings. Using the phrase "${input}", discern if it pertains to missing information comparing this exisitng dataset (old) "${currentData}" with this one (new) "${mergedJSON}". Investigate whether the phrase discusses certain fields. If no mention of a conclusion time is given, the corresponding field must be kept empty. Additionally, ascertain if the phrase intends to alter any data already present in the dataset. If a field is left vacant, be sure to highlight this (none of the fields should be empty, investigate whether the phrase talks about specific fields, yet if a closing time is not specified, that field must be empty). Please also remember that this is the current date and time: ${dateAndHour}.
   
-      Your answer should avoid the use of the following terms: "JSON", "object", "sentence", "null", "startDate", "dataset", "based", "phrase" and "endDate". Your also should avoid mentioning the JSON as dataset, just call it information or somehting related.`,
+      Your answer should avoid the use of the following terms: "JSON", "object", "sentence", "null", "startDate", "dataset", "based", "phrase" and "endDate". You also should avoid mentioning the JSON as dataset, just call it information or somehting related.`,
       max_tokens: 150,
       temperature: 0,
       n: 1,
       stream: false
     });
-    // modifyRequestStatus();
-    // saveCurrentService(null);
+
     return [normalResponse.data.choices[0].text, mergedJSON]; // Returns the response that will be displayed to the user.
   }
 
-  // TODO: Mostrar en pantalla el JSON o la información en lenguaje natural para confirmar los datos.
-/*   const verifyResponse = await openai.createCompletion({
-    model:'text-davinci-003',
-    prompt: `Consider this scenario: You are an automated assistant for Perficient, a company capable of streamlining tasks related to Microsoft Outlook, including setting up meetings. Using the phrase "${input}", discern if it pertains to missing information comparing this exisitng dataset (old) "${currentData}" with this one (new) "${mergedJSON}". Investigate whether the phrase discusses certain fields. If no mention of a conclusion time is given, the corresponding field must be kept empty. Additionally, ascertain if the phrase intends to alter any data already present in the dataset. If a field is left vacant, be sure to highlight this (none of the fields should be empty, investigate whether the phrase talks about specific fields, yet if a closing time is not specified, that field must be empty). Please also remember that this is the current date and time: ${dateAndHour}.
+  // If the JSON has all fields with a value, it modifies the JSON itself in order to send it to the Outlook API.
+  const correctedTimeJSON = correctTimeFormat(mergedJSON);
+  const confirmResponse = displayMeetingInfo(correctedTimeJSON);
 
-    Your answer should avoid the use of the following terms: "JSON", "object", "sentence", "null", "startDate", "dataset", "based", "phrase" and "endDate". Your also should avoid mentioning the JSON as dataset, just call it information or somehting related.`,
+  return [confirmResponse, mergedJSON];
+}
+
+// Function that corrects the time format in the JSON.
+function correctTimeFormat(input) {
+  if (input.startDate && input.endDate) {
+    input.startDate = input.startDate.slice(0, -5) + ".099Z";
+    input.endDate = input.endDate.slice(0, -5) + ".099Z";
+  }
+  return input;
+}
+
+// Function that divides the value of the startDate or endDate in two strings, one for the date, and the other for the time.
+function splitStringByT(str) {
+  const index = str.indexOf('T');
+  
+  if (index === -1) {
+    // 'T' not found in the string
+    return [str, ''];
+  }
+  
+  const firstHalf = str.slice(0, index);
+  const secondHalf = str.slice(index + 1);
+  
+  return [firstHalf, secondHalf];
+}
+
+// Function that removes the last 5 characters of a string in order to display in a more natural way the times of the JSON of the meeting.
+function removeLastFiveCharacters(str) {
+  if (str.length <= 5) {
+    return '';
+  } else {
+    return str.slice(0, -5);
+  }
+}
+
+// Function that displays the information of the meeting in a more natural way.
+function displayMeetingInfo(currentData) {
+  const startDateTime = splitStringByT(currentData.startDate);
+  const startDate = startDateTime[0];
+  const startTime = removeLastFiveCharacters(startDateTime[1]);
+
+  const endDateTime = splitStringByT(currentData.endDate);
+  const endDate = endDateTime[0];
+  const endTime = removeLastFiveCharacters(endDateTime[1]);
+
+  return `You can view in Outlook in detail the creation of the meeting you requested with the following information:
+  Subject: ${currentData.subject}
+  Start Date: ${startDate} | ${startTime} UTC
+  End Date: ${endDate} | ${endTime} UTC`;
+}
+
+async function checksConversationTopic(input, currentData, currentDateAndHour) {
+  const normalResponse = await openai.createCompletion({
+    model:'text-davinci-003',
+    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this sentence "${input}", determine if it has to do anything with creating the meeting. For more context, this is the the current JSON to create the meeting "${currentData}", and this is the current date and time: ${currentDateAndHour}
+    
+    Please return just the integer 0 in case the given sentence is not related with creating the current meeting. If it is not the case, please just return the integer 1. Remember that your answer must exlcusively the integer. Its length must be one character.`,
     max_tokens: 150,
     temperature: 0,
     n: 1,
     stream: false
-  }); */
+  });
+}
 
-  scheduleMeetingOutlook(mergedJSON);
-  return ['Request a Outlook terminada', mergedJSON];
+async function getEvents7Days() {
+  console.log('HACIENDO LA LLAMADA A FLASK');
 }
 
 async function scheduleMeetingOutlook(JSONData) {
@@ -198,4 +258,5 @@ async function scheduleMeetingOutlook(JSONData) {
 module.exports = {
   outlookClassification,
   scheduleMeetingContinue,
+  checksConversationTopic
 };

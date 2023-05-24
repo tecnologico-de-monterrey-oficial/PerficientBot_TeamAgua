@@ -93,15 +93,36 @@ app.post('/', authenticateToken, async (req, res) => {
   console.log('Este es el current data actual:', req.user.current_data);
 
   if(req.user.current_service === 'Outlook') {
-    // TODO: Aquí íría la verificación para checar que sí se sigue hablando del mismo tema.
+    const dateAndHour = getCurrentDateAndHour(); // Gets the current date and hour.
+
+    req.user.conversation.push({role: "user", content: user_message}); // Saves the messages into the history of conversation
+
+    // Checks if the user's message has anything to do with the initial request
+    if(!outlook.checksConversationTopic(user_message, req.user.conversation, dateAndHour)) {
+      const response = 'It seems that you want to change your conversation topic. I will reset your request to create a meeting and forget everything about it. If you want to create a meeting, please phrase your request from scratch. If you do not want to happen this by accident, please remember to use ';
+
+      req.user.conversation.push({role: "assistant", content: response}); // Saves the messages into the history of conversation
+
+      // Updates the values of the JWT.
+      req.user.request_status = false;
+      req.user.current_data = null;
+      req.user.current_service = null;
+
+      console.log('Historial - Outlook Service');
+      console.log(req.user.conversation);
+
+      const newToken = generateNewToken(req.user); // Generates a new token for the next message.
+
+      res.send({ response: {role: 'assistant', content: response}, new_token: newToken}); // Returns the response to the user.
+
+      return; // Ends execution of this endpoint.
+    }
+
     console.log('Vamos a continuar con esta request de Outlook.');
 
-    const dateAndHour = getCurrentDateAndHour();
     // Checks if the user's message has anything to do with the initial request
     const outlookResponse = await outlook.scheduleMeetingContinue(user_message, req.user.current_data, dateAndHour);
 
-    // Saves the messages into the history of conversation
-    req.user.conversation.push({role: "user", content: user_message});
     req.user.conversation.push({role: "assistant", content: outlookResponse[0]});
 
     req.user.current_data = outlookResponse[1];
@@ -109,7 +130,7 @@ app.post('/', authenticateToken, async (req, res) => {
     console.log('Historial - Outlook Service');
     console.log(req.user.conversation);
 
-    const newToken = generateNewToken(req.user);
+    const newToken = generateNewToken(req.user); // Generates a new token for the next message.
 
     res.send({ response: {role: 'assistant', content: outlookResponse[0]}, new_token: newToken}); // Returns the response to the user.
 
