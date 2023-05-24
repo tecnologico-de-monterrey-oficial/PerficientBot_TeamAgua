@@ -39,7 +39,7 @@ def obtener_usuarios():
         return f"Error: {str(e)}"
 
 
-def guardar_usuario():
+def guardar_usuario(): #method=['POST']
     server = 'agua-perficientbot-server.database.windows.net'
     database = 'Agua_PerficientBot-db'
     username = 'Agua'
