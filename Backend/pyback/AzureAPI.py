@@ -67,7 +67,8 @@ def AzureWorkItems():
             wi = {
                 "ID" : data['id'],
                 "Title": data['fields']['System.Title'],
-                "WItype": data['fields']['System.WorkItemType']
+                "WItype": data['fields']['System.WorkItemType'],
+                "url": data['url']
             }
 
             WI.append(wi)
@@ -99,7 +100,8 @@ def AzureOneItem():
         wi = {
             "ID" : data['id'],
             "Title": data['fields']['System.Title'],
-            "WItype": data['fields']['System.WorkItemType']
+            "WItype": data['fields']['System.WorkItemType'],
+            "url": data['url']
         }
     except json.JSONDecodeError as e:
         print(f"Error decoding JSON response: {e}")
@@ -148,6 +150,9 @@ def AzureCreateItem():
 
     # Check the response status code
     if response.status_code == 200:
-        return jsonify({"message": "Work item created successfully."}), 200
+        data = response.json()
+        url = data['url']
+        return jsonify({"message": "Work item created successfully.",
+                        "url": f"{url}"})
     else:
         return jsonify({"message": f"Failed to create work item. Error message: {response.text}"}), 400
