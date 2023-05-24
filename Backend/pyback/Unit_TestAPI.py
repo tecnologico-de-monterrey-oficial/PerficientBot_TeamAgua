@@ -36,6 +36,28 @@ class AppTestCase(unittest.TestCase):
         response = self.app.get('/Outlook/Groups')
         self.assertEqual(response.status_code, 200)
 
+    def test_Happy_PathOutlookWeek(self):
+        response = self.app.get('/Outlook/WeekEvents')
+        self.assertEqual(response.status_code, 200)
+
+    def test_Happy_PathOutlookMonth(self):
+        response = self.app.get('/Outlook/MonthEvents')
+        self.assertEqual(response.status_code, 200)
+
+    def test_Happy_PathOutlookAll(self):
+        response = self.app.get('/Outlook/AllEvents')
+        self.assertEqual(response.status_code, 200)
+
+    def test_Happy_PathOutlookSchedule(self):
+        with app.test_client() as client:
+            input_data = {
+            "subject": "Listo",
+            "dateStart": "2023-05-02T00:10:40.099Z",
+            "dateEnd": "2023-05-03T00:10:50.099Z"
+            }
+        response = client.post('/Outlook/ScheduleMeeting', json=input_data)
+        assert response.status_code == 200
+
     def test_postOutlookFindTime(self):
         with app.test_client() as client:
             input_data = {
@@ -45,6 +67,18 @@ class AppTestCase(unittest.TestCase):
             "duration": "PT1H"
             }
         response = client.post('/Outlook/FindTime', json=input_data)
+        assert response.status_code == 200
+
+    def test_Happy_PathAzureAll(self):
+        response = self.app.get('/Azure/AllWI')
+        self.assertEqual(response.status_code, 200)
+
+    def test_Happy_PathAzureWI(self):
+        with app.test_client() as client:
+            input_data = {
+            "id": 41
+            }
+        response = client.get('/Azure/WI', json=input_data)
         assert response.status_code == 200
 
     def test_postCreateItem(self):
