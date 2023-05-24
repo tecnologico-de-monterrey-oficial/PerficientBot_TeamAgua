@@ -17,6 +17,46 @@ API_OUT_POSTMEETING = 'https://graph.microsoft.com/v1.0/me/events'
 API_OUT_FINDMEETING = 'https://graph.microsoft.com/v1.0/me/findMeetingTimes'
 API_OUT_ALLEVENTS = 'https://graph.microsoft.com/v1.0/me/events?$select=subject,body,bodyPreview,organizer,attendees,start,end,location'
 API_OUT_GROUPS = 'https://graph.microsoft.com/v1.0/me/memberOf'
+API_OUT_FINDTIME = 'https://graph.microsoft.com/v1.0/me/findMeetingTimes'
+
+'''
+{
+    "attendees":[{"emailAddress": {"address": "A00831316@tec.mx"}},{"emailAddress": {"address": "A01411625@tec.mx"}}],
+    "startDateTime": "2023-05-24T09:00:00",
+    "finishDateTime": "2023-05-26T09:00:00",
+    "duration": "PT1H"
+}
+'''
+def OutlookFindMeetingTime():
+    # Defino Header específico para hacer el call
+    headers = {'Authorization': f'Bearer {API_OUT_KEY}', 'Content-Type': CONTENT_TYPE}
+
+    addresses = request.json.get('attendees')
+    start = request.json.get('startDateTime')
+    finish = request.json.get('finishDateTime')
+    duration = request.json.get('duration')
+
+    data = {
+        "attendees": addresses,
+        "timeConstraint": {
+            "timeslots": [
+                {"start": {"dateTime": start, "timeZone": "UTC"},
+                 "end": {"dateTime": finish, "timeZone": "UTC"}}
+            ]
+        },
+        "meetingDuration": duration,
+        "returnSuggestionReasons": "True"
+    }
+
+    # Hace el POST y verifica si se hace la llamada correctamente
+    response = requests.post(API_OUT_FINDTIME, headers=headers, json=data)
+    if response.status_code == 201:
+        json_response = response.json()
+        return json_response
+    else:
+        json_response = response.json()
+        return json_response
+
 
 # Método GET
 # Trae todos los events que se tengan agendados en Outlook
@@ -129,7 +169,6 @@ def OutlookScheduleMeeting():
     else:
         response_data = {'message': 'Event failed to be created.'}
         return response_data
-        print('Error creating event: ', response.text)
 
 def OutlookGroups():
     # Defino Header específico para hacer el call

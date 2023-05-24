@@ -11,7 +11,11 @@
 
                         <div [class]="message.type">  {{message.message}} </div>
 
-                        <img *ngIf="message.type === 'user'" class="chatpic" src="..\assets\img\profilePic.png" alt="User">
+                        <img *ngIf="message.type === 'user' && (user$ | async) as user; else defaultImage" [src]="user?.picture || './assets/img/profilePic.png'" class="chatpic" alt="UserPictureProfile" />
+
+                        <ng-template #defaultImage>
+                        <img *ngIf="message.type === 'user'" class="chatpic" src="./assets/img/profilePic.png" alt="UserPictureProfile">
+                        </ng-template>
 
                 </div>
                 <div *ngIf="loading" class="message" >

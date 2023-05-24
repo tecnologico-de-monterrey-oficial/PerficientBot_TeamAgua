@@ -1,22 +1,29 @@
 from flask import Flask
+from flask_cors import CORS
+import aiohttp
+import asyncio
 from GithubAPI import GithubRepos, GithubIssues, GithubPulls
-from OutlookAPI import OutlookWeekEvents, OutlookMonthEvents, OutlookScheduleMeeting, OutlookAllEvents, OutlookGroups, OutlookDelete
+from OutlookAPI import OutlookWeekEvents, OutlookMonthEvents, OutlookScheduleMeeting, OutlookAllEvents, OutlookGroups, OutlookDelete, OutlookFindMeetingTime
 from AzureAPI import AzureCreateItem, AzureOneItem, AzureWorkItems
 from CVAPI import getCV, getGPTtext, upload
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route('/upload/<user_id>', methods=['POST'])
-def uploadCV():
-    return upload()
+def uploadCV(user_id):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    result = loop.run_until_complete(upload(user_id))
+    return result
 
 @app.route('/CV/<user_id>', methods=['GET'])
-def getCVimg():
-    return getCV()
+def getCVimg(user_id):
+    return getCV(user_id)
 
 @app.route('/GPTtext/<user_id>', methods=['GET'])
-def getSummary():
-    return getGPTtext()
+def getSummary(user_id):
+    return getGPTtext(user_id)
 
 # Input: N/A
 """ Output: {
@@ -313,6 +320,18 @@ def getGithubPulls():
 @app.route('/Outlook/Groups')
 def getOutlookGroups():
     return OutlookGroups()
+
+"""
+{
+    "emailAddress": {"address": "A00831316@tec.mx"},
+    "startDateTime": "2023-05-24T09:00:00",
+    "finishDateTime": "2023-05-26T09:00:00",
+    "duration": "PT1H"
+}
+"""
+@app.route('/Outlook/FindTime', methods=['POST'])
+def getOutlookFreeTime():
+    return OutlookFindMeetingTime()
 
 """ Input: 
 {
