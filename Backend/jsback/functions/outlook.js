@@ -42,6 +42,7 @@ async function outlookDecisionClassification(responseOpenAI, input, requestStatu
     // Get all scheduled events starting today.
     case 1:
       // Llama al endpoint indicado
+      
       // Make a GET request to the Flask API
       const response = axios.get('http://192.168.100.113:3001//Outlook/WeekEvents')
       .then(response => {
