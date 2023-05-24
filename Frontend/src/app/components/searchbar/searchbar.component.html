@@ -1,1 +1,9 @@
-<p>searchbar works!</p>
+<input type="text" [(ngModel)]="textoBusqueda" (keyup)="onInputChange()" placeholder="Buscar...">
+
+<ul>
+  <li *ngFor="let persona of resultados">
+    {{ persona.nombrecompleto }}
+    <button (click)="accion1(persona)">Get CV</button>
+    <button (click)="accion2(persona)">Summary</button>
+  </li>
+</ul>
