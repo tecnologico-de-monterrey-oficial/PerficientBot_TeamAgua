@@ -125,6 +125,8 @@ def OutlookWeekEvents():
                 "end": end,
                 "web": web
             })
+
+        print(subjects)
         
         return subjects
     else:

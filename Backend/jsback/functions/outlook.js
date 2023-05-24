@@ -15,7 +15,6 @@ async function outlookClassification(input, requestStatus, dateAndHour) {
     1.- Retrieve all scheduled events starting today, extending to the next 7 days.
     2.- Retrieve all scheduled events starting today, extending to the next 31 days.
     3.- Arrange a new meeting.
-    4.- Cancel an existing meeting.
     
     In the context of options 1-2, always prioritize optimization. For instance, if the given statement pertains to events or meetings occurring today, you should select option 1 as the best choice. Please be aware of the range date that the given statement is making reference too, for example if the given statement wants to see the events of the following two weeks, the best option should be 2 because it fits in the range of the following two weeks, on the other hand, option 1 number cannot fulfill this request because the following two does not fit in the range of the following 7 days. Consider this is the current date and time: ${dateAndHour}
 
@@ -41,19 +40,24 @@ async function outlookDecisionClassification(responseOpenAI, input, requestStatu
   switch (responseOpenAI) {
     // Get all scheduled events starting today.
     case 1:
-      // Llama al endpoint indicado
+      let normalResponse = '';
+      let resultString = '';
       
       // Make a GET request to the Flask API
-      const response = axios.get('http://192.168.100.113:3001//Outlook/WeekEvents')
+      const response = await axios.get('http://127.0.0.1:3001/Outlook/WeekEvents')
       .then(response => {
-      // Handle the response from the Flask API
-      console.log(response.data); // Assuming the response is JSON data
+        console.log(response.data);
+        // Handle the response from the Flask API
+        resultString = formatJSONOutResponse(response.data);
+
+        normalResponse = 'Here is your request: ' + '\n' + resultString; // Assuming the response is JSON data
       })
       .catch(error => {
-      // Handle any errors that occurred during the request
-      console.error(error);
+        // Handle any errors that occurred during the request
+        normalResponse = 'There was a error with the connection. Please try again.';
       });
-      return [response, false, null, null];
+
+      decision = [normalResponse, false, null, null];
       break;
     // Get all scheduled events starting today, but up to the following 7 days.
     case 2:
@@ -62,17 +66,11 @@ async function outlookDecisionClassification(responseOpenAI, input, requestStatu
       break;
     // Schedule a meeting.
     case 3:
-      console.log('Es el caso 4 de Outlook.');
-
       // If a request to schedule a meeting has not been made, it calls this function in order to start one.
       if(!requestStatus) {
         console.log('Aún no tiene una request.');
         decision = await scheduleMeeting(input, dateAndHour);
       }
-      break;
-    case 4:
-      // Llama al endpoint indicado
-      return ['Debo cancelar un evento', false, null, null];
       break;
     // In such case that none of the options are related to the sentence, write "I am sorry, can you rephrase your request?".
     case 'I am sorry, can you rephrase your request?':
@@ -256,8 +254,23 @@ async function checksConversationTopic(input, currentData, currentDateAndHour) {
   });
 }
 
-async function getEvents7Days() {
-  console.log('HACIENDO LA LLAMADA A FLASK');
+function formatJSONOutResponse(response) {
+  let resultString = '';
+
+  // Iterate over each object in the array
+  response.forEach(function(obj) {
+    // Iterate over each key in the object
+    console.log('Objeto:', obj);
+
+    Object.keys(obj).forEach(function(key) {
+      console.log('key obj:', key + ': ' + obj[key]);
+
+      // Append the key-value pair to the resultString
+      resultString += key + ': ' + obj[key] + '\n';
+    });
+  });
+
+  return resultString;
 }
 
 async function scheduleMeetingOutlook(JSONData) {
