@@ -5,7 +5,6 @@ const axios = require('axios');
 const { openai, hasNullValues, mergeJSONObjects } = require('../functions/imports');
 
 // Main function that classifies the user's response in one of the options that can be made with Outlook's API.
-// TODO: Si se quiere reagendar, se debería de asignar la función de eliminar y después la de crear.
 async function outlookClassification(input, requestStatus, dateAndHour) {
   const response = await openai.createCompletion({
     model:'text-davinci-003',
@@ -35,7 +34,7 @@ async function outlookClassification(input, requestStatus, dateAndHour) {
 }
 
 // Function that decides which other functions to call depending on the choice that was made in the previous function.
-async function outlookDecisionClassification(responseOpenAI, input, requestStatus) {
+async function outlookDecisionClassification(responseOpenAI, input, requestStatus, dateAndHour) {
   let decision = ['', false, null, null]; // By default this is an empty string. It most likely means that something went wrong.
 
   // A switch to determine which set of actions to execute depending of the classification of the answer.
@@ -110,10 +109,11 @@ async function scheduleMeeting(input, dateAndHour) {
 
   console.log('Actual JSON Outlook:', obj);
 
+  // These are the defualt values in case the request is completed in one single message.
   let requestStatus = false;
   let currentService = null;
 
-  // If the JSON has the startDate or endDate with null values, it modifies the request's status in order to indicate that a request is going on.
+  // If the JSON has at least a field with null value, it modifies the request's status in order to indicate that a request is going on.
   if(hasNullValues(obj)) {
     console.log('No está completa la request');
     requestStatus = true;
@@ -121,6 +121,7 @@ async function scheduleMeeting(input, dateAndHour) {
     return [normalResponse.data.choices[0].text, requestStatus, obj, currentService]; // Returns the response that will be displayed to the user.
   }
 
+  // If the JSON has all fields with a value, it modifies the JSON itself in order to send it to the Outlook API.
   const correctedTimeJSON = correctTimeFormat(obj);
   const confirmResponse = displayMeetingInfo(correctedTimeJSON);
 
@@ -171,21 +172,18 @@ async function scheduleMeetingContinue(input, currentData, dateAndHour) {
       n: 1,
       stream: false
     });
-    // modifyRequestStatus();
-    // saveCurrentService(null);
+
     return [normalResponse.data.choices[0].text, mergedJSON]; // Returns the response that will be displayed to the user.
   }
 
-  // TODO: Mostrar en pantalla el JSON o la información en lenguaje natural para confirmar los datos.
+  // If the JSON has all fields with a value, it modifies the JSON itself in order to send it to the Outlook API.
   const correctedTimeJSON = correctTimeFormat(mergedJSON);
   const confirmResponse = displayMeetingInfo(correctedTimeJSON);
 
   return [confirmResponse, mergedJSON];
-
-  // scheduleMeetingOutlook(mergedJSON);
-  // return ['Request a Outlook terminada', mergedJSON];
 }
 
+// Function that corrects the time format in the JSON.
 function correctTimeFormat(input) {
   if (input.startDate && input.endDate) {
     input.startDate = input.startDate.slice(0, -5) + ".099Z";
@@ -194,6 +192,7 @@ function correctTimeFormat(input) {
   return input;
 }
 
+// Function that divides the value of the startDate or endDate in two strings, one for the date, and the other for the time.
 function splitStringByT(str) {
   const index = str.indexOf('T');
   
@@ -208,6 +207,7 @@ function splitStringByT(str) {
   return [firstHalf, secondHalf];
 }
 
+// Function that removes the last 5 characters of a string in order to display in a more natural way the times of the JSON of the meeting.
 function removeLastFiveCharacters(str) {
   if (str.length <= 5) {
     return '';
@@ -216,6 +216,7 @@ function removeLastFiveCharacters(str) {
   }
 }
 
+// Function that displays the information of the meeting in a more natural way.
 function displayMeetingInfo(currentData) {
   const startDateTime = splitStringByT(currentData.startDate);
   const startDate = startDateTime[0];
@@ -231,6 +232,19 @@ function displayMeetingInfo(currentData) {
   End Date: ${endDate} | ${endTime} UTC`;
 }
 
+async function checksConversationTopic(input, currentData, currentDateAndHour) {
+  const normalResponse = await openai.createCompletion({
+    model:'text-davinci-003',
+    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this sentence "${input}", determine if it has to do anything with creating the meeting. For more context, this is the the current JSON to create the meeting "${currentData}", and this is the current date and time: ${currentDateAndHour}
+    
+    Please return just the integer 0 in case the given sentence is not related with creating the current meeting. If it is not the case, please just return the integer 1. Remember that your answer must exlcusively the integer. Its length must be one character.`,
+    max_tokens: 150,
+    temperature: 0,
+    n: 1,
+    stream: false
+  });
+}
+
 async function getEvents7Days() {
   console.log('HACIENDO LA LLAMADA A FLASK');
 }
@@ -244,4 +258,5 @@ async function scheduleMeetingOutlook(JSONData) {
 module.exports = {
   outlookClassification,
   scheduleMeetingContinue,
+  checksConversationTopic
 };
