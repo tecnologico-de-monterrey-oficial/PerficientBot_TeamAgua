@@ -7,6 +7,7 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 async def upload(user_id):
+    user_id = user_id.replace("|", "_") #To make sure that works on every system
     if 'file' not in request.files:
         return { "message": "No file part in the request",
                 "status": 400
@@ -28,6 +29,7 @@ async def upload(user_id):
                 }
     
 def getCV(user_id):
+    user_id = user_id.replace("|", "_") #To make sure that works on every system
     directory = f'Documents/{user_id}'
 
     if not os.path.exists(directory):
@@ -43,6 +45,7 @@ def getCV(user_id):
     return jsonify({'image': base64_image})
 
 def getGPTtext(user_id):
+    user_id = user_id.replace("|", "_") #To make sure that works on every system
     directory = f'Documents/{user_id}'
 
     if not os.path.exists(directory):
@@ -55,6 +58,7 @@ def getGPTtext(user_id):
     return jsonify({'content':file_contents})
 
 def getChatGPT(user_id):
+    user_id = user_id.replace("|", "_") #To make sure that works on every system
     chatUrl = 'https://api.openai.com/v1/completions'
 
     headers = {
@@ -90,6 +94,7 @@ def getChatGPT(user_id):
 
 
 async def process_ocr(file, user_id):
+    user_id = user_id.replace("|", "_") #To make sure that works on every system
     # Save the file to the current working directory
     directory = f'Documents/{user_id}'
     os.makedirs(directory, exist_ok=True)
@@ -109,6 +114,7 @@ async def run_tesseract_ocr(file_path):
     return pytesseract.image_to_string(file_path)
 
 def save_text_to_file(text, user_id):
+    user_id = user_id.replace("|", "_") #To make sure that works on every system
     directory = f'Documents/{user_id}'
     if not os.path.exists(directory):
         os.makedirs(directory)
