@@ -1,4 +1,11 @@
-<button (click)="getImage()">Get CV</button>
-<img [src]="cvImageData" alt="CV Image" class="image-container">
-<button (click)="getSummary()">Get Summary</button>
-<p>{{ summary }}</p>
+<input type="text" [(ngModel)]="textoBusqueda" (keyup)="onInputChange()" placeholder="Buscar...">
+
+<ul>
+  <li *ngFor="let persona of resultados">
+    {{ persona.nombrecompleto }}
+    <button (click)="getImage(persona)">Get CV</button>
+    <button (click)="getSummary(persona)">Summary</button>
+    <img *ngIf="persona.cvImageData" [src]="persona.cvImageData">
+    <p *ngIf="persona.summary">{{ persona.summary }}</p>
+  </li>
+</ul>

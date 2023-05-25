@@ -16,7 +16,6 @@ import { HomeComponent } from './components/home/home.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import {UploadFormComponent} from "./components/profile/upload-form/upload-form.component";
 import { HrSearchComponent } from './components/profile/hr-search/hr-search.component';
-import { SearchBarComponent } from './components/searchbar/searchbar.component';
 
 
 
@@ -30,7 +29,6 @@ import { SearchBarComponent } from './components/searchbar/searchbar.component';
     NavbarComponent,
     UploadFormComponent,
     HrSearchComponent,
-    SearchBarComponent,
   ],
   imports: [
     BrowserModule,

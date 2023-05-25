@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {AuthService} from '@auth0/auth0-angular';
 
@@ -7,45 +7,55 @@ import {AuthService} from '@auth0/auth0-angular';
   templateUrl: './hr-search.component.html',
   styleUrls: ['./hr-search.component.scss']
 })
-export class HrSearchComponent {
-  user_id!: string;
-  cvImage!: string;
-  cvImageData: string = '';
-  summary!: string;
+export class HrSearchComponent implements OnInit{
+  textoBusqueda: string = '';
+  resultados: any[] = [];
+
+  constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
-    this.auth.user$.subscribe(user => {
-      // @ts-ignore
-      this.user_id = user.sub;
-      console.log(this.user_id);
-    });
   }
 
-    constructor(private http: HttpClient, public auth: AuthService) { }
-
-    getImage(){
-      this.http.get(`http://localhost:3001/CV/${this.user_id}`).subscribe(
-        (response: any) => {
-          this.cvImage = response.image;
-          this.cvImageData = 'data:image/png;base64,' + this.cvImage;
-        },
-        (error: any) => {
-          console.log('Error retrieving CV image:', error);
-        }
-      );
+  onInputChange(): void {
+    if (this.textoBusqueda) {
+      this.http.get('http://localhost:3001/api/DatabaseGET', { params: { fullname: this.textoBusqueda } })
+        .subscribe((response: any) => {
+          this.resultados = response;
+        });
+    } else {
+      this.resultados = [];
     }
+  }
 
-    getSummary(){
-      const userIDFixed = this.user_id.replace('|', '_');
-      this.http.get(`http://localhost:3001/GPTtext/${userIDFixed}`).subscribe(
-        (response: any) => {
-          this.summary = response.content;
-          console.log(this.summary);
-        },
-        (error: any) => {
-          console.log('Error retrieving summary:', error);
-        }
-      );
-    }
+
+  getImage(persona: any): void {
+    const subFixed = persona.sub.replace('|', '_');
+
+    // then use the fixed sub in your HTTP requests
+    this.http.get(`http://localhost:3001/CV/${subFixed}`).subscribe(
+      (response: any) => {
+        persona.cvImage = response.image;
+        persona.cvImageData = 'data:image/png;base64,' + persona.cvImage;
+      },
+      (error: any) => {
+        console.log('Error retrieving CV image:', error);
+      }
+    );
+  }
+
+  getSummary(persona: any): void {
+    const subFixed = persona.sub.replace('|', '_');
+
+    // then use the fixed sub in your HTTP requests
+    this.http.get(`http://localhost:3001/GPTtext/${subFixed}`).subscribe(
+      (response: any) => {
+        persona.summary = response.content;
+        console.log(persona.summary);
+      },
+      (error: any) => {
+        console.log('Error retrieving summary:', error);
+      }
+    );
+  }
 
 }
