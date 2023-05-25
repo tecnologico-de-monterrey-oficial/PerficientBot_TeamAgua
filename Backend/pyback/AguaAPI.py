@@ -6,7 +6,7 @@ from GithubAPI import GithubRepos, GithubIssues, GithubPulls
 from OutlookAPI import OutlookWeekEvents, OutlookMonthEvents, OutlookScheduleMeeting, OutlookAllEvents, OutlookGroups, OutlookDelete, OutlookFindMeetingTime
 from AzureAPI import AzureCreateItem, AzureOneItem, AzureWorkItems
 from CVAPI import getCV, getGPTtext, upload
-from dbApi import obtener_usuarios, guardar_usuario
+from dbApi import obtener_usuarios, guardar_usuario, check_if_user_is_hr
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -563,6 +563,10 @@ def obtenerU():
 @app.route('/api/DatabasePOST', methods=['POST'])
 def mandarU():
     return guardar_usuario()
+
+@app.route('/api/CheckHR', methods=['GET'])
+def checkHR():
+    return check_if_user_is_hr()
 
 
 

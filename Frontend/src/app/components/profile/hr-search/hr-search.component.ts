@@ -10,10 +10,19 @@ import {AuthService} from '@auth0/auth0-angular';
 export class HrSearchComponent implements OnInit{
   textoBusqueda: string = '';
   resultados: any[] = [];
+  isHR: boolean = false;  // This new variable will hold the HR status
 
-  constructor(private http: HttpClient) { }
+
+  constructor(private http: HttpClient, public auth: AuthService) { }
 
   ngOnInit(): void {
+    this.auth.user$.subscribe(user => {
+      // @ts-ignore
+      const userId = user.sub.replace('|', '_');  // replace | with _ in user ID
+      this.http.get(`http://localhost:3001/api/CheckHR`, { params: { user_id: userId } }).subscribe((response: any) => {
+        this.isHR = response.isHR;
+      });
+    });
   }
 
   onInputChange(): void {
