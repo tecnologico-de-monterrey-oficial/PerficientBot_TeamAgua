@@ -66,6 +66,7 @@ def guardar_usuario():
         
         nombre = datos_usuario['nombre']
         apellido = datos_usuario['apellido']
+        nombre_completo = datos_usuario['nombre_completo']
         correo = datos_usuario['correo']
         sub = datos_usuario['sub']
 
@@ -81,7 +82,7 @@ def guardar_usuario():
             return jsonify({'mensaje': 'El usuario ya existe'})
 
         
-        cursor.execute("INSERT INTO users (name, surname, email, sub) VALUES (?, ?, ?, ?)", nombre, apellido, correo, sub)
+        cursor.execute("INSERT INTO users (name, surname,fullname, email, sub) VALUES (?, ?, ?, ?, ?)", nombre, apellido, nombre_completo, correo, sub)
         conexion.commit()
 
        

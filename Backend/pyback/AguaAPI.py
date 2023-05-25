@@ -560,9 +560,9 @@ def postCreateItem():
 def obtenerU():
     return obtener_usuarios()
 
-#@app.route('/api/DatabasePOST', methods=['POST'])
-#def mandarU():
-    #return guardar_usuario()
+@app.route('/api/DatabasePOST', methods=['POST'])
+def mandarU():
+    return guardar_usuario()
 
 
 
