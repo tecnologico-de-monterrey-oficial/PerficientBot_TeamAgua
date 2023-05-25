@@ -46,7 +46,7 @@ export class SearchBarComponent implements OnInit {
     const subFixed = persona.sub.replace('|', '_');
 
     // then use the fixed sub in your HTTP requests
-    this.http.get(`http://localhost:3001/CV/${subFixed}`).subscribe(
+    this.http.get(`http://localhost:3001/GPTtext/${subFixed}`).subscribe(
       (response: any) => {
         persona.summary = response.content;
         console.log(persona.summary);

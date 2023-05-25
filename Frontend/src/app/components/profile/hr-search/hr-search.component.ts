@@ -36,7 +36,8 @@ export class HrSearchComponent {
     }
 
     getSummary(){
-      this.http.get(`http://localhost:3001/GPTtext/${this.user_id}`).subscribe(
+      const userIDFixed = this.user_id.replace('|', '_');
+      this.http.get(`http://localhost:3001/GPTtext/${userIDFixed}`).subscribe(
         (response: any) => {
           this.summary = response.content;
           console.log(this.summary);
