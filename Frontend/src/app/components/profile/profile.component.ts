@@ -27,21 +27,18 @@ export class ProfileComponent implements OnInit{
 
   ngOnInit() {
     this.auth.user$.subscribe(user => {
-      // @ts-ignore
-      this.user_id = user.sub;
-      // @ts-ignore
-      this.user_givenname = user.given_name;
-      // @ts-ignore
-      this.user_familyname = user.family_name;
-      // @ts-ignore
-      this.user_name = user.name;
-      // @ts-ignore
-      this.user_email = user.email;
+      if (user) {
+        this.user_givenname = user.given_name || '';
+        this.user_familyname = user.family_name || '';
+        this.user_name = user.name || '';
+        this.user_email = user.email || '';
+        this.user_id = user.sub || '';
 
-      console.log(this.user_id);
+        this.postDataToDatabase();
+      }
     });
-    this.postDataToDatabase();
   }
+
 
   postDataToDatabase() {
     // This is your data that you want to send in POST request
@@ -63,6 +60,7 @@ export class ProfileComponent implements OnInit{
         }
       );
   }
+
 
 
   logout(){
