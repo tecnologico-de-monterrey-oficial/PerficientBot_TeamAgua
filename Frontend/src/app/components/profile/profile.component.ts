@@ -26,6 +26,20 @@ export class ProfileComponent implements OnInit{
 
 
   ngOnInit() {
+    this.auth.user$.subscribe(user => {
+      // @ts-ignore
+      this.user_id = user.sub;
+      // @ts-ignore
+      this.user_givenname = user.given_name;
+      // @ts-ignore
+      this.user_familyname = user.family_name;
+      // @ts-ignore
+      this.user_name = user.name;
+      // @ts-ignore
+      this.user_email = user.email;
+
+      console.log(this.user_id);
+    });
     this.postDataToDatabase();
   }
 
