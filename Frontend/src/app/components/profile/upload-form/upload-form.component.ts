@@ -39,7 +39,9 @@ export class UploadFormComponent implements OnInit{
     if (this.selectedFile) {
       const fd = new FormData();
       fd.append('file', this.selectedFile, this.selectedFile.name);
-      this.http.post(`http://localhost:3001/upload/${this.user_id}`, fd)
+      const userIDFixed = this.user_id.replace('|', '_');
+
+      this.http.post(`http://localhost:3001/upload/${userIDFixed}`, fd)
         .subscribe(res => {
           console.log(res);
         });

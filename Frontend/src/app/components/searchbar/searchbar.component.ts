@@ -25,13 +25,35 @@ export class SearchBarComponent implements OnInit {
       this.resultados = [];
     }
   }
-  
 
-  accion1(persona: any): void {
-    //Get CV
+
+  getImage(persona: any): void {
+    const subFixed = persona.sub.replace('|', '_');
+
+    // then use the fixed sub in your HTTP requests
+    this.http.get(`http://localhost:3001/CV/${subFixed}`).subscribe(
+      (response: any) => {
+        persona.cvImage = response.image;
+        persona.cvImageData = 'data:image/png;base64,' + persona.cvImage;
+      },
+      (error: any) => {
+        console.log('Error retrieving CV image:', error);
+      }
+    );
   }
 
-  accion2(persona: any): void {
-    //Get Summary
+  getSummary(persona: any): void {
+    const subFixed = persona.sub.replace('|', '_');
+
+    // then use the fixed sub in your HTTP requests
+    this.http.get(`http://localhost:3001/CV/${subFixed}`).subscribe(
+      (response: any) => {
+        persona.summary = response.content;
+        console.log(persona.summary);
+      },
+      (error: any) => {
+        console.log('Error retrieving summary:', error);
+      }
+    );
   }
 }
