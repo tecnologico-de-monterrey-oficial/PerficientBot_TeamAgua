@@ -18,6 +18,7 @@ export class UploadFormComponent implements OnInit{
 
   ngOnInit(): void {
     this.auth.user$.subscribe(user => {
+      console.log(user);
       // @ts-ignore
       this.user_id = user.sub;
 

@@ -22,11 +22,15 @@ export class HrSearchComponent implements OnInit{
 
   fetchIsHR(): void {
     this.auth.user$
+      // @ts-ignore
       .pipe(filter(user => user !== null && user.sub !== null))
       .subscribe(user => {
+        // @ts-ignore
         const userId = user.sub.replace('|', '_');  // replace | with _ in user ID
         this.http.get(`http://localhost:3001/api/CheckHR`, { params: { sub: userId } }).subscribe((response: any) => {
+
           if (response.length > 0) {
+            console.log(response[0].IsHR);
             this.isHR = response[0].IsHR;
           }
         });
