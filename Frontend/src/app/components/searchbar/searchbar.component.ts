@@ -17,7 +17,7 @@ export class SearchBarComponent implements OnInit {
 
   onInputChange(): void {
     if (this.textoBusqueda) {
-      this.http.get('http://localhost:8000/api/DatabaseGET', { params: { fullname: this.textoBusqueda } })
+      this.http.get('http://localhost:3001/api/DatabaseGET', { params: { fullname: this.textoBusqueda } })
         .subscribe((response: any) => {
           this.resultados = response;
         });
@@ -28,10 +28,10 @@ export class SearchBarComponent implements OnInit {
   
 
   accion1(persona: any): void {
-    // Acción a realizar cuando se hace clic en el botón 1
+    //Get CV
   }
 
   accion2(persona: any): void {
-    // Acción a realizar cuando se hace clic en el botón 2
+    //Get Summary
   }
 }
