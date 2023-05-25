@@ -225,6 +225,15 @@ function removeLastFiveCharacters(str) {
   }
 }
 
+// Function that removes the last 8 characters of a string in order to display in a more natural way the times of the JSON of the meeting.
+function removeLastEightCharacters(str) {
+  if (str.length <= 8) {
+    return '';
+  } else {
+    return str.slice(0, -8);
+  }
+}
+
 // Function that displays the information of the meeting in a more natural way.
 function displayMeetingInfo(currentData) {
   const startDateTime = splitStringByT(currentData.startDate);
@@ -252,6 +261,8 @@ async function checksConversationTopic(input, currentData, currentDateAndHour) {
     n: 1,
     stream: false
   });
+
+  return normalResponse.data.choices[0].text;
 }
 
 function formatJSONOutResponse(response) {
@@ -262,12 +273,19 @@ function formatJSONOutResponse(response) {
     // Iterate over each key in the object
     console.log('Objeto:', obj);
 
-    Object.keys(obj).forEach(function(key) {
-      console.log('key obj:', key + ': ' + obj[key]);
+    const startDateTime = splitStringByT(obj.start.dateTime);
+    const startDate = startDateTime[0];
+    const startTime = removeLastEightCharacters(startDateTime[1]);
 
-      // Append the key-value pair to the resultString
-      resultString += key + ': ' + obj[key] + '\n';
-    });
+    const endDateTime = splitStringByT(obj.end.dateTime);
+    const endDate = endDateTime[0];
+    const endTime = removeLastEightCharacters(endDateTime[1]);
+
+    resultString += `<a href="${obj.web}">Subject: ${obj.subject}</a>
+    Start Date: ${startDate} | ${startTime} ${obj.start.timeZone}
+    End Date: ${endDate} | ${endTime} ${obj.end.timeZone}
+    Attendees: ${obj.attendees}
+    ___________________________________________________________________`;
   });
 
   return resultString;
