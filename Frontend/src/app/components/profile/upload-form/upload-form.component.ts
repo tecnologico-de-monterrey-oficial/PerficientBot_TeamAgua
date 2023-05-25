@@ -11,7 +11,7 @@ import { ProfileComponent} from "../profile.component";
 })
 export class UploadFormComponent implements OnInit{
   selectedFile: File | null = null;
-  user_id!: string;
+  user_id!: string; //Sub
 
 
   constructor(private http: HttpClient, public auth: AuthService) { }
@@ -20,6 +20,9 @@ export class UploadFormComponent implements OnInit{
     this.auth.user$.subscribe(user => {
       // @ts-ignore
       this.user_id = user.sub;
+
+
+
       console.log(this.user_id);
     });
   }
