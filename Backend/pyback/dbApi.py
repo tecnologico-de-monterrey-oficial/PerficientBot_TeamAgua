@@ -114,6 +114,7 @@ def check_if_user_is_hr():
         cursor = conexion.cursor()
 
         user_sub = request.args.get('sub', '')
+        user_sub = user_sub.replace("_", "|")  # To make sure that works on every system
 
         cursor.execute('SELECT dbo.fn_CheckIfUserIsHR(?) AS IsHR;', user_sub)
 
