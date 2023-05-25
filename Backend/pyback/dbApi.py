@@ -63,7 +63,7 @@ def guardar_usuario():
     try:
         
         datos_usuario = request.get_json()
-
+        print(datos_usuario)  # Debugging line
 
         nombre = datos_usuario['nombre']
         apellido = datos_usuario['apellido']
