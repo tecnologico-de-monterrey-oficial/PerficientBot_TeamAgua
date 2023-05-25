@@ -102,9 +102,6 @@ def guardar_usuario():
 
 @app.route('/api/CheckHR', methods=['GET'])
 def check_if_user_is_hr():
-    user_id = request.args.get('user_id', '')
-    user_id = user_id.replace("_", "|") #To make sure that works on every system
-
     server = 'agua-perficientbot-server.database.windows.net'
     database = 'Agua_PerficientBot-db'
     username = 'Agua'
@@ -116,12 +113,22 @@ def check_if_user_is_hr():
         conexion = pyodbc.connect(conexion_str)
         cursor = conexion.cursor()
 
-        cursor.execute('SELECT dbo.fn_CheckIfUserIsHR(?) AS IsHR', user_id)
-        resultado = cursor.fetchone()
+        user_sub = request.args.get('sub', '')
+
+        cursor.execute('SELECT dbo.fn_CheckIfUserIsHR(?) AS IsHR;', user_sub)
+
+        resultados = cursor.fetchall()
 
         conexion.close()
 
-        return jsonify({'isHR': bool(resultado.IsHR)})
+        usuarios = []
+        for fila in resultados:
+            usuario = {
+                'IsHR': bool(fila.IsHR)
+            }
+            usuarios.append(usuario)
+
+        return jsonify(usuarios)
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

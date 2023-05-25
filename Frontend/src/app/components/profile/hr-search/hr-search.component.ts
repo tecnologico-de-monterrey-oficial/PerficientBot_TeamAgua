@@ -1,6 +1,7 @@
 import { Component, OnInit} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {AuthService} from '@auth0/auth0-angular';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-hr-search',
@@ -16,14 +17,23 @@ export class HrSearchComponent implements OnInit{
   constructor(private http: HttpClient, public auth: AuthService) { }
 
   ngOnInit(): void {
-    this.auth.user$.subscribe(user => {
-      // @ts-ignore
-      const userId = user.sub.replace('|', '_');  // replace | with _ in user ID
-      this.http.get(`http://localhost:3001/api/CheckHR`, { params: { user_id: userId } }).subscribe((response: any) => {
-        this.isHR = response.isHR;
-      });
-    });
+    this.fetchIsHR();
   }
+
+  fetchIsHR(): void {
+    this.auth.user$
+      .pipe(filter(user => user !== null && user.sub !== null))
+      .subscribe(user => {
+        const userId = user.sub.replace('|', '_');  // replace | with _ in user ID
+        this.http.get(`http://localhost:3001/api/CheckHR`, { params: { sub: userId } }).subscribe((response: any) => {
+          if (response.length > 0) {
+            this.isHR = response[0].IsHR;
+          }
+        });
+      });
+  }
+
+
 
   onInputChange(): void {
     if (this.textoBusqueda) {
