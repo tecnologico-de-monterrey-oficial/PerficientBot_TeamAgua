@@ -1,9 +1,10 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import traceback
 import pyodbc
 
 app = Flask(__name__)
-CORS(app)  
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 @app.route('/api/DatabaseGET')
@@ -63,7 +64,7 @@ def guardar_usuario():
         
         datos_usuario = request.get_json()
 
-        
+
         nombre = datos_usuario['nombre']
         apellido = datos_usuario['apellido']
         nombre_completo = datos_usuario['nombre_completo']
@@ -95,8 +96,9 @@ def guardar_usuario():
 
         return jsonify({'mensaje': 'Usuario guardado exitosamente', 'user_id': user_id})
 
+
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e), 'trace': traceback.format_exc()}), 500
 
 if __name__ == '__main__':
     app.run(port=8000)
