@@ -52,6 +52,7 @@ def getGPTtext(user_id):
         return "The employee has not upload a CV"
 
     file_path = os.path.join(directory, 'CVGPT.txt')
+    print(file_path)
 
     with open(file_path, 'r') as file:
         file_contents = file.read()
