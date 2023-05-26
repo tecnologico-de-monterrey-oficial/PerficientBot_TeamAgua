@@ -52,16 +52,18 @@ function generateNewToken(user) {
 // Route to generate a token with additional variables
 app.post('/login', (req, res) => {
   // In a real scenario, you would validate the user's credentials here
+  const { id, email, secret_key } = req.body;
+
   const user = {
-    id: 1,
-    username: 'exampleUser',
+    id: id,
+    username: email,
     conversation: [],
     request_status: false,
     current_data: null,
     current_service: null
   };
 
-  const secretKey = 'your_secret_key';
+  const secretKey = secret_key;
 
   // Create the JWT token with additional claims
   const token = jwt.sign(user, secretKey);

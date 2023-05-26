@@ -45,10 +45,11 @@ async function outlookDecisionClassification(responseOpenAI, input, requestStatu
       
       // Make a GET request to the Flask API
       const response = await axios.get('http://127.0.0.1:3001/Outlook/WeekEvents')
-      .then(response => {
+      .then(async response => {
         console.log(response.data);
         // Handle the response from the Flask API
-        resultString = formatJSONOutResponse(response.data);
+        resultString = await filterResponse(input, response.data, dateAndHour);
+        finalStringResponse = formatJSONOutResponse(resultString);
 
         normalResponse = 'Here is your request: ' + '\n' + resultString; // Assuming the response is JSON data
       })
@@ -69,6 +70,8 @@ async function outlookDecisionClassification(responseOpenAI, input, requestStatu
       // If a request to schedule a meeting has not been made, it calls this function in order to start one.
       if(!requestStatus) {
         console.log('Aún no tiene una request.');
+        // TODO: Checa si no le pide crear una meeting en el pasado.
+
         decision = await scheduleMeeting(input, dateAndHour);
       }
       break;
@@ -263,6 +266,90 @@ async function checksConversationTopic(input, currentData, currentDateAndHour) {
   });
 
   return normalResponse.data.choices[0].text;
+}
+
+async function validatesGetPast(input, currentDateAndHour) {
+  const response = await openai.createCompletion({
+    model:'text-davinci-003',
+    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to get the information of specific meetings. Given this sentence "${input}", determine if it possible or logical to schedule considering you cannot get information of previous meetings. This is the current date and time: ${currentDateAndHour}
+    
+    Please return just the integer 0 it would not be possible or logical to complete that request. If it is not the case, please just return the integer 1. Remember that your answer must exlcusively the integer. Its length must be one character.`,
+    max_tokens: 150,
+    temperature: 0,
+    n: 1,
+    stream: false
+  });
+
+  return response.data.choices[0].text;
+
+}
+
+async function validatesSchedulePast(input, currentDateAndHour) {
+  const response = await openai.createCompletion({
+    model:'text-davinci-003',
+    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this sentence "${input}", determine if it possible or logical to schedule considering this is the current date and time: ${currentDateAndHour}
+    
+    Please return just the integer 0 it would not be possible or logical to schedule the current meeting. If it is not the case, please just return the integer 1. Remember that your answer must exlcusively the integer. Its length must be one character.`,
+    max_tokens: 150,
+    temperature: 0,
+    n: 1,
+    stream: false
+  });
+
+  return response.data.choices[0].text;
+}
+
+async function validatesScheduleFuture(input, currentDateAndHour) {
+  const response = await openai.createCompletion({
+    model:'text-davinci-003',
+    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this sentence "${input}", determine if it possible or logical to schedule considering you cannot schedule meetings past 31 days from today. This is the current date and time: ${currentDateAndHour}
+    Please return just the integer 0 it would not be possible or logical to schedule the current meeting. If it is not the case, please just return the integer 1. Remember that your answer must exlcusively the integer. Its length must be one character.`,
+    max_tokens: 150,
+    temperature: 0,
+    n: 1,
+    stream: false
+  });
+
+  return response.data.choices[0].text;
+}
+
+async function filterResponse(input, response, currentDateAndHour) {
+  const JSONResponse = await openai.createCompletion({
+    model:'text-davinci-003',
+    prompt: `You are assigned to assist with Perficient's Microsoft Outlook automation tasks. Your objective revolves around a specific scenario: when provided with an input string "${input}", it is associated with JSON data "${response}". Your role involves gleaning required information from this dataset.
+
+    Specifically, your task involves the filtering of objects present within this JSON array, with a constraint that none of the individual fields within these objects are to be altered or removed. The intactness of each object's structure is of paramount importance. If data elimination is necessitated, the removal should involve the entire object within the array rather than individual fields or their respective values.
+    
+    Your result should exclusively comprise the filtered JSON data, devoid of any supplementary explanatory data. I just want the JSON, nothing else, pleaso do not give me explanations, I just want the JSON. The reference point for date and time during this task is ${currentDateAndHour}.
+    
+    The input data structure you are working with - not the actual values, only the structure - is as follows:
+    
+        [
+          {
+            attendees: [value],
+            end: { dateTime: 'value', timeZone: 'value' },
+            start: { dateTime: 'value', timeZone: 'value' },
+            subject: 'value',
+            web: 'value'
+          },
+          {
+            attendees: [value],
+            end: { dateTime: 'value', timeZone: 'value' },
+            start: { dateTime: 'value', timeZone: 'value' },
+            subject: 'value',
+            web: 'value'
+          }
+        ]
+    `,
+    max_tokens: 500,
+    temperature: 0,
+    n: 1,
+    stream: false
+  });
+
+  console.log('Filtrado:', JSONResponse.data.choices[0].text);
+
+  return JSONResponse.data.choices[0].text;
 }
 
 function formatJSONOutResponse(response) {
