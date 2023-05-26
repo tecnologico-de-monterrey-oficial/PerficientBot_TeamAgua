@@ -1,6 +1,7 @@
 // OpenAI API
 const { openai, getCurrentDateAndHour } = require('../functions/imports');
 const outlook = require('./outlook');
+const azure = requiere('./devops');
 
 async function EnglishOrNot(input) {
     const response = await openai.createCompletion({
@@ -73,7 +74,7 @@ async function EnglishOrNot(input) {
   
         // If the user's request can be made in Azure DevOps, it calls the respective function.
         if(validationAzureDevOps) {
-          decision = await requestAzureDevOps();
+          decision = await azureClassification(input);
         }
         break;
       // Request to GitHub

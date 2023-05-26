@@ -9,7 +9,7 @@ const axios = require('axios');
 const { port, openai, getCurrentDateAndHour } = require('../functions/imports');
 
 const chatbot = require('../functions/chatbot');
-// const devops = require('../functions/devops');
+ const devops = require('../functions/devops');
 // const github = require('../functions/github');
 const outlook = require('../functions/outlook');
 
