@@ -14,6 +14,7 @@ async function outlookClassification(input, requestStatus, dateAndHour) {
     
     1.- Retrieve scheduled events starting today.
     2.- Arrange a new meeting.
+    3.- Check the availability of your colleagues.
     
     Consider this is the current date and time: ${dateAndHour}
 
@@ -81,6 +82,10 @@ async function outlookDecisionClassification(responseOpenAI, input, requestStatu
 
         decision = await scheduleMeeting(input, dateAndHour);
       }
+      break;
+    // Check the availability of your colleagues.
+    case 3:
+      
       break;
     // In such case that none of the options are related to the sentence, write "I am sorry, can you rephrase your request?".
     case 'I am sorry, can you rephrase your request?':
@@ -391,7 +396,7 @@ function formatJSONOutResponse(response) {
     const startDate = startDateTime[0];
     const startTime = removeLastEightCharacters(startDateTime[1]);
 
-    const endDateTime = splitStringByT(obj.end.dateTime);
+    const endDateTime = splitStringByT(obj.end.dateFTime);
     const endDate = endDateTime[0];
     const endTime = removeLastEightCharacters(endDateTime[1]);
 
