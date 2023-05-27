@@ -75,6 +75,7 @@ def OutlookAllEvents():
             start = item['start']
             end = item['end']
             web = item['webLink']
+            id = item['id']
 
             attendees = []
             for i in item['attendees']:
@@ -85,7 +86,8 @@ def OutlookAllEvents():
                 "attendees": attendees,
                 "start": start,
                 "end": end,
-                "web": web
+                "web": web,
+                "id": id
             })
         
         return subjects
@@ -113,6 +115,7 @@ def OutlookWeekEvents():
             start = item['start']
             end = item['end']
             web = item['webLink']
+            id = item['id']
 
             attendees = []
             for i in item['attendees']:
@@ -123,10 +126,9 @@ def OutlookWeekEvents():
                 "attendees": attendees,
                 "start": start,
                 "end": end,
-                "web": web
+                "web": web,
+                "id": id
             })
-
-        print(subjects)
         
         return subjects
     else:
@@ -153,6 +155,7 @@ def OutlookMonthEvents():
             start = item['start']
             end = item['end']
             web = item['webLink']
+            id = item['id']
 
             attendees = []
             for i in item['attendees']:
@@ -163,7 +166,8 @@ def OutlookMonthEvents():
                 "attendees": attendees,
                 "start": start,
                 "end": end,
-                "web": web
+                "web": web,
+                "id": id
             })
         
         return subjects
@@ -206,7 +210,6 @@ def OutlookScheduleMeeting():
         data = response.json()
         return {'message': 'Event created successfully.',
                 'url': data['webLink']}
-        print('Event created successfully.')
     else:
         response_data = {'message': 'Event failed to be created.'}
         return response_data
