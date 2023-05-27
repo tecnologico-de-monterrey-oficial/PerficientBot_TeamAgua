@@ -17,7 +17,7 @@
 
       <!-- <span>Hello, {{ username }}.</span> -->
       <!-- <span>Hello, &#123; username. &#125;</span> -->
-      <span *ngIf="user$ | async; else defaultText">Hello, {{ (user$ | async)?.name || '[username]' }}.</span>
+      <span *ngIf="user$ | async; else defaultText">Hello, {{ (user$ | async)?.given_name || '[username]' }}.</span>
       <ng-template #defaultText> <span> Hello, [username]. </span></ng-template>
     
     </div>

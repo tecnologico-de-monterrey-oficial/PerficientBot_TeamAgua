@@ -1,6 +1,6 @@
 
 
-<div *ngIf="isHR">
+<!-- <div *ngIf="isHR"> -->
   <input type="text" [(ngModel)]="textoBusqueda" (keyup)="onInputChange()" placeholder="Buscar...">
   <ul>
     <li *ngFor="let persona of resultados">
@@ -11,4 +11,4 @@
       <p *ngIf="persona.summary">{{ persona.summary }}</p>
     </li>
   </ul>
-</div>
+<!-- </div> -->

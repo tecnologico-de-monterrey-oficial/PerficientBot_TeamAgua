@@ -10,13 +10,19 @@ import { BehaviorSubject } from 'rxjs/';
 export class OpenaiService {
 
   constructor(private http: HttpClient) { }
-  apiURL = 'http://localhost:3001/';
+  apiURL = 'http://localhost:3000/';
 
   // Http Options
   httpOptions = {
     headers: new HttpHeaders({
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': ''
     })
+  }
+
+  setAuthorizationHeader(token: string): void {
+    this.httpOptions.headers = this.httpOptions.headers.set('Authorization', 'Bearer '+token); 
+    console.log(this.httpOptions.headers) ;
   }
 
   sendMessage(payload: any): Observable<any> {

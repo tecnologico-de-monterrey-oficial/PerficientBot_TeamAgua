@@ -10,6 +10,9 @@ import {UploadFormComponent} from "./upload-form/upload-form.component";
   styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit{
+
+  selectedComponent: string = 'main-info';
+
   title = 'Decoded ID Token';
   code= '';
 
@@ -63,8 +66,6 @@ export class ProfileComponent implements OnInit{
 
 
 
-  logout(){
-    this.auth.logout();
-  }
+ 
 
 }
