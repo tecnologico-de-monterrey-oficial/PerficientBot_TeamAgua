@@ -1,22 +1,30 @@
 from flask import Flask
+from flask_cors import CORS
+import aiohttp
+import asyncio
 from GithubAPI import GithubRepos, GithubIssues, GithubPulls
-from OutlookAPI import OutlookWeekEvents, OutlookMonthEvents, OutlookScheduleMeeting, OutlookAllEvents, OutlookGroups, OutlookDelete
+from OutlookAPI import OutlookWeekEvents, OutlookMonthEvents, OutlookScheduleMeeting, OutlookAllEvents, OutlookGroups, OutlookDelete, OutlookFindMeetingTime
 from AzureAPI import AzureCreateItem, AzureOneItem, AzureWorkItems
 from CVAPI import getCV, getGPTtext, upload
+from dbApi import obtener_usuarios, guardar_usuario, check_if_user_is_hr
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route('/upload/<user_id>', methods=['POST'])
-def uploadCV():
-    return upload()
+def uploadCV(user_id):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    result = loop.run_until_complete(upload(user_id))
+    return result
 
 @app.route('/CV/<user_id>', methods=['GET'])
-def getCVimg():
-    return getCV()
+def getCVimg(user_id):
+    return getCV(user_id)
 
 @app.route('/GPTtext/<user_id>', methods=['GET'])
-def getSummary():
-    return getGPTtext()
+def getSummary(user_id):
+    return getGPTtext(user_id)
 
 # Input: N/A
 """ Output: {
@@ -314,6 +322,18 @@ def getGithubPulls():
 def getOutlookGroups():
     return OutlookGroups()
 
+"""
+{
+    "emailAddress": {"address": "A00831316@tec.mx"},
+    "startDateTime": "2023-05-24T09:00:00",
+    "finishDateTime": "2023-05-26T09:00:00",
+    "duration": "PT1H"
+}
+"""
+@app.route('/Outlook/FindTime', methods=['POST'])
+def getOutlookFreeTime():
+    return OutlookFindMeetingTime()
+
 """ Input: 
 {
     "id" = "EventIDGoesHere"
@@ -521,9 +541,9 @@ def getAllWI():
     "Title": "As an employee, I want to know the amount of pages of my Azure DevOps Wiki to know the state of the project.",
     "WItype": "User Story"
 }"""
-@app.route('/Azure/WI')
-def getWI():
-    return AzureOneItem()
+@app.route('/Azure/WI/<id>')
+def getWI(id):
+    return AzureOneItem(id)
 
 """ Input: 
 {
@@ -535,6 +555,20 @@ def getWI():
 @app.route('/Azure/CreateItem', methods=['POST'])
 def postCreateItem():
     return AzureCreateItem()
+
+@app.route('/api/DatabaseGET')
+def obtenerU():
+    return obtener_usuarios()
+
+@app.route('/api/DatabasePOST', methods=['POST'])
+def mandarU():
+    return guardar_usuario()
+
+@app.route('/api/CheckHR', methods=['GET'])
+def checkHR():
+    return check_if_user_is_hr()
+
+
 
 
 if __name__ == '__main__':
