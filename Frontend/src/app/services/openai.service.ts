@@ -15,12 +15,26 @@ export class OpenaiService {
   // Http Options
   httpOptions = {
     headers: new HttpHeaders({
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': ''
     })
+  }
+
+  setAuthorizationHeader(token: string): void {
+    this.httpOptions.headers = this.httpOptions.headers.set('Authorization', 'Bearer '+token); 
+    console.log(this.httpOptions.headers) ;
   }
 
   sendMessage(payload: any): Observable<any> {
     return this.http.post<any>(this.apiURL, JSON.stringify(payload), this.httpOptions)
+    .pipe(
+      retry(1),
+      catchError(this.handleError)
+    )
+  }
+
+  clearConversation(): Observable<any> {
+    return this.http.post<any>(this.apiURL + 'clear-conversation', this.httpOptions)
     .pipe(
       retry(1),
       catchError(this.handleError)
