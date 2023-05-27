@@ -206,7 +206,6 @@ def OutlookScheduleMeeting():
         data = response.json()
         return {'message': 'Event created successfully.',
                 'url': data['webLink']}
-        print('Event created successfully.')
     else:
         response_data = {'message': 'Event failed to be created.'}
         return response_data
