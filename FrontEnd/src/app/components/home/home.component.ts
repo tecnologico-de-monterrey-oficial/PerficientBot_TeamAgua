@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {AuthService} from '@auth0/auth0-angular';
+import { OpenaiService } from 'src/app/services/openai.service';
 import {map} from "rxjs";
 import { HttpClient } from '@angular/common/http';import { ChatbotComponent } from './chatbot/chatbot.component';
 
@@ -9,8 +10,10 @@ import { HttpClient } from '@angular/common/http';import { ChatbotComponent } fr
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit{
+
   title = 'Decoded ID Token';
   code= '';
+
 
   user$ = this.auth.user$;
   code$ = this.user$.pipe(map((user) => JSON.stringify(user, null, 2)));
@@ -22,7 +25,7 @@ export class HomeComponent implements OnInit{
   user_id!: string; //Sub
   db_user_id!: string;  // New variable to store user_id from the response
 
-  constructor(private http: HttpClient, public auth: AuthService) { }
+  constructor(private http: HttpClient, public auth: AuthService, private Chatbot: OpenaiService) { }
 
 
   ngOnInit() {
@@ -35,6 +38,7 @@ export class HomeComponent implements OnInit{
         this.user_id = user.sub || '';
 
         this.postDataToDatabase();
+        
       }
     });
   }
@@ -63,11 +67,15 @@ export class HomeComponent implements OnInit{
             secret_key: this.user_id
           };
 
-          this.http.post('http://localhost:3000/login', loginData)
+          this.http.post<{token: string}>('http://localhost:3000/login', loginData)
             .subscribe(
-              (res) => console.log(res),
+              (rec) => {
+                console.log("token: ", rec.token);
+                this.Chatbot.setAuthorizationHeader(rec.token)
+              },
               (err) => console.error(err)
             );
+            
         },
         (err) => {
           console.error(err);

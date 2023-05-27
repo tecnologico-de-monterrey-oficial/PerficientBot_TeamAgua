@@ -16,10 +16,17 @@ def GithubRepos():
     # Defino Header específico para hacer el call
     headers = {'Authorization': f'Bearer {API_GIT_KEY}', 'Content-Type': CONTENT_TYPE}
     response = requests.get(API_GIT_REPOS, headers=headers)
-
+    repos = []
     if response.status_code == 200:
         json_response = response.json()
-        return json_response
+
+        for item in json_response:
+            repo = {
+                "name": item.get('name'),
+                "url": item.get('url')
+            }
+            repos.append(repo)
+        return repos
     else:
         return 'Error: unable to retrieve data from external API'
 

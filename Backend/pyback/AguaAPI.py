@@ -541,9 +541,9 @@ def getAllWI():
     "Title": "As an employee, I want to know the amount of pages of my Azure DevOps Wiki to know the state of the project.",
     "WItype": "User Story"
 }"""
-@app.route('/Azure/WI')
-def getWI():
-    return AzureOneItem()
+@app.route('/Azure/WI/<id>')
+def getWI(id):
+    return AzureOneItem(id)
 
 """ Input: 
 {

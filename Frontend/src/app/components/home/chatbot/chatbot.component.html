@@ -4,7 +4,7 @@
         
         <div id="Smartbot__body">
             <div class="messages" #scrollMe>
-
+                
                 <div *ngFor="let message of messages" [ngClass]="message.type === 'user' ? 'message prueba' : 'message'">
                     
                         <img *ngIf="message.type === 'assistant'" class="chatpic" src="..\assets\img\botPic.png" alt="Bot">
@@ -30,15 +30,6 @@
             <button type="button" id="Smartbot__footer--clearButton" (click)="clearConversation()">
                 <img src="../assets/img/BroomW.svg" alt="Clear">
             </button>
-
-           <!--  <input
-                formControlName="message"
-                type="text"
-                id="Smartbot__footer--input"
-                name="myprompt"
-                placeholder="Send message to PerficientBot..."
-                [(ngModel)] = 'myprompt'
-            /> -->
 
             <textarea 
                 formControlName="message"
