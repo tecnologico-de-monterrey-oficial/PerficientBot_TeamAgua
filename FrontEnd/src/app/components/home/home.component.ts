@@ -1,15 +1,14 @@
 import {Component, OnInit} from '@angular/core';
 import {AuthService} from '@auth0/auth0-angular';
 import {map} from "rxjs";
-import { HttpClient } from '@angular/common/http';
-import {UploadFormComponent} from "./upload-form/upload-form.component";
+import { HttpClient } from '@angular/common/http';import { ChatbotComponent } from './chatbot/chatbot.component';
 
 @Component({
-  selector: 'app-profile',
-  templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.scss']
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss']
 })
-export class ProfileComponent implements OnInit{
+export class HomeComponent implements OnInit{
   title = 'Decoded ID Token';
   code= '';
 
@@ -21,6 +20,7 @@ export class ProfileComponent implements OnInit{
   user_name!: string;
   user_email!: string;
   user_id!: string; //Sub
+  db_user_id!: string;  // New variable to store user_id from the response
 
   constructor(private http: HttpClient, public auth: AuthService) { }
 
@@ -50,10 +50,24 @@ export class ProfileComponent implements OnInit{
       sub: this.user_id
     };
 
-    this.http.post('http://localhost:3001/api/DatabasePOST', data)
+    this.http.post<{mensaje: string, user_id: string}>('http://localhost:3001/api/DatabasePOST', data)
       .subscribe(
         (res) => {
           console.log(res);
+          this.db_user_id = res.user_id;  // Save user_id from response to your variable
+
+          // Now send this data to the '/login' API
+          const loginData = {
+            id: this.db_user_id,
+            email: this.user_email,
+            secret_key: this.user_id
+          };
+
+          this.http.post('http://localhost:3000/login', loginData)
+            .subscribe(
+              (res) => console.log(res),
+              (err) => console.error(err)
+            );
         },
         (err) => {
           console.error(err);
@@ -63,8 +77,5 @@ export class ProfileComponent implements OnInit{
 
 
 
-  logout(){
-    this.auth.logout();
-  }
 
 }
