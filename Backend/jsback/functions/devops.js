@@ -1,11 +1,10 @@
-
 // Imports
 const axios = require('axios');
 
 // OpenAI API
 const { openai, hasNullValues, mergeJSONObjects } = require('../functions/imports');
 
-async function azureClassification(input) {
+async function azureClassification(input, requestStatus) {
     const response = await openai.createCompletion({
         model:'text-davinci-003',
         prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Azure DevOps. Given this sentence "${input}". According to the main action of the sentence (if necessary, only focus in the main action, imagine where the action will take place considering the best platform to have it), determine which of the following options it belongs to: 
@@ -34,7 +33,7 @@ async function AzureDecisionClassification(responseOpenAI, input, requestStatus)
   switch (responseOpenAI) {
 
     case 1:
-      const response1 = await axios.get('/Azure/AllWI').then(response => {
+      const response1 = await axios.get('http://10.22.210.77:3001/Azure/AllWI').then(response => {
         console.log(response.data);
       }).catch(error => {
         console.error(error)
@@ -47,7 +46,7 @@ async function AzureDecisionClassification(responseOpenAI, input, requestStatus)
         decision = await getWorkItem(input);
       }
 
-      const response2 = await axios.get('/Azure/WI', {params:decision[2]}).then(response => {
+      const response2 = await axios.get(`http://10.22.210.77:3001/Azure/WI/${decision[2]['id']}`).then(response => {
         console.log(response.data);
       }).catch(error => {
         console.error(error)
@@ -55,12 +54,21 @@ async function AzureDecisionClassification(responseOpenAI, input, requestStatus)
 
       return [response2, false, null, null];
 
+    ///Azure/CreateItem
     case 3:
       if(!requestStatus) {
         console.log('Aún no tiene una request.');
         decision = await CreateWorkItem(input);
       }
-      break;
+
+      payload = decision[2]
+      const response3 = await axios.post(`http://10.22.210.77:3001/Azure/CreateItem`, payload ).then(response => {
+        console.log(response.data);
+      }).catch(error => {
+        console.error(error)
+      });
+
+      return [response3, false, null, null];
 
     case 'I am sorry, can you rephrase your request?':
       decision = ['I am sorry, can you rephrase your request?', false, null, null];
@@ -90,7 +98,7 @@ async function getWorkItem(input) {
     model:'text-davinci-003',
     prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Azure DevOps. In this case your task is to identify the ID of a work item. Given this sentence "${input}", determine if there is an ID. Remember, just determine the information based on the given sentence.
     
-    Please use camelCase for the fields. If a field is missing, write it in the JSON as null. Return the JSON without any prefacing statement - the output should be the JSON and nothing else.`,
+   If no ID number is given, write it in the JSON as null. Return the JSON with format {"id": givenValue} - the output should be the JSON and nothing else.`,
     max_tokens: 256,
     temperature: 0,
     n: 1,
@@ -117,14 +125,14 @@ async function getWorkItem(input) {
     return [normalResponse.data.choices[0].text, requestStatus, obj, currentService]; // Returns the response that will be displayed to the user.
   }
 
-  return [confirmResponse, requestStatus, obj, currentService];
+  return [null, requestStatus, obj, currentService];
 }
 
 async function CreateWorkItem(input) {
   // This response will be displayed to the user.
   const normalResponse = await openai.createCompletion({
     model:'text-davinci-003',
-    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Azure DevOps. In this case your task is to create a work item. Given this sentence "${input}", determine if there is a title, description, and type of work item. If something is missing, please ask for those details, do not tell what you got, just what you are missing.`,
+    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Azure DevOps. In this case your task is to create a work item. Given this sentence "${input}", determine if there is a title, description, and type of work item. The type of work items are Task, User Story, Epic and Test Design. If something is missing, please ask for those details, do not tell what you got, just what you are missing.`,
     max_tokens: 150,
     temperature: 0,
     n: 1,
@@ -134,7 +142,7 @@ async function CreateWorkItem(input) {
   // This response is sent to the function that creates a meeting in Outlook.
   const JSONresponse = await openai.createCompletion({
     model:'text-davinci-003',
-    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Azure DevOps. In this case your task is to create a work item. Given this sentence "${input}", determine if there is a title, description, and type of work item. Remember, just determine the information based on the given sentence.
+    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Azure DevOps. In this case your task is to create a work item. Given this sentence "${input}", determine if there is a title, description, and type of work item. The type of work items are Task, User Story, Epic and Test Design. Remember, just determine the information based on the given sentence.
     
     Please use camelCase for the fields. If a field is missing, write it in the JSON as null. Return the JSON without any prefacing statement - the output should be the JSON and nothing else.`,
     max_tokens: 256,
@@ -163,9 +171,9 @@ async function CreateWorkItem(input) {
     return [normalResponse.data.choices[0].text, requestStatus, obj, currentService]; // Returns the response that will be displayed to the user.
   }
 
-  // If the JSON has all fields with a value, it modifies the JSON itself in order to send it to the Outlook API.
-  const correctedTimeJSON = correctTimeFormat(obj);
-  const confirmResponse = displpayMeetingInfo(correctedTimeJSON);
+  return [null, requestStatus, obj, currentService];
+}
 
-  return [confirmResponse, requestStatus, correctedTimeJSON, currentService];
+module.exports = {
+  azureClassification
 }
