@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { OpenaiService } from '../../../services/openai.service';
+import { AuthService } from '@auth0/auth0-angular';
 
 export interface Message {
   type: string,
@@ -13,6 +14,10 @@ export interface Message {
   styleUrls: ['./chatbot.component.scss']
 })
 export class ChatbotComponent implements OnInit {
+   user$ = this.authService.user$;
+  constructor(private authService: AuthService,
+    private Chatbot : OpenaiService) {}
+
   loading = false;
   messages: Message[] = [];
   chatForm = new FormGroup({
@@ -20,14 +25,19 @@ export class ChatbotComponent implements OnInit {
   });
   @ViewChild('scrollMe') private myScrollContainer: any;
 
-  constructor(private Chatbot : OpenaiService) {
+  /* constructor(private Chatbot : OpenaiService) {
     this.messages.push({
       type: 'assistant',
       message: 'Hello, I am your personal assistant for Perficient. How can I help you today?'
     });
-  }
+    
+  } */
 
   ngOnInit(): void {
+    this.messages.push({
+      type: 'assistant',
+      message: 'Hello, I am your personal assistant for Perficient. How can I help you today?'
+    });
   }
 
   result: string = "";

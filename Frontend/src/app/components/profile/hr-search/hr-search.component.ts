@@ -24,7 +24,7 @@ export class HrSearchComponent {
     constructor(private http: HttpClient, public auth: AuthService) { }
 
     getImage(){
-      this.http.get(`http://localhost:3000/CV/${this.user_id}`).subscribe(
+      this.http.get(`http://localhost:3001/CV/${this.user_id}`).subscribe(
         (response: any) => {
           this.cvImage = response.image;
           this.cvImageData = 'data:image/png;base64,' + this.cvImage;
@@ -34,9 +34,9 @@ export class HrSearchComponent {
         }
       );
     }
-  
+
     getSummary(){
-      this.http.get(`http://localhost:3000/GPTtext/${this.user_id}`).subscribe(
+      this.http.get(`http://localhost:3001/GPTtext/${this.user_id}`).subscribe(
         (response: any) => {
           this.summary = response.content;
           console.log(this.summary);
