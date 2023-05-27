@@ -1,6 +1,8 @@
 // OpenAI API
 const { openai, getCurrentDateAndHour } = require('../functions/imports');
 const outlook = require('./outlook');
+const devops = require('./devops');
+const github = require('./github');
 
 async function EnglishOrNot(input) {
     const response = await openai.createCompletion({
@@ -73,7 +75,7 @@ async function EnglishOrNot(input) {
   
         // If the user's request can be made in Azure DevOps, it calls the respective function.
         if(validationAzureDevOps) {
-          decision = await requestAzureDevOps();
+          decision = await devops.azureClassification(input, requestStatus);
         }
         break;
       // Request to GitHub
@@ -83,7 +85,7 @@ async function EnglishOrNot(input) {
   
         // If the user's request can be made in GitHub, it calls the respective function.
         if(validationGitHub) {
-          decision = await requestGitHub();
+          decision = await github.githubDecision(input);
         }
         break;
       // General Conversation
@@ -133,7 +135,7 @@ async function EnglishOrNot(input) {
     return response.data.choices[0].text; // Returns the response.
   }
   
-  // Function that makes a request to the main function of the devops.js file.
+  /* Function that makes a request to the main function of the devops.js file.
   async function requestAzureDevOps() {
     const message_bot = await 'I see that you want to create a new project in Azure DevOps.';
   
@@ -145,7 +147,7 @@ async function EnglishOrNot(input) {
     const message_bot = await 'I see that you want to create a new repository on GitHub.';
   
     return message_bot;
-  }
+  }*/
 
   // Exports
 module.exports = {
