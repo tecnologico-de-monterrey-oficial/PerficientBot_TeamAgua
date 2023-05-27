@@ -75,9 +75,10 @@ app.post('/login', (req, res) => {
 app.post('/', authenticateToken, async (req, res) => {
   const { user_message } = req.body;
 
+  req.user.conversation.push({role: "user", content: user_message}); // Saves the user's message in the session's history of the conversation.
+
   // If the user's message is not in English, the bot returns this message.
   if(!chatbot.EnglishOrNot(user_message)) {
-    req.user.conversation.push({role: "user", content: user_message}); // Saves the user's message in the session's history of the conversation.
     req.user.conversation.push({role: "assistant", content: 'Please write in English.'}); // Saves the response in the session's history of the conversation.
     console.log('Historial- No English');
     console.log(req.user.conversation);
@@ -97,11 +98,29 @@ app.post('/', authenticateToken, async (req, res) => {
   if(req.user.current_service === 'Outlook') {
     const dateAndHour = getCurrentDateAndHour(); // Gets the current date and hour.
 
-    req.user.conversation.push({role: "user", content: user_message}); // Saves the messages into the history of conversation
-
     // Checks if the user's message has anything to do with the initial request
     if(!outlook.checksConversationTopic(user_message, req.user.conversation, dateAndHour)) {
-      const response = 'It seems that you want to change your conversation topic. I will reset your request to create a meeting and forget everything about it. If you want to create a meeting, please phrase your request from scratch. If you do not want to happen this by accident, please remember to use ';
+      const response = 'It seems that you want to change your conversation topic. I will reset your request to create a meeting and forget everything about it. If you want to create a meeting, please phrase your request from scratch. If you do not want to happen this by accident, please remember to use related words to your request.';
+
+      req.user.conversation.push({role: "assistant", content: response}); // Saves the messages into the history of conversation
+
+      // Updates the values of the JWT.
+      req.user.request_status = false;
+      req.user.current_data = null;
+      req.user.current_service = null;
+
+      console.log('Historial - Outlook Service');
+      console.log(req.user.conversation);
+
+      const newToken = generateNewToken(req.user); // Generates a new token for the next message.
+
+      res.send({ response: {role: 'assistant', content: response}, new_token: newToken}); // Returns the response to the user.
+
+      return; // Ends execution of this endpoint.
+    }
+
+    if(!outlook.validatesSchedulePast(user_message, dateAndHour) || !outlook.validatesScheduleFuture(user_message, dateAndHour)) {
+      const response = 'Remember, you cannot schedule a meeting in the past nor in the next 31 days. For internal logical purposes, I will reset your request to create a meeting and forget everything about it. If you want to create a meeting, please phrase your request from scratch.';
 
       req.user.conversation.push({role: "assistant", content: response}); // Saves the messages into the history of conversation
 
@@ -140,7 +159,6 @@ app.post('/', authenticateToken, async (req, res) => {
   }
 
   const classificationResult = await chatbot.classification(user_message, req.user.request_status); // Classifies the user's message.
-  req.user.conversation.push({role: "user", content: user_message}); // Saves the user's message in the session's history of the conversation.
 
   // If OpenAI classifies the user's message as General Conversation, it answers normally.
   if(classificationResult[0] === 'General Conversation.') {
