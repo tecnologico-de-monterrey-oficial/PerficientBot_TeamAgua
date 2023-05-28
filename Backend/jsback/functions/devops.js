@@ -33,12 +33,18 @@ async function AzureDecisionClassification(responseOpenAI, input, requestStatus)
   switch (responseOpenAI) {
 
     case 1:
-      const response1 = await axios.get('http://10.22.210.77:3001/Azure/AllWI').then(response => {
-        console.log(response.data);
+      const response1 = await axios.get('http://10.22.210.77:3001/Azure/AllWI').then(async response1 => {
+      console.log(response1.data);
+      finalStringResponse = formatJSONOutResponseWI(response1.data);
+
+      normalResponse = 'Here is your request: ' + '\n' + finalStringResponse; // Assuming the response is JSON data
+      return [normalResponse, false, null, null];
       }).catch(error => {
         console.error(error)
       });
-      return [response1, false, null, null];
+
+      decision = [normalResponse, false, null, null];
+      break;
 
     case 2:
       if(!requestStatus) {
@@ -172,6 +178,21 @@ async function CreateWorkItem(input) {
   }
 
   return [null, requestStatus, obj, currentService];
+}
+
+function formatJSONOutResponseWI(response) {
+  let resultString = '';
+
+  // Iterate over each object in the array
+  response.forEach(function(obj) {
+    // Iterate over each key in the object
+    console.log('Objeto:', obj);
+
+    resultString += `<a href="${obj.url}"> ${obj.WItype} with ID: ${obj.ID}</a>
+    This work item refers to ${obj.Title}
+    ___________________________________________________________________`;
+  });
+  return resultString;
 }
 
 module.exports = {
