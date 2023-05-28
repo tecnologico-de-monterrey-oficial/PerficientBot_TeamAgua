@@ -81,7 +81,7 @@ app.post('/', async (req, res, next) => {
   req.key = req.body.secret_key;
   next();
 }, authenticateToken, async(req, res) => {
-  const { user_message, old_token } = req.body;
+  const { user_message, secret_key } = req.body;
 
   req.user.conversation.push({role: "user", content: user_message}); // Saves the user's message in the session's history of the conversation.
 
@@ -91,7 +91,7 @@ app.post('/', async (req, res, next) => {
     console.log('Historial- No English');
     console.log(req.user.conversation);
 
-    const newToken = generateNewToken(req.user, old_token);
+    const newToken = generateNewToken(req.user, secret_key);
 
     res.send({ response: {role: 'assistant', content: 'Please write in English.'}, new_token: newToken}); // Returns the response to the user.
 
@@ -120,7 +120,7 @@ app.post('/', async (req, res, next) => {
       console.log('Historial - Outlook Service');
       console.log(req.user.conversation);
 
-      const newToken = generateNewToken(req.user, old_token); // Generates a new token for the next message.
+      const newToken = generateNewToken(req.user, secret_key); // Generates a new token for the next message.
 
       res.send({ response: {role: 'assistant', content: response}, new_token: newToken}); // Returns the response to the user.
 
@@ -140,7 +140,7 @@ app.post('/', async (req, res, next) => {
       console.log('Historial - Outlook Service');
       console.log(req.user.conversation);
 
-      const newToken = generateNewToken(req.user, old_token); // Generates a new token for the next message.
+      const newToken = generateNewToken(req.user, secret_key); // Generates a new token for the next message.
 
       res.send({ response: {role: 'assistant', content: response}, new_token: newToken}); // Returns the response to the user.
 
@@ -159,7 +159,7 @@ app.post('/', async (req, res, next) => {
     console.log('Historial - Outlook Service');
     console.log(req.user.conversation);
 
-    const newToken = generateNewToken(req.user, old_token); // Generates a new token for the next message.
+    const newToken = generateNewToken(req.user, secret_key); // Generates a new token for the next message.
 
     res.send({ response: {role: 'assistant', content: outlookResponse[0]}, new_token: newToken}); // Returns the response to the user.
 
@@ -183,7 +183,7 @@ app.post('/', async (req, res, next) => {
     console.log('Conversación General - Historial');
     console.log(req.user.conversation);
 
-    const newToken = generateNewToken(req.user, old_token);
+    const newToken = generateNewToken(req.user, secret_key);
 
     res.send({ response: completion.data.choices[0].message, new_token: newToken }); // Returns the response to the user.
 
@@ -197,7 +197,7 @@ app.post('/', async (req, res, next) => {
     console.log('Historial');
     console.log(req.user.conversation);
 
-    const newToken = generateNewToken(req.user,old_token);
+    const newToken = generateNewToken(req.user,secret_key);
 
     res.send({ response: {role: 'assistant', content: 'I apologize, but I am having trouble understanding your request. Could you please rephrase it or provide more specific details so that I can assist you better?'}}); // Returns the response to the user.
 
@@ -210,7 +210,7 @@ app.post('/', async (req, res, next) => {
     console.log('Historial');
     console.log(req.user.conversation);
 
-    const newToken = generateNewToken(req.user, old_token);
+    const newToken = generateNewToken(req.user, secret_key);
 
     res.send({ response: {role: 'assistant', content: classificationResult}, new_token: newToken}); // Returns the response to the user.
 
@@ -230,7 +230,7 @@ app.post('/', async (req, res, next) => {
   console.log('Current Data después de asignar:', req.user.current_data);
   console.log('Current Service después de asignar:', req.user.current_service);
 
-  const newToken = generateNewToken(req.user, old_token);
+  const newToken = generateNewToken(req.user, secret_key);
 
   res.send({ response: {role: 'assistant', content: classificationResult[0]}, new_token: newToken}); // Returns the response to the user.
 
