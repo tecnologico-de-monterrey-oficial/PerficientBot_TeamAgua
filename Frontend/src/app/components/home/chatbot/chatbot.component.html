@@ -8,8 +8,9 @@
                 <div *ngFor="let message of messages" [ngClass]="message.type === 'user' ? 'message prueba' : 'message'">
                     
                         <img *ngIf="message.type === 'assistant'" class="chatpic" src="..\assets\img\botPic.png" alt="Bot">
-
-                        <div [class]="message.type">  {{message.message}} </div>
+                        
+                        <!-- style="white-space: pre-line" -->
+                        <div [class]="message.type" >  {{message.message}} </div>
 
                         <img *ngIf="message.type === 'user' && (user$ | async) as user; else defaultImage" [src]="user?.picture || './assets/img/profilePic.png'" class="chatpic" alt="UserPictureProfile" />
 

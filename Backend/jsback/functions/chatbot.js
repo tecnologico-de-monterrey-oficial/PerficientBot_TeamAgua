@@ -126,10 +126,11 @@ async function EnglishOrNot(input) {
   // Function that makes a request to our OpenAI fine-tuned model.
   async function questionPerficient(input) {
     const response = await openai.createCompletion({
-      model:'davinci:ft-personal-2023-04-28-18-40-02',
+      model:'davinci:ft-personal-2023-05-28-01-26-43',
       prompt: input,
       max_tokens: 150,
       temperature: 0,
+      stop: '###',
       n: 1,
       stream: false
     });
