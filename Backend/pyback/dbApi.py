@@ -6,8 +6,6 @@ import pyodbc
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-
-@app.route('/api/DatabaseGET')
 def obtener_usuarios():
     server = 'agua-perficientbot-server.database.windows.net'
     database = 'Agua_PerficientBot-db'
@@ -50,8 +48,6 @@ def obtener_usuarios():
         return jsonify({'error': str(e)}), 500
 
 
-
-@app.route('/api/DatabasePOST', methods=['POST'])
 def guardar_usuario():
     server = 'agua-perficientbot-server.database.windows.net'
     database = 'Agua_PerficientBot-db'
@@ -97,8 +93,6 @@ def guardar_usuario():
         return jsonify({'error': str(e), 'trace': traceback.format_exc()}), 500
 
 
-
-@app.route('/api/CheckHR', methods=['GET'])
 def check_if_user_is_hr():
     server = 'agua-perficientbot-server.database.windows.net'
     database = 'Agua_PerficientBot-db'
@@ -131,7 +125,3 @@ def check_if_user_is_hr():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-
-if __name__ == '__main__':
-    app.run(port=8000)
