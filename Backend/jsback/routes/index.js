@@ -103,6 +103,25 @@ app.post('/', async (req, res, next) => {
   console.log('Este es el estado de la request actual:', req.user.request_status);
   console.log('Este es el current data actual:', req.user.current_data);
 
+  if(req.user.current_service === 'AzureDevOps') {
+    console.log('Vamos a continuar con este request de Azure.');
+
+    // Checks if the user's message has anything to do with the initial request
+    const devopsResponse = await devops.CreateWorkItemContinue(user_message, req.user.current_data);
+
+    req.user.conversation.push({role: "assistant", content: outlookResponse[0]});
+
+    req.user.current_data = devopsResponse[1];
+
+    console.log(req.user.conversation);
+
+    const newToken = generateNewToken(req.user, secret_key); // Generates a new token for the next message.
+
+    res.send({ response: {role: 'assistant', content: devopsResponse[0]}, new_token: newToken}); // Returns the response to the user.
+
+    return; // Ends execution of this endpoint.
+  }
+
   if(req.user.current_service === 'Outlook') {
     const dateAndHour = getCurrentDateAndHour(); // Gets the current date and hour.
 
