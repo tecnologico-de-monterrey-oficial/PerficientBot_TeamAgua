@@ -1,12 +1,19 @@
+<h2>Enviar Tokens</h2>
+
 <div>
   <label for="outlookToken">Outlook Token:</label>
-  <input type="text" id="outlookToken" [(ngModel)]="outlookToken">
-
-  <label for="githubToken">GitHub Token:</label>
-  <input type="text" id="githubToken" [(ngModel)]="githubToken">
-
-  <label for="azureToken">Azure Token:</label>
-  <input type="text" id="azureToken" [(ngModel)]="azureToken">
-
-  <button (click)="enviarTokens()">Enviar</button>
+  <input type="text" [(ngModel)]="outlookToken" id="outlookToken">
 </div>
+
+<div>
+  <label for="githubToken">GitHub Token:</label>
+  <input type="text" [(ngModel)]="githubToken" id="githubToken">
+</div>
+
+<div>
+  <label for="azureToken">Azure Token:</label>
+  <input type="text" [(ngModel)]="azureToken" id="azureToken">
+</div>
+
+<button (click)="enviarTokens()">Enviar</button>
+

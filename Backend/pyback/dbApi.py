@@ -132,6 +132,7 @@ def check_if_user_is_hr():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/api/DatabasePOSTTokens', methods=['POST'])
 def guardar_tokens():
     server = 'agua-perficientbot-server.database.windows.net'
@@ -145,29 +146,27 @@ def guardar_tokens():
         datos_tokens = request.get_json()
 
         sub = datos_tokens['sub']
-        outlook_token = datos_tokens['outlookToken']
-        github_token = datos_tokens['githubToken']
-        azure_token = datos_tokens['azureToken']
+        outlook_key = datos_tokens['outlookToken']
+        github_key = datos_tokens['githubToken']
+        azure_key = datos_tokens['azureToken']
 
         conexion = pyodbc.connect(conexion_str)
         cursor = conexion.cursor()
 
-        cursor.execute("SELECT COUNT(*) FROM users WHERE sub = ?", sub)
-        resultado = cursor.fetchone()
+        cursor.execute("EXEC dbo.UpdateOutlookKey ?, ?", sub, outlook_key)
 
-        if resultado[0] == 0:
-            return jsonify({'error': 'El sub no existe'}), 404
+        cursor.execute("EXEC dbo.UpdateGithubKey ?, ?", sub, github_key)
 
-        cursor.execute("INSERT INTO User_keys (sub, outlook_key, github_key, azure_key) VALUES (?, ?, ?, ?)",
-                       sub, outlook_token, github_token, azure_token)
+        cursor.execute("EXEC dbo.UpdateAzureKey ?, ?", sub, azure_key)
+
         conexion.commit()
-
         conexion.close()
 
-        return jsonify({'mensaje': 'Datos guardados exitosamente'}), 200
+        return jsonify({'mensaje': 'Claves actualizadas exitosamente'})
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e), 'trace': traceback.format_exc()}), 500
+
 
 
 if __name__ == '__main__':
