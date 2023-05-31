@@ -132,6 +132,43 @@ def check_if_user_is_hr():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/DatabasePOSTTokens', methods=['POST'])
+def guardar_tokens():
+    server = 'agua-perficientbot-server.database.windows.net'
+    database = 'Agua_PerficientBot-db'
+    username = 'Agua'
+    password = '3l4guaM0ja'
+    driver = '{ODBC Driver 17 for SQL Server}'
+    conexion_str = f"DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}"
+
+    try:
+        datos_tokens = request.get_json()
+
+        sub = datos_tokens['sub']
+        outlook_token = datos_tokens['outlookToken']
+        github_token = datos_tokens['githubToken']
+        azure_token = datos_tokens['azureToken']
+
+        conexion = pyodbc.connect(conexion_str)
+        cursor = conexion.cursor()
+
+        cursor.execute("SELECT COUNT(*) FROM users WHERE sub = ?", sub)
+        resultado = cursor.fetchone()
+
+        if resultado[0] == 0:
+            return jsonify({'error': 'El sub no existe'}), 404
+
+        cursor.execute("INSERT INTO User_keys (sub, outlook_key, github_key, azure_key) VALUES (?, ?, ?, ?)",
+                       sub, outlook_token, github_token, azure_token)
+        conexion.commit()
+
+        conexion.close()
+
+        return jsonify({'mensaje': 'Datos guardados exitosamente'}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(port=8000)

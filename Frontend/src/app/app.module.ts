@@ -17,6 +17,7 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import {UploadFormComponent} from "./components/profile/upload-form/upload-form.component";
 import { HrSearchComponent } from './components/profile/hr-search/hr-search.component';
 import { MainInfoComponent } from './components/profile/main-info/main-info.component';
+import { SendTokensComponent } from './components/profile/send-tokens/send-tokens.component';
 
 
 
@@ -31,6 +32,7 @@ import { MainInfoComponent } from './components/profile/main-info/main-info.comp
     UploadFormComponent,
     HrSearchComponent,
     MainInfoComponent,
+    SendTokensComponent,
   ],
   imports: [
     BrowserModule,
