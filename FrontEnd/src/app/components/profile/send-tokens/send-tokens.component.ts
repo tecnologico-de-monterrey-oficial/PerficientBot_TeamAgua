@@ -12,14 +12,17 @@ export class SendTokensComponent implements OnInit {
   githubToken: string = '';
   azureToken: string = '';
   user_sub!: string; // Sub
+  tokensSubidos: boolean = false;
+  showtoken: boolean = false;
 
-  constructor(private http: HttpClient, public auth: AuthService) { }
+  constructor(private http: HttpClient, public auth: AuthService) {}
 
-  ngOnInit(): void {
-    this.auth.user$.subscribe(user => {
+  ngOnInit() {
+    this.auth.user$.subscribe((user) => {
       if (user) {
-        // Rellenar el user_sub
+        // Código para rellenar el user_sub
         this.user_sub = user.sub || '';
+        this.getTokens();
       }
     });
   }
@@ -35,16 +38,48 @@ export class SendTokensComponent implements OnInit {
         azureToken: this.azureToken
       };
 
-      this.http.post('http://localhost:8000/api/DatabasePOSTTokens', datosTokens)
-        .subscribe((response: any) => {
-          console.log(response.mensaje);
-        }, (error: any) => {
-          console.error(error.error);
-        });
+      this.http
+        .post('http://localhost:3001/api/DatabasePOSTTokens', datosTokens)
+        .subscribe(
+          (response: any) => {
+            console.log(response.mensaje);
+          },
+          (error: any) => {
+            console.error(error.error);
+          }
+        );
     } else {
-      // Mostrar mensaje de error
-      alert('Es obligatorio llenar todos los campos de token');
+      alert('Todos los campos son obligatorios');
     }
   }
+
+  getTokens(): void {
+    const sub = this.user_sub;
+
+    this.http
+      .get(`http://localhost:3001/api/DatabaseGETTokens/${sub}`)
+      .subscribe(
+        (response: any) => {
+          if (response.outlookToken && response.githubToken && response.azureToken) {
+            this.outlookToken = response.outlookToken;
+            this.githubToken = response.githubToken;
+            this.azureToken = response.azureToken;
+            this.tokensSubidos = true;
+            console.log('Tokens del usuario:', response);
+          } else {
+            console.log('No tokens found for the user');
+          }
+        },
+        (error: any) => {
+          console.error(error.error);
+        }
+      );
+  }
+
+  toggleShowToken() {
+    this.showtoken = !this.showtoken;
+  }
 }
+
+
 
