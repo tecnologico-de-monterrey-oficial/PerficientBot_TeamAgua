@@ -33,7 +33,7 @@ async function githubDecisionClassification(responseOpenAI, input) {
   switch (responseOpenAI) {
 
     case 1:
-      const response1 = await axios.get('http://10.22.210.77:3001/Github/Repositories').then(async response1 => {
+      const response1 = await axios.get('http://127.0.0.1:3001/Github/Repositories').then(async response1 => {
       console.log(response1.data);
       finalStringResponse = formatJSONOutResponseRepo(response1.data);
 
@@ -47,7 +47,7 @@ async function githubDecisionClassification(responseOpenAI, input) {
       break;
 
     case 2:
-      const response2 = await axios.get(`http://10.22.210.77:3001/Github/Issues`).then(async response2 => {
+      const response2 = await axios.get(`http://127.0.0.1:3001/Github/Issues`).then(async response2 => {
       console.log(response2.data);
       finalStringResponse = formatJSONOutResponse(response2.data);
 
@@ -61,7 +61,7 @@ async function githubDecisionClassification(responseOpenAI, input) {
       break;
 
     case 3:
-      const response3 = await axios.get(`http://10.22.210.77:3001/Github/Pulls`).then(async response3 => {
+      const response3 = await axios.get(`http://127.0.0.1:3001/Github/Pulls`).then(async response3 => {
       console.log(response3.data);
       finalStringResponse = formatJSONOutResponse(response3.data);
 

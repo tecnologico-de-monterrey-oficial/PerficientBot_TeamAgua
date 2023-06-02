@@ -33,7 +33,7 @@ async function AzureDecisionClassification(responseOpenAI, input, requestStatus)
   switch (responseOpenAI) {
 
     case 1:
-      const response1 = await axios.get('http://10.22.210.77:3001/Azure/AllWI').then(async response1 => {
+      const response1 = await axios.get('http://127.0.0.1:3001/Azure/AllWI').then(async response1 => {
       console.log(response1.data);
       finalStringResponse = formatJSONOutResponseWI(response1.data);
 
@@ -43,7 +43,6 @@ async function AzureDecisionClassification(responseOpenAI, input, requestStatus)
         console.error(error)
       });
 
-      decision = [normalResponse, false, null, null];
       break;
 
     case 2:
@@ -52,15 +51,18 @@ async function AzureDecisionClassification(responseOpenAI, input, requestStatus)
         decision = await getWorkItem(input);
       }
 
-      const response2 = await axios.get(`http://10.22.210.77:3001/Azure/WI/${decision[2]['id']}`).then(response => {
-        console.log(response.data);
+      const response2 = await axios.get(`http://127.0.0.1:3001/Azure/WI/${decision[2]['id']}`).then(response2 => {
+        console.log(response2.data);
+        finalStringResponse = formatJSONOutResponseWI(response2.data);
+
+        normalResponse = 'Here is your request: ' + '\n' + finalStringResponse; // Assuming the response is JSON data
+        return [normalResponse, false, null, null];
       }).catch(error => {
         console.error(error)
       });
 
-      return [response2, false, null, null];
+      break;
 
-    ///Azure/CreateItem
     case 3:
       if(!requestStatus) {
         console.log('Aún no tiene una request.');
@@ -68,13 +70,17 @@ async function AzureDecisionClassification(responseOpenAI, input, requestStatus)
       }
 
       payload = decision[2]
-      const response3 = await axios.post(`http://10.22.210.77:3001/Azure/CreateItem`, payload ).then(response => {
-        console.log(response.data);
+      const response3 = await axios.post(`http://127.0.0.1:3001/Azure/CreateItem`, payload ).then(response3 => {
+        console.log(response3.data);
+        finalStringResponse = formatJSONOutResponse(response3.data);
+
+        normalResponse = 'Here is your request: ' + '\n' + finalStringResponse; // Assuming the response is JSON data
+        return [normalResponse, false, null, null];
       }).catch(error => {
         console.error(error)
       });
 
-      return [response3, false, null, null];
+      break;
 
     case 'I am sorry, can you rephrase your request?':
       decision = ['I am sorry, can you rephrase your request?', false, null, null];
@@ -192,7 +198,21 @@ function formatJSONOutResponseWI(response) {
     This work item refers to ${obj.Title}
     ___________________________________________________________________`;
   });
-  return resultString;
+  return resultString; 
+}
+
+function formatJSONOutResponse(response) {
+  let resultString = '';
+
+  // Iterate over each object in the array
+  response.forEach(function(obj) {
+    // Iterate over each key in the object
+    console.log('Objeto:', obj);
+
+    resultString += `<a href="${obj.url}"> Work Item created successfully
+    ___________________________________________________________________`;
+  });
+  return resultString; 
 }
 
 module.exports = {

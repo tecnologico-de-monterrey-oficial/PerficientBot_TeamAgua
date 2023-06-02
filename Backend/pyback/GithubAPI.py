@@ -23,7 +23,7 @@ def GithubRepos():
         for item in json_response:
             repo = {
                 "name": item.get('name'),
-                "url": item.get('url')
+                "url": item.get('html_url')
             }
             repos.append(repo)
         return repos
@@ -54,7 +54,7 @@ def GithubIssues():
                 values = {
                     "title": item.get('title'),
                     "body": item.get('body'),
-                    "url": item.get('url')
+                    "url": item.get('html_url')
                 }
                 issue.append(values)
     return issue
@@ -83,7 +83,7 @@ def GithubPulls():
                 values = {
                     "title": item.get('title'),
                     "body": item.get('body'),
-                    "url": item.get('url')
+                    "url": item.get('html_url')
                 }
                 pulls.append(values)
     return pulls
