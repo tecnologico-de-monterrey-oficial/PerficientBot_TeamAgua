@@ -6,7 +6,7 @@ on:
     branches: [ "release"]
 jobs:
   Release-frontend:
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
         with:
@@ -29,8 +29,8 @@ jobs:
       
       - name: show dir, .env file
         run: |
-          ls -la 
-
+          ls -la
+          
       - name: download, run httpd image, container name serving_base
         run: |
           cd Frontend/
