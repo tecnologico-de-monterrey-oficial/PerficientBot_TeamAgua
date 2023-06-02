@@ -6,21 +6,11 @@ on:
     branches: [ "release"]
 jobs:
   Release-frontend:
-    runs-on: ubuntu-latest
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-
-      - name: make .env 
-        uses: SpicyPizza/create-envfile@v1.3
-        with:
-          envKey_APP_VERSION: ${{ secrets.APP_VERSION }}
-          envKey_STAGE: ${{ secrets.STAGE }}
-          envkey_NG_APP_KEY: ${{ secrets.OPENAI_KEY }}
-          envKey_PORT: ${{ secrets.PORT }}
-          file_name: .env
-          fail_on_empty: false
 
       - name: Use Node.js 18.16
         uses: actions/setup-node@v1
