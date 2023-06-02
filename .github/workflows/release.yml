@@ -76,7 +76,34 @@ jobs:
           docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-frontend:${{github.sha}}
           docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-frontend:latest
 
-  Release-backend:
+  Release-backend-Flask:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: docker login
+        env:
+          DOCKER_USER: ${{secrets.DOCKER_USER}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        run: |
+          cd Backend/pyback
+          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
+
+      - name: Build Docker Flask image
+        run: |
+          cd Backend/pyback
+          docker build -t ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-flask:${{github.sha}} .
+          docker build -t ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-flask:latest .
+
+      - name: Docker Push
+        run: |
+          cd Backend/pyback
+          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-flask:${{github.sha}}
+          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-flask:latest
+
+  Release-backend-NodeJS:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -98,23 +125,23 @@ jobs:
           DOCKER_USER: ${{secrets.DOCKER_USER}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
         run: |
-          cd Frontend/
+          cd Backend/jsback
           docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
 
-      - name: Build Docker Backend image
+      - name: Build Docker NodeJS image
         run: |
-          cd Backend/
-          docker build -t ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend:${{github.sha}} .
-          docker build -t ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend:latest .
+          cd Backend/jsback
+          docker build -t ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-nodejs:${{github.sha}} .
+          docker build -t ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-nodejs:latest .
 
       - name: Docker Push
         run: |
-          cd Backend/
-          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend:${{github.sha}}
-          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend:latest
+          cd Backend/jsback
+          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-nodejs:${{github.sha}}
+          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-nodejs:latest
       
   Deploy:
-    needs: [Release-frontend, Release-backend]
+    needs: [Release-frontend, Release-backend-Flask, Release-backend-NodeJS]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
