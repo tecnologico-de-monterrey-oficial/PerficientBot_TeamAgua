@@ -10,18 +10,31 @@ import { BehaviorSubject } from 'rxjs/';
 export class OpenaiService {
 
   constructor(private http: HttpClient) { }
-  apiURL = 'https://api.openai.com/v1/completions';
+  apiURL = 'http://localhost:3000/';
 
   // Http Options
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env['NG_APP_KEY']}`
+      'Authorization': ''
     })
+  }
+
+  setAuthorizationHeader(token: string): void {
+    this.httpOptions.headers = this.httpOptions.headers.set('Authorization', 'Bearer '+token); 
+    console.log(this.httpOptions.headers) ;
   }
 
   sendMessage(payload: any): Observable<any> {
     return this.http.post<any>(this.apiURL, JSON.stringify(payload), this.httpOptions)
+    .pipe(
+      retry(1),
+      catchError(this.handleError)
+    )
+  }
+
+  clearConversation(): Observable<any> {
+    return this.http.post<any>(this.apiURL + 'clear-conversation', this.httpOptions)
     .pipe(
       retry(1),
       catchError(this.handleError)
