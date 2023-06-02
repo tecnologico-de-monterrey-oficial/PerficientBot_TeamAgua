@@ -150,7 +150,10 @@ def AzureCreateItem():
     if response.status_code == 200:
         data = response.json()
         url = data['url']
+        id_wi = data['id']
         return jsonify({"message": "Work item created successfully.",
-                        "url": f"{url}"})
+                        "url": f"{url}",
+                        "ID": f"{id_wi}"})
+    #Added id to response too
     else:
         return jsonify({"message": f"Failed to create work item. Error message: {response.text}"}), 400
