@@ -22,16 +22,6 @@ jobs:
           cd Frontend/
           npm ci
 
-      - name: Test
-        run: |
-          cd Frontend/
-          ls
-      
-      - name: Test 2
-        run: |
-          cd Frontend/src/app
-          ls
-
       - name: build angular, output in dist/client
         run: |
           cd Frontend/

@@ -19,11 +19,11 @@ spec:
         ports:
         - containerPort: 80
       - name: backend-flask
-        image: docker.io/{docker_user}/{model_name}-backend:{github.sha}
+        image: docker.io/{docker_user}/{model_name}-backend-flask:{github.sha}
         ports:
         - containerPort: 3001
       - name: backend-nodejs
-        image: docker.io/{docker_user}/{model_name}-backend:{github.sha}
+        image: docker.io/{docker_user}/{model_name}-backend-nodejs:{github.sha}
         ports:
         - containerPort: 3000
 ---
