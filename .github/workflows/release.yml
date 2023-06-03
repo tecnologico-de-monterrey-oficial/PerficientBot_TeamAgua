@@ -6,7 +6,7 @@ on:
     branches: [ "release"]
 jobs:
   Release-frontend:
-    runs-on: windows-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
@@ -30,7 +30,7 @@ jobs:
       - name: download, run httpd image, container name serving_base
         run: |
           cd Frontend/
-          docker run -d --name serving_base httpd:latest
+          docker run -d --name serving_base httpd
           
       - name: cp angular build to container
         run: |
