@@ -26,10 +26,6 @@ jobs:
         run: |
           cd Frontend/
           npm run build
-
-      - name: show dir, .env file
-        run: |
-          ls -la 
           
       - name: download, run httpd image, container name serving_base
         run: |
@@ -107,8 +103,14 @@ jobs:
           envKey_STAGE: ${{ secrets.STAGE }}
           envkey_NG_APP_KEY: ${{ secrets.OPENAI_KEY }}
           envKey_PORT: ${{ secrets.PORT }}
+          envKey_PORT_BIN: ${{ secrets.PORT_BIN }}
           file_name: .env
           fail_on_empty: false
+
+
+      - name: show dir, .env file
+        run: |
+          ls -la 
 
       - name: docker login
         env:
