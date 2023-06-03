@@ -17,13 +17,15 @@ jobs:
         with:
           node-version: 18.16
 
-      - name: Instalar Angular CLI
-        run: npm install -g @angular/cli@15.1.6
-
       - name: CI
         run: |
           cd Frontend/
           npm ci
+
+      - name: Test
+        run: |
+          cd Frontend/
+          npm test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
 
       - name: build angular, output in dist/client
         run: |
