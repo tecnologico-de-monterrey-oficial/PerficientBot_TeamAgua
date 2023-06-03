@@ -30,7 +30,7 @@ jobs:
       - name: download, run httpd image, container name serving_base
         run: |
           cd Frontend/
-          docker run -d --name serving_base httpd
+          docker run -d --name serving_base httpd:latest
           
       - name: cp angular build to container
         run: |
