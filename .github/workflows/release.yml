@@ -6,7 +6,7 @@ on:
     branches: [ "release"]
 jobs:
   Release-frontend:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
@@ -16,6 +16,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 18.16
+
+      - name: Instalar Angular CLI
+        run: npm install -g @angular/cli@15.1.6
 
       - name: CI
         run: |
