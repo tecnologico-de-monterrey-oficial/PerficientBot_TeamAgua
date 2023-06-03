@@ -26,6 +26,11 @@ jobs:
         run: |
           cd Frontend/
           ls
+      
+      - name: Test 2
+        run: |
+          cd Frontend/src/
+          ls
 
       - name: build angular, output in dist/client
         run: |
