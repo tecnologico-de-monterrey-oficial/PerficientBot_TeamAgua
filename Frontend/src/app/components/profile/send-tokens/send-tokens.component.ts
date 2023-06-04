@@ -39,7 +39,7 @@ export class SendTokensComponent implements OnInit {
       };
 
       this.http
-        .post('http://localhost:3001/api/DatabasePOSTTokens', datosTokens)
+        .post('https://perficient-bot-service-dannyjr08.cloud.okteto.net:3001/api/DatabasePOSTTokens', datosTokens)
         .subscribe(
           (response: any) => {
             console.log(response.mensaje);
@@ -57,7 +57,7 @@ export class SendTokensComponent implements OnInit {
     const sub = this.user_sub;
 
     this.http
-      .get(`http://localhost:3001/api/DatabaseGETTokens/${sub}`)
+      .get(`https://perficient-bot-service-dannyjr08.cloud.okteto.net:3001/api/DatabaseGETTokens/${sub}`)
       .subscribe(
         (response: any) => {
           if (response.outlookToken && response.githubToken && response.azureToken) {
