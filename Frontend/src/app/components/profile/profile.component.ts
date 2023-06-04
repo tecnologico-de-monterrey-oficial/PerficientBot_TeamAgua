@@ -51,9 +51,9 @@ export class ProfileComponent implements OnInit{
       nombre_completo: this.user_name,
       correo: this.user_email,
       sub: this.user_id
-    };
+    }
 
-    this.http.post(' https://perficient-bot-service-dannyjr08.cloud.okteto.net:3001/api/DatabasePOST', data)
+    this.http.post(' https://perficient-bot-service-dannyjr08.cloud.okteto.net:8000/api/DatabasePOST', data)
       .subscribe(
         (res) => {
           console.log(res);
