@@ -55,14 +55,16 @@ export class HomeComponent implements OnInit{
       sub: this.user_id
     };
 
-    const options = {
+    /*const options = {
       timeout: 40000, // Increase the timeout value (in milliseconds)
     };
-
-    this.http.post<{mensaje: string, user_id: string}>(' https://perficient-bot-service-dannyjr08.cloud.okteto.net:8000/api/DatabasePOST', data,  {
+    {
       ...options, // Spread the 'options' object for other configuration
       responseType: 'json' // Specify the response type as JSON
-    })
+    }
+    */
+
+    this.http.post<{mensaje: string, user_id: string}>(' https://perficient-bot-service-dannyjr08.cloud.okteto.net:8000/api/DatabasePOST', data)
       .subscribe(
         (res) => {
           console.log(res);
@@ -77,10 +79,7 @@ export class HomeComponent implements OnInit{
 
           console.log('Estoy haciendo Login a NodeJS');
 
-          this.http.post<{ token: string }>('http://localhost:3000/login', loginData, {
-            ...options, // Spread the 'options' object for other configuration
-            responseType: 'json' // Specify the response type as JSON
-          })
+          this.http.post<{ token: string }>('http://localhost:3000/login', loginData)
             .subscribe(
               (rec) => {
                 console.log("token: ", rec.token);

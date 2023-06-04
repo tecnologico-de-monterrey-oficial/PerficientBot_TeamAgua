@@ -51,15 +51,9 @@ export class ProfileComponent implements OnInit{
       nombre_completo: this.user_name,
       correo: this.user_email,
       sub: this.user_id
-    };
-    const options = {
-      timeout: 40000, // Increase the timeout value (in milliseconds)
-    };
+    }
 
-    this.http.post(' https://perficient-bot-service-dannyjr08.cloud.okteto.net:8000/api/DatabasePOST', data, {
-      ...options, // Spread the 'options' object for other configuration
-      responseType: 'json' // Specify the response type as JSON
-    })
+    this.http.post(' https://perficient-bot-service-dannyjr08.cloud.okteto.net:8000/api/DatabasePOST', data)
       .subscribe(
         (res) => {
           console.log(res);

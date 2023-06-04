@@ -26,15 +26,8 @@ export class OpenaiService {
   }
 
   sendMessage(payload: any): Observable<any> {
-    const options = {
-      timeout: 40000, // Increase the timeout value (in milliseconds)
-    };
 
-    return this.http.post<any>(this.apiURL, JSON.stringify(payload), {
-      ...this.httpOptions,
-      ...options, // Spread the 'options' object for other configuration
-      responseType: 'json' // Specify the response type as JSON
-    })
+    return this.http.post<any>(this.apiURL, JSON.stringify(payload), this.httpOptions)
     .pipe(
       retry(1),
       catchError(this.handleError)
@@ -42,14 +35,7 @@ export class OpenaiService {
   }
 
   clearConversation(): Observable<any> {
-    const options = {
-      timeout: 40000, // Increase the timeout value (in milliseconds)
-    };
-    return this.http.post<any>(this.apiURL + 'clear-conversation', {
-      ...this.httpOptions,
-      ...options, // Spread the 'options' object for other configuration
-      responseType: 'json' // Specify the response type as JSON
-    })
+    return this.http.post<any>(this.apiURL + 'clear-conversation', this.httpOptions)
     .pipe(
       retry(1),
       catchError(this.handleError)
