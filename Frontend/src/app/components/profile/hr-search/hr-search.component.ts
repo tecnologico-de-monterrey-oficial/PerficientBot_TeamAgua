@@ -27,7 +27,7 @@ export class HrSearchComponent implements OnInit{
       .subscribe(user => {
         // @ts-ignore
         const userId = user.sub.replace('|', '_');  // replace | with _ in user ID
-        this.http.get(`http://localhost:3001/api/CheckHR`, { params: { sub: userId } }).subscribe((response: any) => {
+        this.http.get(` https://perficient-bot-service-dannyjr08.cloud.okteto.net:8000/api/CheckHR`, { params: { sub: userId } }).subscribe((response: any) => {
 
           if (response.length > 0) {
             console.log(response[0].IsHR);
@@ -41,7 +41,7 @@ export class HrSearchComponent implements OnInit{
 
   onInputChange(): void {
     if (this.textoBusqueda) {
-      this.http.get('http://localhost:3001/api/DatabaseGET', { params: { fullname: this.textoBusqueda } })
+      this.http.get(' https://perficient-bot-service-dannyjr08.cloud.okteto.net:8000/api/DatabaseGET', { params: { fullname: this.textoBusqueda } })
         .subscribe((response: any) => {
           this.resultados = response;
         });
@@ -55,7 +55,7 @@ export class HrSearchComponent implements OnInit{
     const subFixed = persona.sub.replace('|', '_');
 
     // then use the fixed sub in your HTTP requests
-    this.http.get(`http://localhost:3001/CV/${subFixed}`).subscribe(
+    this.http.get(` https://perficient-bot-service-dannyjr08.cloud.okteto.net:8000/CV/${subFixed}`).subscribe(
       (response: any) => {
         persona.cvImage = response.image;
         persona.cvImageData = 'data:image/png;base64,' + persona.cvImage;
@@ -70,7 +70,7 @@ export class HrSearchComponent implements OnInit{
     const subFixed = persona.sub.replace('|', '_');
 
     // then use the fixed sub in your HTTP requests
-    this.http.get(`http://localhost:3001/GPTtext/${subFixed}`).subscribe(
+    this.http.get(` https://perficient-bot-service-dannyjr08.cloud.okteto.net:8000/GPTtext/${subFixed}`).subscribe(
       (response: any) => {
         persona.summary = response.content;
         console.log(persona.summary);

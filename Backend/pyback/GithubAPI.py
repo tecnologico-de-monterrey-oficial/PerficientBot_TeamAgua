@@ -23,7 +23,7 @@ def GithubRepos():
         for item in json_response:
             repo = {
                 "name": item.get('name'),
-                "url": item.get('url')
+                "url": item.get('html_url')
             }
             repos.append(repo)
         return repos
@@ -51,7 +51,12 @@ def GithubIssues():
     for name in names:
         for item in issuesORpulls(name):
             if(item.get('draft') != False and item.get('draft') != True):
-                issue.append(item)
+                values = {
+                    "title": item.get('title'),
+                    "body": item.get('body'),
+                    "url": item.get('html_url')
+                }
+                issue.append(values)
     return issue
 
 # Método GET
@@ -75,7 +80,12 @@ def GithubPulls():
     for name in names:
         for item in issuesORpulls(name):
             if(item.get('draft') == False or item.get('draft') == True):
-                pulls.append(item)
+                values = {
+                    "title": item.get('title'),
+                    "body": item.get('body'),
+                    "url": item.get('html_url')
+                }
+                pulls.append(values)
     return pulls
 
 # Función que hace la llamada a la API de Github y dependiendo del contenido va a ser un Issue o Pull Request

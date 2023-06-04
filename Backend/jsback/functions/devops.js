@@ -33,12 +33,19 @@ async function AzureDecisionClassification(responseOpenAI, input, requestStatus)
   switch (responseOpenAI) {
 
     case 1:
-      const response1 = await axios.get('http://10.22.210.77:3001/Azure/AllWI').then(response => {
-        console.log(response.data);
+      const response1 = await axios.get('http://127.0.0.1:3001/Azure/AllWI').then(async response1 => {
+      console.log(response1.data);
+      finalStringResponse = formatJSONOutResponseWI(response1.data);
+
+      normalResponse = 'Here is your request: ' + '<br>' + finalStringResponse; // Assuming the response is JSON data
+      return [normalResponse, false, null, null];
       }).catch(error => {
         console.error(error)
       });
-      return [response1, false, null, null];
+
+      decision = [normalResponse, false, null, null];
+
+      break;
 
     case 2:
       if(!requestStatus) {
@@ -46,15 +53,18 @@ async function AzureDecisionClassification(responseOpenAI, input, requestStatus)
         decision = await getWorkItem(input);
       }
 
-      const response2 = await axios.get(`http://10.22.210.77:3001/Azure/WI/${decision[2]['id']}`).then(response => {
-        console.log(response.data);
+      const response2 = await axios.get(`http://127.0.0.1:3001/Azure/WI/${decision[2]['id']}`).then(response2 => {
+        console.log(response2.data);
+        finalStringResponse = formatJSONOutResponseOneWI(response2.data);
+
+        normalResponse = 'Here is your request: ' + '\n' + finalStringResponse; // Assuming the response is JSON data
+        return [normalResponse, false, null, null];
       }).catch(error => {
         console.error(error)
       });
+      decision = [normalResponse, false, null, null];
+      break;
 
-      return [response2, false, null, null];
-
-    ///Azure/CreateItem
     case 3:
       if(!requestStatus) {
         console.log('Aún no tiene una request.');
@@ -62,13 +72,17 @@ async function AzureDecisionClassification(responseOpenAI, input, requestStatus)
       }
 
       payload = decision[2]
-      const response3 = await axios.post(`http://10.22.210.77:3001/Azure/CreateItem`, payload ).then(response => {
-        console.log(response.data);
+      const response3 = await axios.post(`http://127.0.0.1:3001/Azure/CreateItem`, payload ).then(response3 => {
+        console.log(response3.data);
+        finalStringResponse = formatJSONOutResponse(response3.data);
+        console.log(finalStringResponse);
+        normalResponse = 'Here is your request: ' + '<br>' + finalStringResponse; // Assuming the response is JSON data
+        return [normalResponse, false, null, null];
       }).catch(error => {
         console.error(error)
       });
-
-      return [response3, false, null, null];
+      decision = [normalResponse, false, null, null];
+      break;
 
     case 'I am sorry, can you rephrase your request?':
       decision = ['I am sorry, can you rephrase your request?', false, null, null];
@@ -144,7 +158,7 @@ async function CreateWorkItem(input) {
     model:'text-davinci-003',
     prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Azure DevOps. In this case your task is to create a work item. Given this sentence "${input}", determine if there is a title, description, and type of work item. The type of work items are Task, User Story, Epic and Test Design. Remember, just determine the information based on the given sentence.
     
-    Please use camelCase for the fields. If a field is missing, write it in the JSON as null. Return the JSON without any prefacing statement - the output should be the JSON and nothing else.`,
+    If a field is missing, write it in the JSON as null. Return the JSON without any prefacing statement - the output should be the JSON and nothing else.`,
     max_tokens: 256,
     temperature: 0,
     n: 1,
@@ -156,7 +170,8 @@ async function CreateWorkItem(input) {
   const fixedJsonString = jsonString.replace(/([{,])(\s*)([A-Za-z0-9_\-]+?)\s*:/g, '$1"$3":');
   const obj = JSON.parse(fixedJsonString);
 
-
+  console.log(jsonString);
+  console.log(fixedJsonString);
   console.log('Actual JSON Azure:', obj);
 
   // These are the defualt values in case the request is completed in one single message.
@@ -172,6 +187,41 @@ async function CreateWorkItem(input) {
   }
 
   return [null, requestStatus, obj, currentService];
+}
+
+function formatJSONOutResponseWI(response) {
+  let resultString = '';
+
+  // Iterate over each object in the array
+  console.log(response)
+  response.forEach(function(obj) {
+    // Iterate over each key in the object
+    console.log('Objeto:', obj);
+
+    resultString += `<a href="${obj.url}" class="withLinks"> ${obj.WItype} with ID: ${obj.ID}</a>
+    This work item refers to <span class="withTitle">${obj.Title}<span> <br>
+    ___________________________________________________________________<br>`;
+  });
+  return resultString; 
+}
+
+function formatJSONOutResponseOneWI(response) {
+  let resultString = '';
+
+  resultString = `<a href="${response.url}" class="withLinks"> ${response.WItype} with ID: ${response.ID}</a><br>
+  This work item refers to <span class="withTitle">${response.Title}<span><br>
+  ___________________________________________________________________`;
+  return resultString;  
+}
+
+function formatJSONOutResponse(response) {
+  let resultString = '';
+
+  console.log(response)
+  resultString = `Work Item created successfully! <br>  
+  <a href="${response.url}" class="withLinks"> ID: ${response.ID}</a> <br>
+    ___________________________________________________________________`;
+  return resultString; 
 }
 
 module.exports = {

@@ -1,7 +1,7 @@
 // Imports
 const express = require("express");
-const cors = require("cors");
 const router = express.Router();
+const cors = require("cors");
 
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
@@ -16,7 +16,9 @@ const outlook = require('../functions/outlook');
 // Initial configuration
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: '*'
+}));
 
 // Middleware to authenticate the token
 function authenticateToken(req, res, next) {
@@ -53,6 +55,8 @@ function generateNewToken(user, secret_key) {
 app.post('/login', (req, res) => {
   // In a real scenario, you would validate the user's credentials here
   const { id, email, secret_key } = req.body;
+
+  console.log('Estoy haciendo Login - NodeJS');
 
   const user = {
     id: id,

@@ -266,7 +266,7 @@ function displayMeetingInfo(currentData, url) {
   const endTime = removeLastFiveCharacters(endDateTime[1]);
 
   return `You can view in Outlook in detail the creation of the meeting you requested with the following information:
-  Subject: <a href="${url}"${currentData.subject}</a>
+  Subject: <a href="${url}>"${currentData.subject}></a>
   Start Date: ${startDate} | ${startTime} UTC
   End Date: ${endDate} | ${endTime} UTC`;
 }

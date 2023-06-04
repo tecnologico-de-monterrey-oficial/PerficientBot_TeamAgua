@@ -33,7 +33,7 @@ async function githubDecisionClassification(responseOpenAI, input) {
   switch (responseOpenAI) {
 
     case 1:
-      const response1 = await axios.get('http://10.22.210.77:3001/Github/Repositories').then(async response1 => {
+      const response1 = await axios.get('http://127.0.0.1:3001/Github/Repositories').then(async response1 => {
       console.log(response1.data);
       finalStringResponse = formatJSONOutResponseRepo(response1.data);
 
@@ -47,25 +47,32 @@ async function githubDecisionClassification(responseOpenAI, input) {
       break;
 
     case 2:
-      const response2 = await axios.get(`http://10.22.210.77:3001/Github/Issues`).then(async response => {
-      console.log(response.data);
+      const response2 = await axios.get(`http://127.0.0.1:3001/Github/Issues`).then(async response2 => {
+      console.log(response2.data);
+      finalStringResponse = formatJSONOutResponse(response2.data);
 
-
-
+      normalResponse = 'Here is your request: ' + '\n' + finalStringResponse; // Assuming the response is JSON data
+      return [normalResponse, false, null, null];
       }).catch(error => {
         console.error(error)
       });
 
-      return [response2, false, null, null];
+      decision = [normalResponse, false, null, null];
+      break;
 
     case 3:
-      const response3 = await axios.get(`http://10.22.210.77:3001/Github/Pulls`).then(response => {
-        console.log(response.data);
+      const response3 = await axios.get(`http://127.0.0.1:3001/Github/Pulls`).then(async response3 => {
+      console.log(response3.data);
+      finalStringResponse = formatJSONOutResponse(response3.data);
+
+      normalResponse = 'Here is your request: ' + '\n' + finalStringResponse; // Assuming the response is JSON data
+      return [normalResponse, false, null, null];
       }).catch(error => {
         console.error(error)
       });
 
-      return [response3, false, null, null];
+      decision = [normalResponse, false, null, null];
+      break;
 
     case 'I am sorry, can you rephrase your request?':
       decision = ['I am sorry, can you rephrase your request?', false, null, null];
@@ -88,6 +95,21 @@ function formatJSONOutResponseRepo(response) {
     console.log('Objeto:', obj);
 
     resultString += `<a href="${obj.url}">Repository: ${obj.name}</a>
+    ___________________________________________________________________`;
+  });
+  return resultString;
+}
+
+function formatJSONOutResponse(response) {
+  let resultString = '';
+
+  // Iterate over each object in the array
+  response.forEach(function(obj) {
+    // Iterate over each key in the object
+    console.log('Objeto:', obj);
+
+    resultString += `<a href="${obj.url}">Issue title: ${obj.title}</a>
+    Description of the issue: ${obj.body}
     ___________________________________________________________________`;
   });
   return resultString;
