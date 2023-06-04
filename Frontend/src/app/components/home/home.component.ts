@@ -59,7 +59,7 @@ export class HomeComponent implements OnInit{
       timeout: 40000, // Increase the timeout value (in milliseconds)
     };
 
-    this.http.post<{mensaje: string, user_id: string}>(' https://perficient-bot-service-dannyjr08.cloud.okteto.net:3001/api/DatabasePOST', data,  {
+    this.http.post<{mensaje: string, user_id: string}>(' https://perficient-bot-service-dannyjr08.cloud.okteto.net:8000/api/DatabasePOST', data,  {
       ...options, // Spread the 'options' object for other configuration
       responseType: 'json' // Specify the response type as JSON
     })
@@ -87,7 +87,7 @@ export class HomeComponent implements OnInit{
                 this.Chatbot.setAuthorizationHeader(rec.token)
               },
               (err) => {
-                console.error('Error with  https://perficient-bot-service-dannyjr08.cloud.okteto.net:3001/api/DatabasePOST:', err);
+                console.error('Error with  https://perficient-bot-service-dannyjr08.cloud.okteto.net:8000/api/DatabasePOST:', err);
               }
             );
 

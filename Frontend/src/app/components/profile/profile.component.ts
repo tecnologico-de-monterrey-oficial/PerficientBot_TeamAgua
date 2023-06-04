@@ -56,7 +56,7 @@ export class ProfileComponent implements OnInit{
       timeout: 40000, // Increase the timeout value (in milliseconds)
     };
 
-    this.http.post(' https://perficient-bot-service-dannyjr08.cloud.okteto.net:3001/api/DatabasePOST', data, {
+    this.http.post(' https://perficient-bot-service-dannyjr08.cloud.okteto.net:8000/api/DatabasePOST', data, {
       ...options, // Spread the 'options' object for other configuration
       responseType: 'json' // Specify the response type as JSON
     })
