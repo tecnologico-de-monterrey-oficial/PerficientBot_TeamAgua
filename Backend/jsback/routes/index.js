@@ -54,6 +54,8 @@ app.post('/login', (req, res) => {
   // In a real scenario, you would validate the user's credentials here
   const { id, email, secret_key } = req.body;
 
+  console.log('Estoy haciendo Login - NodeJS');
+
   const user = {
     id: id,
     username: email,
