@@ -1,6 +1,5 @@
 // Imports
 const express = require("express");
-const cors = require("cors");
 const router = express.Router();
 
 const jwt = require('jsonwebtoken');
@@ -15,8 +14,6 @@ const outlook = require('../functions/outlook');
 
 // Initial configuration
 const app = express();
-app.use(express.json());
-app.use(cors());
 
 // Middleware to authenticate the token
 function authenticateToken(req, res, next) {

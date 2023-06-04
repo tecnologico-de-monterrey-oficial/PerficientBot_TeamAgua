@@ -54,7 +54,7 @@ export class HomeComponent implements OnInit{
       sub: this.user_id
     };
 
-    this.http.post<{mensaje: string, user_id: string}>('http://localhost:3001/api/DatabasePOST', data)
+    this.http.post<{mensaje: string, user_id: string}>(' https://perficient-bot-service-dannyjr08.cloud.okteto.net:3001/api/DatabasePOST', data)
       .subscribe(
         (res) => {
           console.log(res);
@@ -76,7 +76,7 @@ export class HomeComponent implements OnInit{
                 this.Chatbot.setAuthorizationHeader(rec.token)
               },
               (err) => {
-                console.error('Error with http://localhost:3001/api/DatabasePOST:', err);
+                console.error('Error with  https://perficient-bot-service-dannyjr08.cloud.okteto.net:3001/api/DatabasePOST:', err);
               }
             );
 

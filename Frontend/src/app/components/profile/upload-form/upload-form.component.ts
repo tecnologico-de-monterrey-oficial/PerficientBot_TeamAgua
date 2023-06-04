@@ -42,7 +42,7 @@ export class UploadFormComponent implements OnInit{
       fd.append('file', this.selectedFile, this.selectedFile.name);
       const userIDFixed = this.user_id.replace('|', '_');
 
-      this.http.post(`http://localhost:3001/upload/${userIDFixed}`, fd)
+      this.http.post(` https://perficient-bot-service-dannyjr08.cloud.okteto.net:3001/upload/${userIDFixed}`, fd)
         .subscribe(res => {
           console.log(res);
         });
