@@ -9,7 +9,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - .:app/. # bind volume
-    container_name: perficient-bot
+    container_name: perficient-bot-backend-NodeJS
     ports:
       - ${PORT}:${PORT}
     environment:

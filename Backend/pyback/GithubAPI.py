@@ -16,10 +16,17 @@ def GithubRepos():
     # Defino Header específico para hacer el call
     headers = {'Authorization': f'Bearer {API_GIT_KEY}', 'Content-Type': CONTENT_TYPE}
     response = requests.get(API_GIT_REPOS, headers=headers)
-
+    repos = []
     if response.status_code == 200:
         json_response = response.json()
-        return json_response
+
+        for item in json_response:
+            repo = {
+                "name": item.get('name'),
+                "url": item.get('html_url')
+            }
+            repos.append(repo)
+        return repos
     else:
         return 'Error: unable to retrieve data from external API'
 
@@ -44,7 +51,12 @@ def GithubIssues():
     for name in names:
         for item in issuesORpulls(name):
             if(item.get('draft') != False and item.get('draft') != True):
-                issue.append(item)
+                values = {
+                    "title": item.get('title'),
+                    "body": item.get('body'),
+                    "url": item.get('html_url')
+                }
+                issue.append(values)
     return issue
 
 # Método GET
@@ -68,7 +80,12 @@ def GithubPulls():
     for name in names:
         for item in issuesORpulls(name):
             if(item.get('draft') == False or item.get('draft') == True):
-                pulls.append(item)
+                values = {
+                    "title": item.get('title'),
+                    "body": item.get('body'),
+                    "url": item.get('html_url')
+                }
+                pulls.append(values)
     return pulls
 
 # Función que hace la llamada a la API de Github y dependiendo del contenido va a ser un Issue o Pull Request

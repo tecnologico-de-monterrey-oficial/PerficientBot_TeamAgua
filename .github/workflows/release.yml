@@ -12,20 +12,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: make .env 
-        uses: SpicyPizza/create-envfile@v1.3
-        with:
-          envKey_APP_VERSION: ${{ secrets.APP_VERSION }}
-          envKey_STAGE: ${{ secrets.STAGE }}
-          envkey_NG_APP_KEY: ${{ secrets.OPENAI_KEY }}
-          envKey_PORT: ${{ secrets.PORT }}
-          file_name: .env
-          fail_on_empty: false
-
-      - name: Use Node.js 16.x
+      - name: Use Node.js 18.16
         uses: actions/setup-node@v1
         with:
-          node-version: 16.x
+          node-version: 18.16
 
       - name: CI
         run: |
@@ -36,10 +26,6 @@ jobs:
         run: |
           cd Frontend/
           npm run build
-      
-      - name: show dir, .env file
-        run: |
-          ls -la 
           
       - name: download, run httpd image, container name serving_base
         run: |
@@ -76,7 +62,34 @@ jobs:
           docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-frontend:${{github.sha}}
           docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-frontend:latest
 
-  Release-backend:
+  Release-backend-Flask:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: docker login
+        env:
+          DOCKER_USER: ${{secrets.DOCKER_USER}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        run: |
+          cd Backend/pyback
+          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
+
+      - name: Build Docker Flask image
+        run: |
+          cd Backend/pyback
+          docker build -t ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-flask:${{github.sha}} .
+          docker build -t ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-flask:latest .
+
+      - name: Docker Push
+        run: |
+          cd Backend/pyback
+          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-flask:${{github.sha}}
+          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-flask:latest
+
+  Release-backend-NodeJS:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -90,31 +103,37 @@ jobs:
           envKey_STAGE: ${{ secrets.STAGE }}
           envkey_NG_APP_KEY: ${{ secrets.OPENAI_KEY }}
           envKey_PORT: ${{ secrets.PORT }}
+          envKey_PORT_BIN: ${{ secrets.PORT_BIN }}
           file_name: .env
           fail_on_empty: false
+
+
+      - name: show dir, .env file
+        run: |
+          ls -la 
 
       - name: docker login
         env:
           DOCKER_USER: ${{secrets.DOCKER_USER}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
         run: |
-          cd Frontend/
+          cd Backend/jsback
           docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
 
-      - name: Build Docker Backend image
+      - name: Build Docker NodeJS image
         run: |
-          cd Backend/
-          docker build -t ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend:${{github.sha}} .
-          docker build -t ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend:latest .
+          cd Backend/jsback
+          docker build -t ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-nodejs:${{github.sha}} .
+          docker build -t ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-nodejs:latest .
 
       - name: Docker Push
         run: |
-          cd Backend/
-          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend:${{github.sha}}
-          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend:latest
+          cd Backend/jsback
+          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-nodejs:${{github.sha}}
+          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-nodejs:latest
       
   Deploy:
-    needs: [Release-frontend, Release-backend]
+    needs: [Release-frontend, Release-backend-Flask, Release-backend-NodeJS]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

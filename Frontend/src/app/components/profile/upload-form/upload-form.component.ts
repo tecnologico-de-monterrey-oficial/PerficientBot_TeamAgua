@@ -11,15 +11,19 @@ import { ProfileComponent} from "../profile.component";
 })
 export class UploadFormComponent implements OnInit{
   selectedFile: File | null = null;
-  user_id!: string;
+  user_id!: string; //Sub
 
 
   constructor(private http: HttpClient, public auth: AuthService) { }
 
   ngOnInit(): void {
     this.auth.user$.subscribe(user => {
+      console.log(user);
       // @ts-ignore
       this.user_id = user.sub;
+
+
+
       console.log(this.user_id);
     });
   }
@@ -36,7 +40,9 @@ export class UploadFormComponent implements OnInit{
     if (this.selectedFile) {
       const fd = new FormData();
       fd.append('file', this.selectedFile, this.selectedFile.name);
-      this.http.post(`http://localhost:3001/upload/${this.user_id}`, fd)
+      const userIDFixed = this.user_id.replace('|', '_');
+
+      this.http.post(` https://perficient-bot-service-dannyjr08.cloud.okteto.net:3001/upload/${userIDFixed}`, fd)
         .subscribe(res => {
           console.log(res);
         });

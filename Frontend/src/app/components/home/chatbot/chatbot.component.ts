@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { OpenaiService } from '../../../services/openai.service';
 import { AuthService } from '@auth0/auth0-angular';
+import { Token } from '@angular/compiler';
 
 export interface Message {
   type: string,
@@ -15,11 +16,9 @@ export interface Message {
 })
 export class ChatbotComponent implements OnInit {
    user$ = this.authService.user$;
-  constructor(private authService: AuthService,
-    private Chatbot : OpenaiService) {}
-
-  loading = false;
-  messages: Message[] = [];
+  
+  loading = false; //animation waiting for bot response  
+  messages: Message[] = []; //chat history 
   chatForm = new FormGroup({
     message: new FormControl('', [Validators.required])
   });
@@ -33,24 +32,47 @@ export class ChatbotComponent implements OnInit {
     
   } */
 
+  secretkey: string = '';
+
+  constructor(public authService: AuthService,
+    private Chatbot : OpenaiService) {} 
+    
   ngOnInit(): void {
     this.messages.push({
       type: 'assistant',
       message: 'Hello, I am your personal assistant for Perficient. How can I help you today?'
     });
+
+    this.authService.user$.subscribe(user => {
+      if (user) {
+        this.secretkey = user.sub || '';
+      }
+    });
+    
   }
 
   result: string = "";
   myprompt: string = '';
+ 
 
  
   clearConversation(){
-    this.messages = [];
-    this.messages.push({
-      type: 'assistant',
-      message: 'Hello, I am your personal assistant for Perficient. How can I help you today?'
-    });
-    this.Chatbot.clearConversation()
+    
+    //Alert confirmation before deleting conversation
+    const confirmDelete = confirm('Are you sure you want to clear the conversation?');
+
+    if(confirmDelete) {
+      this.messages = [];
+      this.loading = false
+
+      //Restart conversation with predefined bot message
+      this.messages.push({
+        type: 'assistant',
+        message: 'Hello, I am your personal assistant for Perficient. How can I help you today?'
+      });
+      this.Chatbot.clearConversation()
+    }
+   
   }
 
   sendMessage() : void {
@@ -62,18 +84,22 @@ export class ChatbotComponent implements OnInit {
       message: sentMessage
     });
 
-      var body = { user_message: this.myprompt }
+      let body = { user_message: this.myprompt, secret_key: this.secretkey }
 
       this.chatForm.reset();
       this.scrollToBottom();
 
 
-      this.Chatbot.sendMessage(body) // Don't put sentMessage here?
+      this.Chatbot.sendMessage(body) 
       .subscribe((data: any) => {
         //alert(JSON.stringify(data));
         console.log(data);
+        console.log(data.response);
+        console.log(data.response.content);
+        console.log(data.new_token);
         this.result = data.response.content;
         this.loading = false;
+        this.Chatbot.setAuthorizationHeader(data.new_token)
         this.messages.push({
           type: 'assistant',
           message: this.result

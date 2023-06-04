@@ -1,6 +1,8 @@
 // OpenAI API
 const { openai, getCurrentDateAndHour } = require('../functions/imports');
 const outlook = require('./outlook');
+const devops = require('./devops');
+const github = require('./github');
 
 async function EnglishOrNot(input) {
     const response = await openai.createCompletion({
@@ -51,8 +53,12 @@ async function EnglishOrNot(input) {
     switch (responseOpenAI) {
       // General Question about Perficient
       case 1:
-        const inputFinetune = input + '\\n\\n###\\n\\n'; // The user's message must be concatenated with these symbols in order to for the fine-tuned model to generate a proper answer, because it was fine-tuned like that.
-        decision = [questionPerficient(inputFinetune), false, null, null]; // Calls this function in order to get the response of OpenAI. This is the message that will be displayed to the user.
+        console.log('La pregunta va para nuestro bot entrenado.');
+        const inputForFineTune = input + '\\n\\n###\\n\\n'; // The user's message must be concatenated with these symbols in order to for the fine-tuned model to generate a proper answer, because it was fine-tuned like that.
+        
+        const finetunedResponse = await questionPerficient(inputForFineTune);
+
+        decision = [finetunedResponse, false, null, null]; // Calls this function in order to get the response of OpenAI. This is the message that will be displayed to the user.
         break;
       // Request to Outlook
       case 2:
@@ -61,8 +67,6 @@ async function EnglishOrNot(input) {
   
         // If the user's request can be made in Outlook, it calls the respective function.
         if(validationOutlook) {
-            // TODO: Validar que no se pidan eventos dentro de más 31 días.
-            // TODO: Validar que no se pueda agendar una reunión dentro de más de un año (o mes si es que resulta muy díficl implementarlo.)
             dateAndHour = getCurrentDateAndHour();
             decision = await outlook.outlookClassification(input, requestStatus, dateAndHour);
         }
@@ -73,7 +77,7 @@ async function EnglishOrNot(input) {
   
         // If the user's request can be made in Azure DevOps, it calls the respective function.
         if(validationAzureDevOps) {
-          decision = await requestAzureDevOps();
+          decision = await devops.azureClassification(input, requestStatus);
         }
         break;
       // Request to GitHub
@@ -83,7 +87,7 @@ async function EnglishOrNot(input) {
   
         // If the user's request can be made in GitHub, it calls the respective function.
         if(validationGitHub) {
-          decision = await requestGitHub();
+          decision = await github.githubDecision(input);
         }
         break;
       // General Conversation
@@ -122,30 +126,19 @@ async function EnglishOrNot(input) {
   // Function that makes a request to our OpenAI fine-tuned model.
   async function questionPerficient(input) {
     const response = await openai.createCompletion({
-      model:'davinci:ft-personal-2023-04-28-18-40-02',
+      model:'davinci:ft-personal-2023-05-28-01-26-43',
       prompt: input,
       max_tokens: 150,
       temperature: 0,
+      stop: '###',
       n: 1,
       stream: false
     });
+
+    console.log(response.data.choices[0].text);
   
     return response.data.choices[0].text; // Returns the response.
-  }
-  
-  // Function that makes a request to the main function of the devops.js file.
-  async function requestAzureDevOps() {
-    const message_bot = await 'I see that you want to create a new project in Azure DevOps.';
-  
-    return message_bot;
-  }
-  
-  // Function that makes a request to the main function of the github.js file.
-  async function requestGitHub() {
-    const message_bot = await 'I see that you want to create a new repository on GitHub.';
-  
-    return message_bot;
-  }
+}
 
   // Exports
 module.exports = {

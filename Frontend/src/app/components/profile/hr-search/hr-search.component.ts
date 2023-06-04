@@ -1,50 +1,84 @@
-import { Component } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {AuthService} from '@auth0/auth0-angular';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-hr-search',
   templateUrl: './hr-search.component.html',
   styleUrls: ['./hr-search.component.scss']
 })
-export class HrSearchComponent {
-  user_id!: string;
-  cvImage!: string;
-  cvImageData: string = '';
-  summary!: string;
+export class HrSearchComponent implements OnInit{
+  textoBusqueda: string = '';
+  resultados: any[] = [];
+  isHR: boolean = false;  // This new variable will hold the HR status
+
+
+  constructor(private http: HttpClient, public auth: AuthService) { }
 
   ngOnInit(): void {
-    this.auth.user$.subscribe(user => {
-      // @ts-ignore
-      this.user_id = user.sub;
-      console.log(this.user_id);
-    });
+    this.fetchIsHR();
   }
 
-    constructor(private http: HttpClient, public auth: AuthService) { }
+  fetchIsHR(): void {
+    this.auth.user$
+      // @ts-ignore
+      .pipe(filter(user => user !== null && user.sub !== null))
+      .subscribe(user => {
+        // @ts-ignore
+        const userId = user.sub.replace('|', '_');  // replace | with _ in user ID
+        this.http.get(` https://perficient-bot-service-dannyjr08.cloud.okteto.net:3001/api/CheckHR`, { params: { sub: userId } }).subscribe((response: any) => {
 
-    getImage(){
-      this.http.get(`http://localhost:3001/CV/${this.user_id}`).subscribe(
-        (response: any) => {
-          this.cvImage = response.image;
-          this.cvImageData = 'data:image/png;base64,' + this.cvImage;
-        },
-        (error: any) => {
-          console.log('Error retrieving CV image:', error);
-        }
-      );
-    }
+          if (response.length > 0) {
+            console.log(response[0].IsHR);
+            this.isHR = response[0].IsHR;
+          }
+        });
+      });
+  }
 
-    getSummary(){
-      this.http.get(`http://localhost:3001/GPTtext/${this.user_id}`).subscribe(
-        (response: any) => {
-          this.summary = response.content;
-          console.log(this.summary);
-        },
-        (error: any) => {
-          console.log('Error retrieving summary:', error);
-        }
-      );
+
+
+  onInputChange(): void {
+    if (this.textoBusqueda) {
+      this.http.get(' https://perficient-bot-service-dannyjr08.cloud.okteto.net:3001/api/DatabaseGET', { params: { fullname: this.textoBusqueda } })
+        .subscribe((response: any) => {
+          this.resultados = response;
+        });
+    } else {
+      this.resultados = [];
     }
+  }
+
+
+  getImage(persona: any): void {
+    const subFixed = persona.sub.replace('|', '_');
+
+    // then use the fixed sub in your HTTP requests
+    this.http.get(` https://perficient-bot-service-dannyjr08.cloud.okteto.net:3001/CV/${subFixed}`).subscribe(
+      (response: any) => {
+        persona.cvImage = response.image;
+        persona.cvImageData = 'data:image/png;base64,' + persona.cvImage;
+      },
+      (error: any) => {
+        console.log('Error retrieving CV image:', error);
+      }
+    );
+  }
+
+  getSummary(persona: any): void {
+    const subFixed = persona.sub.replace('|', '_');
+
+    // then use the fixed sub in your HTTP requests
+    this.http.get(` https://perficient-bot-service-dannyjr08.cloud.okteto.net:3001/GPTtext/${subFixed}`).subscribe(
+      (response: any) => {
+        persona.summary = response.content;
+        console.log(persona.summary);
+      },
+      (error: any) => {
+        console.log('Error retrieving summary:', error);
+      }
+    );
+  }
 
 }

@@ -1,7 +1,7 @@
 // Imports
 const express = require("express");
-const cors = require("cors");
 const router = express.Router();
+const cors = require("cors");
 
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
@@ -9,20 +9,22 @@ const axios = require('axios');
 const { port, openai, getCurrentDateAndHour } = require('../functions/imports');
 
 const chatbot = require('../functions/chatbot');
-// const devops = require('../functions/devops');
-// const github = require('../functions/github');
+const devops = require('../functions/devops');
+const github = require('../functions/github');
 const outlook = require('../functions/outlook');
 
 // Initial configuration
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: '*'
+}));
 
 // Middleware to authenticate the token
 function authenticateToken(req, res, next) {
   const token = req.headers.authorization.split(' ')[1];
 
-  const secretKey = 'your_secret_key';
+  const secretKey = req.key;
 
   if (!token) {
     return res.status(401).json({ message: 'No token provided' });
@@ -40,9 +42,9 @@ function authenticateToken(req, res, next) {
 }
 
 // Example function to generate a new token with updated claims
-function generateNewToken(user) {
+function generateNewToken(user, secret_key) {
   // Generate a new JWT token with updated claims
-  const secretKey = 'your_secret_key';
+  const secretKey = secret_key;
 
   const newToken = jwt.sign(user, secretKey);
 
@@ -52,16 +54,20 @@ function generateNewToken(user) {
 // Route to generate a token with additional variables
 app.post('/login', (req, res) => {
   // In a real scenario, you would validate the user's credentials here
+  const { id, email, secret_key } = req.body;
+
+  console.log('Estoy haciendo Login - NodeJS');
+
   const user = {
-    id: 1,
-    username: 'exampleUser',
+    id: id,
+    username: email,
     conversation: [],
     request_status: false,
     current_data: null,
     current_service: null
   };
 
-  const secretKey = 'your_secret_key';
+  const secretKey = secret_key;
 
   // Create the JWT token with additional claims
   const token = jwt.sign(user, secretKey);
@@ -69,18 +75,27 @@ app.post('/login', (req, res) => {
   res.json({ token });
 });
 
+
+app.post('/datetime', (req, res) => {
+  return getCurrentDateAndHour();
+});
+
 // Endpoint that handles everything of the chatbot.
-app.post('/', authenticateToken, async (req, res) => {
-  const { user_message } = req.body;
+app.post('/', async (req, res, next) => {
+  req.key = req.body.secret_key;
+  next();
+}, authenticateToken, async(req, res) => {
+  const { user_message, secret_key } = req.body;
+
+  req.user.conversation.push({role: "user", content: user_message}); // Saves the user's message in the session's history of the conversation.
 
   // If the user's message is not in English, the bot returns this message.
   if(!chatbot.EnglishOrNot(user_message)) {
-    req.user.conversation.push({role: "user", content: user_message}); // Saves the user's message in the session's history of the conversation.
     req.user.conversation.push({role: "assistant", content: 'Please write in English.'}); // Saves the response in the session's history of the conversation.
     console.log('Historial- No English');
     console.log(req.user.conversation);
 
-    const newToken = generateNewToken(req.user);
+    const newToken = generateNewToken(req.user, secret_key);
 
     res.send({ response: {role: 'assistant', content: 'Please write in English.'}, new_token: newToken}); // Returns the response to the user.
 
@@ -95,11 +110,9 @@ app.post('/', authenticateToken, async (req, res) => {
   if(req.user.current_service === 'Outlook') {
     const dateAndHour = getCurrentDateAndHour(); // Gets the current date and hour.
 
-    req.user.conversation.push({role: "user", content: user_message}); // Saves the messages into the history of conversation
-
     // Checks if the user's message has anything to do with the initial request
     if(!outlook.checksConversationTopic(user_message, req.user.conversation, dateAndHour)) {
-      const response = 'It seems that you want to change your conversation topic. I will reset your request to create a meeting and forget everything about it. If you want to create a meeting, please phrase your request from scratch. If you do not want to happen this by accident, please remember to use ';
+      const response = 'It seems that you want to change your conversation topic. I will reset your request to create a meeting and forget everything about it. If you want to create a meeting, please phrase your request from scratch. If you do not want to happen this by accident, please remember to use related words to your request.';
 
       req.user.conversation.push({role: "assistant", content: response}); // Saves the messages into the history of conversation
 
@@ -111,7 +124,27 @@ app.post('/', authenticateToken, async (req, res) => {
       console.log('Historial - Outlook Service');
       console.log(req.user.conversation);
 
-      const newToken = generateNewToken(req.user); // Generates a new token for the next message.
+      const newToken = generateNewToken(req.user, secret_key); // Generates a new token for the next message.
+
+      res.send({ response: {role: 'assistant', content: response}, new_token: newToken}); // Returns the response to the user.
+
+      return; // Ends execution of this endpoint.
+    }
+
+    if(!outlook.validatesSchedulePast(user_message, dateAndHour) || !outlook.validatesScheduleFuture(user_message, dateAndHour)) {
+      const response = 'Remember, you cannot schedule a meeting in the past nor in the next 31 days. For internal logical purposes, I will reset your request to create a meeting and forget everything about it. If you want to create a meeting, please phrase your request from scratch.';
+
+      req.user.conversation.push({role: "assistant", content: response}); // Saves the messages into the history of conversation
+
+      // Updates the values of the JWT.
+      req.user.request_status = false;
+      req.user.current_data = null;
+      req.user.current_service = null;
+
+      console.log('Historial - Outlook Service');
+      console.log(req.user.conversation);
+
+      const newToken = generateNewToken(req.user, secret_key); // Generates a new token for the next message.
 
       res.send({ response: {role: 'assistant', content: response}, new_token: newToken}); // Returns the response to the user.
 
@@ -130,7 +163,7 @@ app.post('/', authenticateToken, async (req, res) => {
     console.log('Historial - Outlook Service');
     console.log(req.user.conversation);
 
-    const newToken = generateNewToken(req.user); // Generates a new token for the next message.
+    const newToken = generateNewToken(req.user, secret_key); // Generates a new token for the next message.
 
     res.send({ response: {role: 'assistant', content: outlookResponse[0]}, new_token: newToken}); // Returns the response to the user.
 
@@ -138,7 +171,6 @@ app.post('/', authenticateToken, async (req, res) => {
   }
 
   const classificationResult = await chatbot.classification(user_message, req.user.request_status); // Classifies the user's message.
-  req.user.conversation.push({role: "user", content: user_message}); // Saves the user's message in the session's history of the conversation.
 
   // If OpenAI classifies the user's message as General Conversation, it answers normally.
   if(classificationResult[0] === 'General Conversation.') {
@@ -155,7 +187,7 @@ app.post('/', authenticateToken, async (req, res) => {
     console.log('Conversación General - Historial');
     console.log(req.user.conversation);
 
-    const newToken = generateNewToken(req.user);
+    const newToken = generateNewToken(req.user, secret_key);
 
     res.send({ response: completion.data.choices[0].message, new_token: newToken }); // Returns the response to the user.
 
@@ -169,7 +201,7 @@ app.post('/', authenticateToken, async (req, res) => {
     console.log('Historial');
     console.log(req.user.conversation);
 
-    const newToken = generateNewToken(req.user);
+    const newToken = generateNewToken(req.user,secret_key);
 
     res.send({ response: {role: 'assistant', content: 'I apologize, but I am having trouble understanding your request. Could you please rephrase it or provide more specific details so that I can assist you better?'}}); // Returns the response to the user.
 
@@ -182,7 +214,7 @@ app.post('/', authenticateToken, async (req, res) => {
     console.log('Historial');
     console.log(req.user.conversation);
 
-    const newToken = generateNewToken(req.user);
+    const newToken = generateNewToken(req.user, secret_key);
 
     res.send({ response: {role: 'assistant', content: classificationResult}, new_token: newToken}); // Returns the response to the user.
 
@@ -202,7 +234,7 @@ app.post('/', authenticateToken, async (req, res) => {
   console.log('Current Data después de asignar:', req.user.current_data);
   console.log('Current Service después de asignar:', req.user.current_service);
 
-  const newToken = generateNewToken(req.user);
+  const newToken = generateNewToken(req.user, secret_key);
 
   res.send({ response: {role: 'assistant', content: classificationResult[0]}, new_token: newToken}); // Returns the response to the user.
 
