@@ -37,7 +37,7 @@ async function githubDecisionClassification(responseOpenAI, input) {
       console.log(response1.data);
       finalStringResponse = formatJSONOutResponseRepo(response1.data);
 
-      normalResponse = 'Here is your request: ' + '\n' + finalStringResponse; // Assuming the response is JSON data
+      normalResponse = 'Here is your request: ' + '<br>' + finalStringResponse; // Assuming the response is JSON data
       return [normalResponse, false, null, null];
       }).catch(error => {
         console.error(error)
@@ -51,7 +51,7 @@ async function githubDecisionClassification(responseOpenAI, input) {
       console.log(response2.data);
       finalStringResponse = formatJSONOutResponse(response2.data);
 
-      normalResponse = 'Here is your request: ' + '\n' + finalStringResponse; // Assuming the response is JSON data
+      normalResponse = 'Here is your request: ' + '<br>' + finalStringResponse; // Assuming the response is JSON data
       return [normalResponse, false, null, null];
       }).catch(error => {
         console.error(error)
@@ -65,7 +65,7 @@ async function githubDecisionClassification(responseOpenAI, input) {
       console.log(response3.data);
       finalStringResponse = formatJSONOutResponse(response3.data);
 
-      normalResponse = 'Here is your request: ' + '\n' + finalStringResponse; // Assuming the response is JSON data
+      normalResponse = 'Here is your request: ' + '<br>' + finalStringResponse; // Assuming the response is JSON data
       return [normalResponse, false, null, null];
       }).catch(error => {
         console.error(error)
@@ -94,8 +94,11 @@ function formatJSONOutResponseRepo(response) {
     // Iterate over each key in the object
     console.log('Objeto:', obj);
 
-    resultString += `<a href="${obj.url}">Repository: ${obj.name}</a>
-    ___________________________________________________________________`;
+    
+    resultString += `<img src="./assets/img/GitHub.png" class="withIcon" alt="">
+    <a href="${obj.url}" target="_blank" class="withLinks">${obj.name}</a>
+    <img src="./assets/img/Link.png" class="withIcon" alt="">
+    <hr>`;
   });
   return resultString;
 }
@@ -108,9 +111,9 @@ function formatJSONOutResponse(response) {
     // Iterate over each key in the object
     console.log('Objeto:', obj);
 
-    resultString += `<a href="${obj.url}">Issue title: ${obj.title}</a>
+    resultString += `<a href="${obj.url}" target="_blank" class="withLinks">Issue title: ${obj.title}</a>
     Description of the issue: ${obj.body}
-    ___________________________________________________________________`;
+    ___________________________________________________________________<br>`;
   });
   return resultString;
 }

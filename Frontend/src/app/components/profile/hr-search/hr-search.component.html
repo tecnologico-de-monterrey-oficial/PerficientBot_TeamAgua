@@ -1,7 +1,7 @@
 
 
 <!-- <div *ngIf="isHR"> -->
-  <input type="text" [(ngModel)]="textoBusqueda" (keyup)="onInputChange()" placeholder="Buscar...">
+<!--   <input type="text" [(ngModel)]="textoBusqueda" (keyup)="onInputChange()" placeholder="Buscar...">
   <ul>
     <li *ngFor="let persona of resultados">
       {{ persona.nombrecompleto }}
@@ -10,5 +10,26 @@
       <img *ngIf="persona.cvImageData" [src]="persona.cvImageData">
       <p *ngIf="persona.summary">{{ persona.summary }}</p>
     </li>
-  </ul>
+  </ul> -->
 <!-- </div> -->
+
+
+
+<div class="search-container">
+  <div class="input-group">
+    <input type="text" [(ngModel)]="textoBusqueda" (keyup)="onInputChange()" placeholder="Buscar...">
+  </div>
+  <ul>
+    <li *ngFor="let persona of resultados">
+      {{ persona.nombrecompleto }}
+      <div class="resultActions">
+        <button (click)="getImage(persona)">Get CV</button>
+        <button (click)="getSummary(persona)">Summary</button>
+      </div>
+      
+      <img *ngIf="persona.cvImageData" [src]="persona.cvImageData">
+      <p *ngIf="persona.summary">{{ persona.summary }}</p>
+    </li>
+  </ul>
+  <p *ngIf="noResults">No profile matches your search. Try again</p>
+</div>
