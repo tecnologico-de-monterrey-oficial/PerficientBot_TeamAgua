@@ -10,7 +10,6 @@ const { port, openai, getCurrentDateAndHour } = require('../functions/imports');
 
 const chatbot = require('../functions/chatbot');
 const devops = require('../functions/devops');
-const github = require('../functions/github');
 const outlook = require('../functions/outlook');
 
 // Initial configuration
@@ -76,7 +75,7 @@ app.post('/login', (req, res) => {
 });
 
 
-app.post('/datetime', (req, res) => {
+app.get('/datetime', (req, res) => {
   return getCurrentDateAndHour();
 });
 
@@ -90,7 +89,9 @@ app.post('/', async (req, res, next) => {
   req.user.conversation.push({role: "user", content: user_message}); // Saves the user's message in the session's history of the conversation.
 
   // If the user's message is not in English, the bot returns this message.
-  if(!chatbot.EnglishOrNot(user_message)) {
+  const validationEnglish = await chatbot.EnglishOrNot(user_message);
+
+  if(!validationEnglish) {
     req.user.conversation.push({role: "assistant", content: 'Please write in English.'}); // Saves the response in the session's history of the conversation.
     console.log('Historial- No English');
     console.log(req.user.conversation);
@@ -131,7 +132,10 @@ app.post('/', async (req, res, next) => {
       return; // Ends execution of this endpoint.
     }
 
-    if(!outlook.validatesSchedulePast(user_message, dateAndHour) || !outlook.validatesScheduleFuture(user_message, dateAndHour)) {
+    // Validates the date and hour of the meeting.
+    const validationSchedule = await outlook.validatesSchedule(user_message, dateAndHour);
+
+    if(!validationSchedule) {
       const response = 'Remember, you cannot schedule a meeting in the past nor in the next 31 days. For internal logical purposes, I will reset your request to create a meeting and forget everything about it. If you want to create a meeting, please phrase your request from scratch.';
 
       req.user.conversation.push({role: "assistant", content: response}); // Saves the messages into the history of conversation
@@ -195,7 +199,7 @@ app.post('/', async (req, res, next) => {
   }
 
   // If the user's request cannot be made in a certain platform or service, it returns a specific response.
-  if(classificationResult === '') {
+  /* if(classificationResult === '') {
     req.session.conversation.push({role: "assistant", content: 'I apologize, but I am having trouble understanding your request. Could you please rephrase it or provide more specific details so that I can assist you better?'}); // Saves the response in the session's history of the conversation.
 
     console.log('Historial');
@@ -206,11 +210,11 @@ app.post('/', async (req, res, next) => {
     res.send({ response: {role: 'assistant', content: 'I apologize, but I am having trouble understanding your request. Could you please rephrase it or provide more specific details so that I can assist you better?'}}); // Returns the response to the user.
 
     return; // Ends execution of this endpoint.
-  }
+  } */
 
   // If OpenAI cannot classify the user's message, it returns a specific response.
   if(classificationResult[0] === 'I am sorry, can you rephrase your request?') {
-    req.user.conversation.push({role: "assistant", content: classificationResult}); // Saves the response in the session's history of the conversation.
+    req.user.conversation.push({role: "assistant", content: classificationResult[0]}); // Saves the response in the session's history of the conversation.
     console.log('Historial');
     console.log(req.user.conversation);
 

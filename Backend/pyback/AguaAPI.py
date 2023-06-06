@@ -334,6 +334,94 @@ def getOutlookGroups():
     "duration": "PT1H"
 }
 """
+"""
+{
+    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#microsoft.graph.meetingTimeSuggestionsResult",
+    "emptySuggestionsReason": "",
+    "meetingTimeSuggestions": [
+        {
+            "confidence": 100,
+            "organizerAvailability": "free",
+            "attendeeAvailability": [],
+            "locations": [],
+            "meetingTimeSlot": {
+                "start": {
+                    "dateTime": "2023-06-05T22:00:00.0000000",
+                    "timeZone": "UTC"
+                },
+                "end": {
+                    "dateTime": "2023-06-05T22:30:00.0000000",
+                    "timeZone": "UTC"
+                }
+            }
+        },
+        {
+            "confidence": 100,
+            "organizerAvailability": "free",
+            "attendeeAvailability": [],
+            "locations": [],
+            "meetingTimeSlot": {
+                "start": {
+                    "dateTime": "2023-06-05T22:30:00.0000000",
+                    "timeZone": "UTC"
+                },
+                "end": {
+                    "dateTime": "2023-06-05T23:00:00.0000000",
+                    "timeZone": "UTC"
+                }
+            }
+        },
+        {
+            "confidence": 100,
+            "organizerAvailability": "free",
+            "attendeeAvailability": [],
+            "locations": [],
+            "meetingTimeSlot": {
+                "start": {
+                    "dateTime": "2023-06-06T14:00:00.0000000",
+                    "timeZone": "UTC"
+                },
+                "end": {
+                    "dateTime": "2023-06-06T14:30:00.0000000",
+                    "timeZone": "UTC"
+                }
+            }
+        },
+        {
+            "confidence": 100,
+            "organizerAvailability": "free",
+            "attendeeAvailability": [],
+            "locations": [],
+            "meetingTimeSlot": {
+                "start": {
+                    "dateTime": "2023-06-06T14:30:00.0000000",
+                    "timeZone": "UTC"
+                },
+                "end": {
+                    "dateTime": "2023-06-06T15:00:00.0000000",
+                    "timeZone": "UTC"
+                }
+            }
+        },
+        {
+            "confidence": 100,
+            "organizerAvailability": "free",
+            "attendeeAvailability": [],
+            "locations": [],
+            "meetingTimeSlot": {
+                "start": {
+                    "dateTime": "2023-06-06T15:00:00.0000000",
+                    "timeZone": "UTC"
+                },
+                "end": {
+                    "dateTime": "2023-06-06T15:30:00.0000000",
+                    "timeZone": "UTC"
+                }
+            }
+        }
+    ]
+}
+"""
 @app.route('/Outlook/FindTime', methods=['POST'])
 def getOutlookFreeTime():
     return OutlookFindMeetingTime()
