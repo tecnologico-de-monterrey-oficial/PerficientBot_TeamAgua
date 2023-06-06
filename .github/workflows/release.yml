@@ -166,7 +166,7 @@ jobs:
         run: sed -i 's/_/-/g' manifests/k8s-frontend.yaml
 
       - name: update sha in k8
-        run: sed -i 's/{github.sha}/${{github.sha}}/g' manifests/k8s.yaml
+        run: sed -i 's/{github.sha}/${{github.sha}}/g' manifests/k8s-frontend.yaml
 
       - name: ls -la 
         run: cat manifests/k8s-frontend.yaml
