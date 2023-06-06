@@ -105,6 +105,10 @@ async function EnglishOrNot(input) {
     }
   
     console.log('Decision', decision);
+
+    if(decision[0] === '') {
+      decision[0] = 'There was an error, please try again. Remember, you can only make requests to Outlook, Azure DevOps, and GitHub. If so, please rephrase your request. Remember to be specific and clear. Some keywords to use are "meeting", "work item", "repository".';
+    }
   
     return decision; // Returns the response that will be displayed to the user.
   }
