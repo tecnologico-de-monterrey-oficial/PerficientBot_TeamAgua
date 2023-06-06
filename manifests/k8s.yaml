@@ -21,11 +21,11 @@ spec:
       - name: backend-flask
         image: docker.io/{docker_user}/{model_name}-backend-flask:{github.sha}
         ports:
-        - containerPort: 3001
+        - containerPort: 8000
       - name: backend-nodejs
         image: docker.io/{docker_user}/{model_name}-backend-nodejs:{github.sha}
         ports:
-        - containerPort: 3000
+        - containerPort: 8080
 ---
 apiVersion: v1
 kind: Service
