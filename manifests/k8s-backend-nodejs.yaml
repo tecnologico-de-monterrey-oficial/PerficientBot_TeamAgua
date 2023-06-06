@@ -1,0 +1,35 @@
+#manifest
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {model_name}-deployment-backend-nodejs
+spec:
+  selector:
+    matchLabels:
+      app: {model_name}-backend-nodejs
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {model_name}-backend-nodejs
+    spec:
+      containers:
+      - name: backend-nodejs
+        image: docker.io/{docker_user}/{model_name}-backend-nodejs:{github.sha}
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: {model_name}-service-backend-nodejs
+  name: {model_name}-service-backend-nodejs
+spec:
+  ports:
+  - name: backend-nodejs
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: {model_name}-backend-nodejs
+  type: LoadBalancer

@@ -138,7 +138,7 @@ jobs:
           docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-nodejs:${{github.sha}}
           docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-nodejs:latest
       
-  Deploy:
+  Deploy-frontend:
     needs: [Release-frontend, Release-backend-Flask, Release-backend-NodeJS]
     runs-on: ubuntu-latest
     steps:
@@ -182,3 +182,96 @@ jobs:
           namespace: ${{ secrets.OKTETO_NAMESPACE }}
           manifest: manifests/k8s.yaml
           tag: ${{ secrets.DOCKER_USERNAME }}/${{secrets.MODEL_NAME}}:${{github.sha}}
+
+    
+  Deploy-backend-flask:
+    needs: [Release-frontend, Release-backend-Flask, Release-backend-NodeJS]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+        
+      - name: make .env 
+        uses: SpicyPizza/create-envfile@v1.3
+        with:
+          envKey_APP_VERSION: ${{ secrets.APP_VERSION }}
+          envKey_STAGE: ${{ secrets.STAGE }}
+          envkey_NG_APP_KEY: ${{ secrets.OPENAI_KEY }}
+          envKey_PORT: ${{ secrets.PORT }}
+          file_name: .env
+          fail_on_empty: false
+        
+      - name: update docker user in k8 
+        run: sed -i 's/{docker_user}/${{secrets.DOCKER_USER}}/g' manifests/k8s.yaml
+        
+      - name: update model name in k8 
+        run: sed -i 's/{model_name}/${{secrets.MODEL_NAME}}/g' manifests/k8s.yaml
+        
+      - name: update _ by - 
+        run: sed -i 's/_/-/g' manifests/k8s.yaml
+        
+      - name: update sha in k8
+        run: sed -i 's/{github.sha}/${{github.sha}}/g' manifests/k8s.yaml
+        
+      - name: ls -la 
+        run: cat manifests/k8s.yaml
+      - uses: okteto/context@2.7.0
+        with:
+          token: ${{secrets.OKTETO_TOKEN }}
+        
+      - name: Deploy and Wait
+        uses: okteto/actions/deploy@v1
+        env:
+          KUBECONFIG: ${{ steps.namespace.outputs.kubeconfig }}
+        with:
+          namespace: ${{ secrets.OKTETO_NAMESPACE }}
+          manifest: manifests/k8s.yaml
+          tag: ${{ secrets.DOCKER_USERNAME }}/${{secrets.MODEL_NAME}}:${{github.sha}}
+
+
+  Deploy-backend-nodejs:
+    needs: [Release-frontend, Release-backend-Flask, Release-backend-NodeJS]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+                
+      - name: make .env 
+        uses: SpicyPizza/create-envfile@v1.3
+        with:
+          envKey_APP_VERSION: ${{ secrets.APP_VERSION }}
+          envKey_STAGE: ${{ secrets.STAGE }}
+          envkey_NG_APP_KEY: ${{ secrets.OPENAI_KEY }}
+          envKey_PORT: ${{ secrets.PORT }}
+          file_name: .env
+          fail_on_empty: false
+                
+      - name: update docker user in k8 
+        run: sed -i 's/{docker_user}/${{secrets.DOCKER_USER}}/g' manifests/k8s.yaml
+                
+      - name: update model name in k8 
+        run: sed -i 's/{model_name}/${{secrets.MODEL_NAME}}/g' manifests/k8s.yaml
+                
+      - name: update _ by - 
+        run: sed -i 's/_/-/g' manifests/k8s.yaml
+                
+      - name: update sha in k8
+        run: sed -i 's/{github.sha}/${{github.sha}}/g' manifests/k8s.yaml
+                
+      - name: ls -la 
+        run: cat manifests/k8s.yaml
+      - uses: okteto/context@2.7.0
+        with:
+          token: ${{secrets.OKTETO_TOKEN }}
+                
+      - name: Deploy and Wait
+        uses: okteto/actions/deploy@v1
+        env:
+          KUBECONFIG: ${{ steps.namespace.outputs.kubeconfig }}
+        with:
+          namespace: ${{ secrets.OKTETO_NAMESPACE }}
+          manifest: manifests/k8s.yaml
+          tag: ${{ secrets.DOCKER_USERNAME }}/${{secrets.MODEL_NAME}}:${{github.sha}}
+        

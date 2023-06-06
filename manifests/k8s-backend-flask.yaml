@@ -1,0 +1,35 @@
+#manifest
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {model_name}-deployment-backend-flask
+spec:
+  selector:
+    matchLabels:
+      app: {model_name}-backend-flask
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {model_name}-backend-flask
+    spec:
+      containers:
+      - name: backend-flask
+        image: docker.io/{docker_user}/{model_name}-backend-flask:{github.sha}
+        ports:
+        - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: {model_name}-service-backend-flask
+  name: {model_name}-service-backend-flask
+spec:
+  ports:
+  - name: backend-flask
+    port: 8000
+    targetPort: 8000
+  selector:
+    app: {model_name}-backend-flask
+  type: LoadBalancer
