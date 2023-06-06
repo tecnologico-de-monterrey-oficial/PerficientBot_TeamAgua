@@ -22,8 +22,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy source code
 COPY . .
 
-# Expose the port
-EXPOSE 3001
-
 # Run the application
-CMD [ "python", "AguaAPI.py" ]
+CMD [ "gunicorn", "AguaAPI:app" ]
+
+# Expose the port
+EXPOSE 8000

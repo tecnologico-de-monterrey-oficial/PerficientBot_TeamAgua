@@ -13,8 +13,8 @@ RUN npm install
 # Bundle app source
 COPY . .
 
-# Expose the port
-EXPOSE 3000
-
 # Start the application
 CMD [ "npm", "start" ]
+
+# Expose the port
+EXPOSE 3000

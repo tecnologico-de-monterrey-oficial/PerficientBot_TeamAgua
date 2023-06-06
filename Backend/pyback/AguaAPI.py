@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_cors import CORS
 import aiohttp
 import asyncio
@@ -8,8 +8,12 @@ from AzureAPI import AzureCreateItem, AzureOneItem, AzureWorkItems
 from CVAPI import getCV, getGPTtext, upload
 from dbApi import obtener_usuarios, guardar_usuario, check_if_user_is_hr, guardar_tokens, obtener_tokens
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='dist', static_url_path='')
 CORS(app, resources={r"/*": {"origins": "*"}})
+
+@app.route('/')
+def index():
+    return app.send_static_file('index.html')
 
 @app.route('/upload/<user_id>', methods=['POST'])
 def uploadCV(user_id):
@@ -328,6 +332,94 @@ def getOutlookGroups():
     "startDateTime": "2023-05-24T09:00:00",
     "finishDateTime": "2023-05-26T09:00:00",
     "duration": "PT1H"
+}
+"""
+"""
+{
+    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#microsoft.graph.meetingTimeSuggestionsResult",
+    "emptySuggestionsReason": "",
+    "meetingTimeSuggestions": [
+        {
+            "confidence": 100,
+            "organizerAvailability": "free",
+            "attendeeAvailability": [],
+            "locations": [],
+            "meetingTimeSlot": {
+                "start": {
+                    "dateTime": "2023-06-05T22:00:00.0000000",
+                    "timeZone": "UTC"
+                },
+                "end": {
+                    "dateTime": "2023-06-05T22:30:00.0000000",
+                    "timeZone": "UTC"
+                }
+            }
+        },
+        {
+            "confidence": 100,
+            "organizerAvailability": "free",
+            "attendeeAvailability": [],
+            "locations": [],
+            "meetingTimeSlot": {
+                "start": {
+                    "dateTime": "2023-06-05T22:30:00.0000000",
+                    "timeZone": "UTC"
+                },
+                "end": {
+                    "dateTime": "2023-06-05T23:00:00.0000000",
+                    "timeZone": "UTC"
+                }
+            }
+        },
+        {
+            "confidence": 100,
+            "organizerAvailability": "free",
+            "attendeeAvailability": [],
+            "locations": [],
+            "meetingTimeSlot": {
+                "start": {
+                    "dateTime": "2023-06-06T14:00:00.0000000",
+                    "timeZone": "UTC"
+                },
+                "end": {
+                    "dateTime": "2023-06-06T14:30:00.0000000",
+                    "timeZone": "UTC"
+                }
+            }
+        },
+        {
+            "confidence": 100,
+            "organizerAvailability": "free",
+            "attendeeAvailability": [],
+            "locations": [],
+            "meetingTimeSlot": {
+                "start": {
+                    "dateTime": "2023-06-06T14:30:00.0000000",
+                    "timeZone": "UTC"
+                },
+                "end": {
+                    "dateTime": "2023-06-06T15:00:00.0000000",
+                    "timeZone": "UTC"
+                }
+            }
+        },
+        {
+            "confidence": 100,
+            "organizerAvailability": "free",
+            "attendeeAvailability": [],
+            "locations": [],
+            "meetingTimeSlot": {
+                "start": {
+                    "dateTime": "2023-06-06T15:00:00.0000000",
+                    "timeZone": "UTC"
+                },
+                "end": {
+                    "dateTime": "2023-06-06T15:30:00.0000000",
+                    "timeZone": "UTC"
+                }
+            }
+        }
+    ]
 }
 """
 @app.route('/Outlook/FindTime', methods=['POST'])

@@ -387,6 +387,46 @@ async function validatesCheckColleague(input, dateAndHour) {
   return Boolean(parseInt(response.data.choices[0].text));
 }
 
+async function validatesCheckColleague(input, dateAndHour) {
+  const response = await openai.createCompletion({
+    model:'text-davinci-003',
+    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this sentence "${input}", determine if it is possible to schedule a meeting with a colleague considering this JSON can be filled:
+
+    {
+      "attendees": [
+        {"emailAddress": {"address": "A00831316@tec.mx"}},
+        {"emailAddress": {"address": "A01411625@tec.mx"}}
+      ],
+      "startDateTime": "2023-05-24T09:00:00",
+      "finishDateTime": "2023-05-26T09:00:00",
+      "duration": "PT1H"
+    }
+
+    This is the explanation of that example:
+    This JSON represents an event or meeting with the following properties:
+
+    1. 'attendees': It is an array containing information about the attendees of the event. Each attendee is represented as an object with a property 'emailAddress', which itself is an object containing the email address of the attendee. In this example, there are two attendees with email addresses "A00831316@tec.mx" and "A01411625@tec.mx".
+
+    2. 'startDateTime': It represents the start date and time of the event. The value "2023-05-24T09:00:00" indicates that the event starts on May 24, 2023, at 09:00:00 (in 24-hour format).
+
+    3. 'finishDateTime': It represents the end date and time of the event. The value "2023-05-26T09:00:00" indicates that the event finishes on May 26, 2023, at 09:00:00 (in 24-hour format).
+
+    4. 'duration': It represents the duration of the event. The value "PT1H" indicates that the event lasts for 1 hour. The duration is specified using the ISO 8601 duration format, where "PT" stands for "period of time" and "1H" represents 1 hour.
+
+
+    Consider this is the current date and time: ${{dateAndHour}}
+
+    Please return just the integer 0 it would not be possible to schedule the current meeting. If it is not the case, please just return the integer 1. Remember that your answer must exlcusively the integer. Its length must be one character.`,
+    
+    max_tokens: 150,
+    temperature: 0,
+    n: 1,
+    stream: false
+  });
+
+  return response.data.choices[0].text;
+}
+
 async function filterResponse(input, response, currentDateAndHour) {
   const JSONResponse = await openai.createCompletion({
     model:'text-davinci-003',
