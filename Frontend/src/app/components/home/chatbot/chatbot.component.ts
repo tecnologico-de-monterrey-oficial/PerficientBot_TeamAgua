@@ -16,27 +16,28 @@ export interface Message {
 })
 export class ChatbotComponent implements OnInit {
    user$ = this.authService.user$;
-  
-  loading = false; //animation waiting for bot response  
-  messages: Message[] = []; //chat history 
+
+  loading = false; //animation waiting for bot response
+  messages: Message[] = []; //chat history
   chatForm = new FormGroup({
     message: new FormControl('', [Validators.required])
   });
   @ViewChild('scrollMe') private myScrollContainer: any;
 
+  
   /* constructor(private Chatbot : OpenaiService) {
     this.messages.push({
       type: 'assistant',
       message: 'Hello, I am your personal assistant for Perficient. How can I help you today?'
     });
-    
+
   } */
 
   secretkey: string = '';
 
   constructor(public authService: AuthService,
-    private Chatbot : OpenaiService) {} 
-    
+    private Chatbot : OpenaiService) {}
+
   ngOnInit(): void {
     this.messages.push({
       type: 'assistant',
@@ -48,16 +49,16 @@ export class ChatbotComponent implements OnInit {
         this.secretkey = user.sub || '';
       }
     });
-    
+
   }
 
   result: string = "";
   myprompt: string = '';
- 
 
- 
+
+
   clearConversation(){
-    
+
     //Alert confirmation before deleting conversation
     const confirmDelete = confirm('Are you sure you want to clear the conversation?');
 
@@ -72,7 +73,7 @@ export class ChatbotComponent implements OnInit {
       });
       this.Chatbot.clearConversation()
     }
-   
+
   }
 
   sendMessage() : void {
@@ -90,7 +91,7 @@ export class ChatbotComponent implements OnInit {
       this.scrollToBottom();
 
 
-      this.Chatbot.sendMessage(body) 
+      this.Chatbot.sendMessage(body)
       .subscribe((data: any) => {
         //alert(JSON.stringify(data));
         console.log(data);
