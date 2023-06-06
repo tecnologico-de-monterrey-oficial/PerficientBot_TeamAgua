@@ -98,10 +98,12 @@ async function outlookDecisionClassification(responseOpenAI, input, requestStatu
       // Validates
       const validationCheckColleague = await validatesCheckColleague(input, dateAndHour);
 
+      console.log('Validación Check Colleague:', validationCheckColleague);
+
       if(validationCheckColleague) {
         decision = ['This is the availability of your colleagues: ', false, null, null];
       } else {
-        decision = ['Remember, you can only check the availability of your colleagues.', false, null, null];
+        decision = ['Remember, you can only check the availability of your colleagues in one sentence.', false, null, null];
       }
       break;
     // In such case that none of the options are related to the sentence, write "I am sorry, can you rephrase your request?".
@@ -301,7 +303,7 @@ async function checksConversationTopic(input, currentData, currentDateAndHour) {
     stream: false
   });
 
-  return normalResponse.data.choices[0].text;
+  return Boolean(parseInt(normalResponse.data.choices[0].text));
 }
 
 async function validatesGetPast(input, currentDateAndHour) {

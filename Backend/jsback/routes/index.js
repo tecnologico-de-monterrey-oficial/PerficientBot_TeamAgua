@@ -107,8 +107,12 @@ app.post('/', async (req, res, next) => {
   if(req.user.current_service === 'Outlook') {
     const dateAndHour = getCurrentDateAndHour(); // Gets the current date and hour.
 
+    const validationOutlookTopic = await outlook.checksConversationTopic(user_message, req.user.conversation, dateAndHour);
+
+    console.log('Este es el resultado de la validación del tema de la conversación:', validationOutlookTopic);
+
     // Checks if the user's message has anything to do with the initial request
-    if(!outlook.checksConversationTopic(user_message, req.user.conversation, dateAndHour)) {
+    if(!validationOutlookTopic) {
       const response = 'It seems that you want to change your conversation topic. I will reset your request to create a meeting and forget everything about it. If you want to create a meeting, please phrase your request from scratch. If you do not want to happen this by accident, please remember to use related words to your request.';
 
       req.user.conversation.push({role: "assistant", content: response}); // Saves the messages into the history of conversation
