@@ -76,7 +76,7 @@ app.post('/login', (req, res) => {
 });
 
 
-app.post('/datetime', (req, res) => {
+app.get('/datetime', (req, res) => {
   return getCurrentDateAndHour();
 });
 
