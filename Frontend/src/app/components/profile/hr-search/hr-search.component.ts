@@ -11,6 +11,7 @@ import { filter } from 'rxjs/operators';
 export class HrSearchComponent implements OnInit{
   textoBusqueda: string = '';
   resultados: any[] = [];
+  noResults: boolean = true;
   isHR: boolean = false;  // This new variable will hold the HR status
 
 
@@ -44,9 +45,11 @@ export class HrSearchComponent implements OnInit{
       this.http.get('http://localhost:3001/api/DatabaseGET', { params: { fullname: this.textoBusqueda } })
         .subscribe((response: any) => {
           this.resultados = response;
+          this.noResults = false;
         });
     } else {
       this.resultados = [];
+      this.noResults = true;
     }
   }
 
