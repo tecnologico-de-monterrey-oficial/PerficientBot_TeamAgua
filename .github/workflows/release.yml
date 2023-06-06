@@ -157,13 +157,13 @@ jobs:
           fail_on_empty: false
 
       - name: update docker user in k8 
-        run: sed -i 's/{docker_user}/${{secrets.DOCKER_USER}}/g' manifests/k8s.yaml
+        run: sed -i 's/{docker_user}/${{secrets.DOCKER_USER}}/g' manifests/k8s-frontend.yaml
 
       - name: update model name in k8 
-        run: sed -i 's/{model_name}/${{secrets.MODEL_NAME}}/g' manifests/k8s.yaml
+        run: sed -i 's/{model_name}/${{secrets.MODEL_NAME}}/g' manifests/k8s-frontend.yaml
 
       - name: update _ by - 
-        run: sed -i 's/_/-/g' manifests/k8s.yaml
+        run: sed -i 's/_/-/g' manifests/k8s-frontend.yaml
 
       - name: update sha in k8
         run: sed -i 's/{github.sha}/${{github.sha}}/g' manifests/k8s.yaml
@@ -180,7 +180,7 @@ jobs:
           KUBECONFIG: ${{ steps.namespace.outputs.kubeconfig }}
         with:
           namespace: ${{ secrets.OKTETO_NAMESPACE }}
-          manifest: manifests/k8s.yaml
+          manifest: manifests/k8s-frontend.yaml
           tag: ${{ secrets.DOCKER_USERNAME }}/${{secrets.MODEL_NAME}}:${{github.sha}}
 
     
@@ -203,19 +203,19 @@ jobs:
           fail_on_empty: false
         
       - name: update docker user in k8 
-        run: sed -i 's/{docker_user}/${{secrets.DOCKER_USER}}/g' manifests/k8s.yaml
+        run: sed -i 's/{docker_user}/${{secrets.DOCKER_USER}}/g' manifests/k8s-backend-flask.yaml
         
       - name: update model name in k8 
-        run: sed -i 's/{model_name}/${{secrets.MODEL_NAME}}/g' manifests/k8s.yaml
+        run: sed -i 's/{model_name}/${{secrets.MODEL_NAME}}/g' manifests/k8s-backend-flask.yaml
         
       - name: update _ by - 
-        run: sed -i 's/_/-/g' manifests/k8s.yaml
+        run: sed -i 's/_/-/g' manifests/k8s-backend-flask.yaml
         
       - name: update sha in k8
-        run: sed -i 's/{github.sha}/${{github.sha}}/g' manifests/k8s.yaml
+        run: sed -i 's/{github.sha}/${{github.sha}}/g' manifests/k8s-backend-flask.yaml
         
       - name: ls -la 
-        run: cat manifests/k8s.yaml
+        run: cat manifests/k8s-backend-flask.yaml
       - uses: okteto/context@2.7.0
         with:
           token: ${{secrets.OKTETO_TOKEN }}
@@ -226,7 +226,7 @@ jobs:
           KUBECONFIG: ${{ steps.namespace.outputs.kubeconfig }}
         with:
           namespace: ${{ secrets.OKTETO_NAMESPACE }}
-          manifest: manifests/k8s.yaml
+          manifest: manifests/k8s-backend-flask.yaml
           tag: ${{ secrets.DOCKER_USERNAME }}/${{secrets.MODEL_NAME}}:${{github.sha}}
 
 
@@ -249,19 +249,19 @@ jobs:
           fail_on_empty: false
                 
       - name: update docker user in k8 
-        run: sed -i 's/{docker_user}/${{secrets.DOCKER_USER}}/g' manifests/k8s.yaml
+        run: sed -i 's/{docker_user}/${{secrets.DOCKER_USER}}/g' manifests/k8s-backend-nodejs.yaml
                 
       - name: update model name in k8 
-        run: sed -i 's/{model_name}/${{secrets.MODEL_NAME}}/g' manifests/k8s.yaml
+        run: sed -i 's/{model_name}/${{secrets.MODEL_NAME}}/g' manifests/k8s-backend-nodejs.yaml
                 
       - name: update _ by - 
-        run: sed -i 's/_/-/g' manifests/k8s.yaml
+        run: sed -i 's/_/-/g' manifests/k8s-backend-nodejs.yaml
                 
       - name: update sha in k8
-        run: sed -i 's/{github.sha}/${{github.sha}}/g' manifests/k8s.yaml
+        run: sed -i 's/{github.sha}/${{github.sha}}/g' manifests/k8s-backend-nodejs.yaml
                 
       - name: ls -la 
-        run: cat manifests/k8s.yaml
+        run: cat manifests/k8s-backend-nodejs.yaml
       - uses: okteto/context@2.7.0
         with:
           token: ${{secrets.OKTETO_TOKEN }}
@@ -272,6 +272,6 @@ jobs:
           KUBECONFIG: ${{ steps.namespace.outputs.kubeconfig }}
         with:
           namespace: ${{ secrets.OKTETO_NAMESPACE }}
-          manifest: manifests/k8s.yaml
+          manifest: manifests/k8s-backend-nodejs.yaml
           tag: ${{ secrets.DOCKER_USERNAME }}/${{secrets.MODEL_NAME}}:${{github.sha}}
         
