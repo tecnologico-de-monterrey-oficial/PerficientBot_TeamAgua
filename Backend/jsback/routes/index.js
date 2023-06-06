@@ -77,7 +77,11 @@ app.post('/login', (req, res) => {
 
 
 app.get('/datetime', (req, res) => {
-  return getCurrentDateAndHour();
+  res.send({response: getCurrentDateAndHour()});
+});
+
+app.get('/', (req, res) => {
+  res.send({response: 'hola'});
 });
 
 // Endpoint that handles everything of the chatbot.
