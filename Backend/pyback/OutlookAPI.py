@@ -74,7 +74,6 @@ def OutlookAllEvents():
             subject = item['subject']
             start = item['start']
             end = item['end']
-            web = item['webLink']
             id = item['id']
 
             attendees = []
@@ -86,7 +85,6 @@ def OutlookAllEvents():
                 "attendees": attendees,
                 "start": start,
                 "end": end,
-                "web": web,
                 "id": id
             })
         
