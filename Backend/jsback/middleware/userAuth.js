@@ -24,8 +24,8 @@ try
     if (token)	{
 		// verifies secret and checks up
       console.log(token);
-      console.log(process.env.secretKey);
-	    jwt.verify(token, process.env.secretKey, function (err, decoded) {
+      console.log('Este es el secretKey');
+	    jwt.verify(token, 'Este es el secretKey', function (err, decoded) {
 			if (err) {
 				//return res.json({success: false, message : 'Failed to authenticate token' });
 				return res.status(403).send( {
