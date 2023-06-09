@@ -1,0 +1,82 @@
+.token-form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: transparent;
+    border-radius: 5px;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    align-content: flex-end;
+
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+    width: 80%;
+    display: inline-flex;
+
+  
+
+  }
+  
+  label {
+    display: block;
+    font-weight: bold;
+  }
+  
+  input{
+    width: 100%;
+    padding: 8px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+  }
+  
+  .btn-submit {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #B65151;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    align-self: flex-end;
+  }
+  
+  .btn-show-password {
+    display: block;
+    margin-top: 10px;
+    padding: 5px;
+    background-color: #6c6c6c;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    max-width: max-content;
+  }
+
+  .btn-copy {
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .btn-copy img {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .form-options-foot {
+  
+    display: flex;
+    flex-direction: row;
+    
+    
+    align-items: flex-end;
+    align-content: flex-end;
+    gap: 10%;
+  }

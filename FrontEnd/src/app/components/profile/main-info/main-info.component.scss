@@ -1,20 +1,54 @@
 .buttonLogOut {
     color: white;
-    background-color: #B65151;
+    background-color: #b65151;
     border-radius: 5px;
     height: max-content;
     border-width: 0;
     margin-bottom: 10px;
     align-self: self-end;
-}
-
-.userInfo {
-    margin-top: 10px;
+  }
+  
+  .profile-grid {
     display: flex;
-    flex-direction: row;
-
+    flex-direction: column;
+    align-items: center;
+    background-color: transparent;
+    padding: 20px;
+    border: 2px solid #d18585;
+    border-radius: 10px;
+    max-height: 45vh;
+  }
+  
+  .profile__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .profile__avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 2px solid #d18585;
+  }
+  
+  .profile__title {
+    color: #d18585;
+  }
+  
+  .userInfo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+  
     .titleInfo {
-        font-weight: bold;
+      font-weight: bold;
+      color: #d18585;
+     
+      padding-bottom: 5px;
+      margin-bottom: 10px;
     }
-}
-
+  }
+  

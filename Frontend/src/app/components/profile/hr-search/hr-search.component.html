@@ -6,6 +6,9 @@
 
 
 <!-- Search view-->
+<h2>HH.RR. Search</h2>
+<p>Find employees, delve into their CVs, and gain valuable insights with our AI-powered text processor and language interpreter.</p>
+<hr>
 <div class="search-container">
   <div class="input-group">
     <input type="text" [(ngModel)]="textoBusqueda" (keyup)="onInputChange()" placeholder="Search employee...">
@@ -19,7 +22,7 @@
       
     </li>
   </ul>
-  <p *ngIf="noResults">No profile matches your search. Try again</p>
+  <i *ngIf="noResults">No profile matches your search. Try again</i>
 </div>
 
 
