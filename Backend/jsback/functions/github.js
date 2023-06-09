@@ -111,9 +111,9 @@ function formatJSONOutResponse(response) {
     // Iterate over each key in the object
     console.log('Objeto:', obj);
 
-    resultString += `<a href="${obj.url}" target="_blank" class="withLinks">Issue title: ${obj.title}</a>
+    resultString += `Issue title: <a href="${obj.url}" target="_blank" class="withLinks"> ${obj.title}</a>
     Description of the issue: ${obj.body}
-    ___________________________________________________________________<br>`;
+    <hr><br>`;
   });
   return resultString;
 }
