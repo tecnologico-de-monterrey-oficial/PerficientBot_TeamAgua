@@ -1,35 +1,48 @@
 
-
+<!-- move to profile component, also move function isHR-->
 <!-- <div *ngIf="isHR"> -->
-<!--   <input type="text" [(ngModel)]="textoBusqueda" (keyup)="onInputChange()" placeholder="Buscar...">
-  <ul>
-    <li *ngFor="let persona of resultados">
-      {{ persona.nombrecompleto }}
-      <button (click)="getImage(persona)">Get CV</button>
-      <button (click)="getSummary(persona)">Summary</button>
-      <img *ngIf="persona.cvImageData" [src]="persona.cvImageData">
-      <p *ngIf="persona.summary">{{ persona.summary }}</p>
-    </li>
-  </ul> -->
+
 <!-- </div> -->
 
 
-
+<!-- Search view-->
 <div class="search-container">
   <div class="input-group">
-    <input type="text" [(ngModel)]="textoBusqueda" (keyup)="onInputChange()" placeholder="Buscar...">
+    <input type="text" [(ngModel)]="textoBusqueda" (keyup)="onInputChange()" placeholder="Search employee...">
   </div>
   <ul>
     <li *ngFor="let persona of resultados">
       {{ persona.nombrecompleto }}
       <div class="resultActions">
-        <button (click)="getImage(persona)">Get CV</button>
-        <button (click)="getSummary(persona)">Summary</button>
+        <button class="hrButton" (click)="openOverlay(persona)">Open</button>
       </div>
       
-      <img *ngIf="persona.cvImageData" [src]="persona.cvImageData">
-      <p *ngIf="persona.summary">{{ persona.summary }}</p>
     </li>
   </ul>
   <p *ngIf="noResults">No profile matches your search. Try again</p>
+</div>
+
+
+<!-- Employee details view -->
+
+<!-- Full-screen overlay -->
+
+<div class="overlay" *ngIf="selectedPersona">
+  <div class="overlay-content">
+    <h2>{{ selectedPersona.nombrecompleto }}</h2> 
+
+    
+    <button class="hrButton" (click)="showOverlay('cv')">Get CV</button>
+    <button class="hrButton" (click)="showOverlay('summary')">Summary</button> 
+
+    <!-- Additional details and content here -->
+
+    <div class="image-container" *ngIf="selectedPersona.cvImageData && show=='cv'">
+      <img [src]="selectedPersona.cvImageData">
+    </div>
+
+    <p *ngIf="selectedPersona.summary && show =='summary'">{{ selectedPersona.summary }}</p>
+    
+  </div>
+  <button class="closeButton" (click)="closeOverlay()"> X </button>
 </div>
