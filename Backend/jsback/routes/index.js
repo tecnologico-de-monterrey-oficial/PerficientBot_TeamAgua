@@ -19,9 +19,9 @@ const router = Router();
 
 // router.get('/', (req, res) => res.send('Welcome'));
 
-// users services
-router.post('/users', userAuth.saveUser,  controllers.createUser);
-router.get('/users', userAuth.validateToken,  controllers.getAllUsers);
+// // users services
+// router.post('/users', userAuth.saveUser,  controllers.createUser);
+// router.get('/users', userAuth.validateToken,  controllers.getAllUsers);
 
 // logs services
 router.post('/logs', userAuth.validateToken,  controllers.createLog);

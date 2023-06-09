@@ -7,13 +7,14 @@ const jwt = require("jsonwebtoken");
 //hashing users password before its saved to the database with bcrypt
 const createUser = async (req, res) => {
  try {
-   const { name, email, password, age, comments } = req.body;
+   const { id, email, secret_key } = req.body;
    const data = {
-     name,
-     email,
-     password: await bcrypt.hash(password, 10),
-     age,
-     comments,
+     id: id,
+     email: email,
+     conversation: [],
+     request_status: false,
+     current_data: null,
+     current_service: null
    };
    console.log(data);
 
@@ -24,7 +25,7 @@ const createUser = async (req, res) => {
    //generate token with the user's id and the secretKey in the env file
    // set cookie with the token generated
    if (user) {
-     let token = jwt.sign({ id: user.id }, 'Este es el secretKey', {
+     let token = jwt.sign({ id: user.id }, secret_key, {
        expiresIn: 1 * 24 * 60 * 60 * 1000,
      });
 
@@ -46,43 +47,30 @@ const createUser = async (req, res) => {
 
 const login = async (req, res) => {
  try {
-const { email, password } = req.body;
+// In a real scenario, you would validate the user's credentials here
+const { id, email, secret_key } = req.body;
 
-   //find a user by their email
-   const user = await models.User.findOne({
-     where: {
-     email: email
-   } 
-     
-   });
+console.log('Estoy haciendo Login - NodeJS');
 
-   //if user email is found, compare password with bcrypt
-   if (user) {
-     const isSame = await bcrypt.compare(password, user.password);
+const user = {
+  id: id,
+  username: email,
+  conversation: [],
+  request_status: false,
+  current_data: null,
+  current_service: null
+};
 
-     //if password is the same
-      //generate token with the user's id and the secretKey in the env file
+let token = jwt.sign({ id: user.id }, secret_key, {
+  expiresIn: 1 * 24 * 60 * 60 * 1000,
+});
 
-     if (isSame) {
-       let token = jwt.sign({ id: user.id }, 'Este es el secretKey', {
-         expiresIn: 1 * 24 * 60 * 60 * 1000,
-       });
-
-       //if password matches wit the one in the database
-       //go ahead and generate a cookie for the user
-       res.cookie("jwt", token, { maxAge: 1 * 24 * 60 * 60, httpOnly: true });
+  res.cookie("jwt", token, { maxAge: 1 * 24 * 60 * 60, httpOnly: true });
        console.log("user", JSON.stringify(user, null, 2));
        console.log(token);
        //send user data
        //return res.status(201).send(user);
        return res.status(201).send({"token": token});
-
-     } else {
-       return res.status(401).send("Authentication failed");
-     }
-   } else {
-     return res.status(401).send("Authentication failed");
-   }
  } catch (error) {
    console.log(error);
  }

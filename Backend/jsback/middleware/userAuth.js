@@ -17,15 +17,13 @@ const validateToken = async (req, res, next) => {
 try
 
 {
-    var token = req.body.token ||
-	 			req.query.token ||
-	 			req.headers['x-access-token'];
+    var token = req.headers.authorization.split(' ')[1];
 	// decode token
     if (token)	{
 		// verifies secret and checks up
       console.log(token);
-      console.log('Este es el secretKey');
-	    jwt.verify(token, 'Este es el secretKey', function (err, decoded) {
+      console.log('Este es el secretKey', req.body.secret_key);
+	    jwt.verify(token, req.body.secret_key, function (err, decoded) {
 			if (err) {
 				//return res.json({success: false, message : 'Failed to authenticate token' });
 				return res.status(403).send( {

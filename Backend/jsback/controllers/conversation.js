@@ -1,3 +1,5 @@
+const { generateNewToken } = require('../functions/token');
+
 const conversation = async(req, res) => {
     const { user_message, secret_key } = req.body;
 
