@@ -70,6 +70,7 @@ def AzureWorkItems():
     for id in idWI():
         API_DEV_ITEMS = f"https://dev.azure.com/{ORGANIZATION}/{PROJECT}/_apis/wit/workitems/{id}?api-version=7.0"
         response = requests.get(API_DEV_ITEMS, headers=headers)
+        wi = {}
         try:
             data = response.json()
 
@@ -102,6 +103,7 @@ def AzureOneItem(id):
     headers = {'Authorization': f'Basic {auth_token}', 'Content-Type': CONTENT_TYPE2}
     API_DEV_ITEMS = f"https://dev.azure.com/{ORGANIZATION}/{PROJECT}/_apis/wit/workitems/{id}?api-version=7.0"
     response = requests.get(API_DEV_ITEMS, headers=headers)
+    wi={}
     try:
         data = response.json()
 
