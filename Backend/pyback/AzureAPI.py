@@ -71,7 +71,8 @@ def AzureWorkItems():
                 "ID" : data['id'],
                 "Title": data['fields']['System.Title'],
                 "WItype": data['fields']['System.WorkItemType'],
-                "url": data['url']
+                #"url": data['url'] #TAPI URL, it returns a JSON
+                "url": data['_links']['html']['href']  #HTML URL, it returns the actual link for browsers -E
             }
 
             WI.append(wi)
@@ -102,7 +103,8 @@ def AzureOneItem(id):
             "ID" : data['id'],
             "Title": data['fields']['System.Title'],
             "WItype": data['fields']['System.WorkItemType'],
-            "url": data['url']
+            #"url": data['url'] #API URL, it returns a JSON -E
+            "url": data['_links']['html']['href']  #HTML URL, it returns the actual link for browsers -E
         }
     except json.JSONDecodeError as e:
         print(f"Error decoding JSON response: {e}")
@@ -152,7 +154,9 @@ def AzureCreateItem():
     # Check the response status code
     if response.status_code == 200:
         data = response.json()
-        url = data['url']
+        #url = data['url']
+        url = data['_links']['html']['href'] #Modified to return html link for web browsers
+
         id_wi = data['id']
         return jsonify({"message": "Work item created successfully.",
                         "url": f"{url}",
