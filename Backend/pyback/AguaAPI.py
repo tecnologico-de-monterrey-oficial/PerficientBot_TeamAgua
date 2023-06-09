@@ -13,7 +13,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route('/')
 def index():
-    return app.send_static_file('index.html')
+    return 'Hola Josemi'
 
 @app.route('/upload/<user_id>', methods=['POST'])
 def uploadCV(user_id):
@@ -329,7 +329,7 @@ def getOutlookGroups():
 """
 {
     "emailAddress": {"address": "A00831316@tec.mx"},
-    "startDateTime": "2023-05-24T09:00:00",
+    "": "20startDateTime23-05-24T09:00:00",
     "finishDateTime": "2023-05-26T09:00:00",
     "duration": "PT1H"
 }
