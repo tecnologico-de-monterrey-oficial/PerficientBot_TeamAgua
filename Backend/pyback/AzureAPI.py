@@ -1,10 +1,9 @@
 from flask import Flask, jsonify, request
-from dotenv import load_dotenv #borrar
-#from dbApi import obtener_tokens
+#from dotenv import load_dotenv #original
 import requests, base64, json, os
 
 app = Flask(__name__)
-#load_dotenv("tokens.env") #borrar
+#load_dotenv("tokens.env") #original
 ORGANIZATION = 'EquipoAgua'
 PROJECT = 'Agua'
 
@@ -13,9 +12,16 @@ CONTENT_TYPE = 'application/json'
 CONTENT_TYPE2 = 'application/json-patch+json'
 
 # Header access tokens
-API_DEV_KEY = os.environ.get("API_DEV_KEY")
-#tokens = obtener_tokens()
-#API_DEV_KEY = tokens['azureToken']
+#API_DEV_KEY = os.environ.get("API_DEV_KEY") #original
+
+#sub = "windowslive|f6a8eb57361df774" #borrar
+
+API_DEV_KEY = ""
+
+#funcion prueba 
+def setAzureKey(key):
+    global API_DEV_KEY
+    API_DEV_KEY = key
 
 # Función para traer todos los IDs de los work items
 def idWI():

@@ -48,7 +48,11 @@ export class HrSearchComponent implements OnInit{
       this.http.get('http://localhost:3001/api/DatabaseGET', { params: { fullname: this.textoBusqueda } })
         .subscribe((response: any) => {
           this.resultados = response;
-          this.noResults = false;
+          
+          if(this.resultados.length==0) this.noResults = true;
+          else {
+            this.noResults = false;
+          }
         });
     } else {
       this.resultados = [];
