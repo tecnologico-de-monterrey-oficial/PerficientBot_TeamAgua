@@ -1,0 +1,69 @@
+<h2>My services</h2>
+<p> Update your access tokens and unlock a world of possibilities with Perficient Bot! Seamlessly integrate additional services like GitHub, DevOps, and Outlook Calendar to supercharge your experience. Stay organized, collaborate effortlessly, and manage tasks with ease. Update your access tokens now and take Perficient Bot to the next level!</p>
+<hr>
+<div class="token-form">
+ 
+  <div class="form-group">
+    <label for="outlookToken">Outlook Token:</label>
+    <input type="password" [(ngModel)]="outlookToken" [type]="showtoken ? 'text' : 'password'" id="outlookToken">
+    <button class="btn-copy" (click)="copyToken('outlookToken')">
+      <img src="../assets/img/Copy.png" alt="Copy">
+    </button>
+    
+  </div>
+
+  <div class="form-group">
+    <label for="githubToken">GitHub Token:</label>
+    <input type="password" [(ngModel)]="githubToken" [type]="showtoken ? 'text' : 'password'" id="githubToken">
+    <button class="btn-copy" (click)="copyToken('githubToken')">
+      <img src="../assets/img/Copy.png" alt="Copy">
+    </button>
+  </div>
+
+  <div class="form-group">
+    <label for="azureToken">Azure Token:</label>
+    <input type="password" [(ngModel)]="azureToken" [type]="showtoken ? 'text' : 'password'" id="azureToken">
+    <button class="btn-copy" (click)="copyToken('azureToken')">
+      <img src="../assets/img/Copy.png" alt="Copy">
+    </button>
+  </div>
+
+ 
+
+  <div class="form-options-foot">
+    <button class="btn-show-password" (click)="toggleShowToken()">
+      {{ showtoken ? 'Hide' : 'Show' }} tokens
+    </button>
+    <button class="btn-submit" (click)="enviarTokens()">Update</button>
+  </div>
+  
+</div>
+
+
+
+
+
+<!--old version-->
+
+<!-- <h2>Enviar Tokens</h2>
+
+<div>
+  <label for="outlookToken">Outlook Token:</label>
+  <input type="password" [(ngModel)]="outlookToken" [type]="showtoken ? 'text' : 'password'" id="outlookToken">
+</div>
+
+<div>
+  <label for="githubToken">GitHub Token:</label>
+  <input type="password" [(ngModel)]="githubToken" [type]="showtoken ? 'text' : 'password'" id="githubToken">
+</div>
+
+<div>
+  <label for="azureToken">Azure Token:</label>
+  <input type="password" [(ngModel)]="azureToken" [type]="showtoken ? 'text' : 'password'" id="azureToken">
+</div>
+
+<button (click)="enviarTokens()">Enviar</button>
+
+<button (click)="toggleShowToken()">{{ showtoken ? 'Ocultar' : 'Mostrar' }} Contraseñas</button>
+
+ -->

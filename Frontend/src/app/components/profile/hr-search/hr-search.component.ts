@@ -11,7 +11,11 @@ import { filter } from 'rxjs/operators';
 export class HrSearchComponent implements OnInit{
   textoBusqueda: string = '';
   resultados: any[] = [];
+  noResults: boolean = true;
   isHR: boolean = false;  // This new variable will hold the HR status
+  selectedPersona: any; // show employee
+  show = "";
+
 
 
   constructor(private http: HttpClient, public auth: AuthService) { }
@@ -44,9 +48,15 @@ export class HrSearchComponent implements OnInit{
       this.http.get('http://localhost:3001/api/DatabaseGET', { params: { fullname: this.textoBusqueda } })
         .subscribe((response: any) => {
           this.resultados = response;
+          
+          if(this.resultados.length==0) this.noResults = true;
+          else {
+            this.noResults = false;
+          }
         });
     } else {
       this.resultados = [];
+      this.noResults = true;
     }
   }
 
@@ -79,6 +89,23 @@ export class HrSearchComponent implements OnInit{
         console.log('Error retrieving summary:', error);
       }
     );
+  }
+
+  //Employee view functions overlay
+  openOverlay(persona: any) {
+    this.selectedPersona = persona;
+    this.getImage(persona);
+    this.getSummary(persona);
+  }
+
+  closeOverlay() {
+    this.selectedPersona = null;
+    this.show = "";
+  }
+
+  //Choose what to show in overlay
+  showOverlay(content: string) {
+    this.show = content;
   }
 
 }

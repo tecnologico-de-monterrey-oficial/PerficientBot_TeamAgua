@@ -4,8 +4,6 @@
 
 <app-navbar></app-navbar>
 
-  
- 
 
 <div class="container">
   
@@ -13,6 +11,7 @@
     <ul>
       <li (click)="selectedComponent = 'main-info'" [class.active]="selectedComponent === 'main-info'">My Data</li>
       <li (click)="selectedComponent = 'upload'" [class.active]="selectedComponent === 'upload'">My Documents</li>
+      <li (click)="selectedComponent = 'send-tokens'" [class.active]="selectedComponent === 'send-tokens'">My Services</li>
       <li (click)="selectedComponent = 'hr-search'" [class.active]="selectedComponent === 'hr-search'">HH.RR. Search</li>
     </ul>
   </div>
@@ -22,10 +21,12 @@
       <app-main-info *ngSwitchCase="'main-info'"></app-main-info>
       <app-upload-form *ngSwitchCase="'upload'"></app-upload-form>
       <app-hr-search *ngSwitchCase="'hr-search'"></app-hr-search>
+      <app-send-tokens *ngSwitchCase="'send-tokens'"> </app-send-tokens>
     </ng-container>
   </div>
   
 </div>
+
 
 
 

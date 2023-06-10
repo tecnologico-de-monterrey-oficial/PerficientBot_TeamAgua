@@ -38,7 +38,7 @@ export class HomeComponent implements OnInit{
         this.user_id = user.sub || '';
 
         this.postDataToDatabase();
-        
+
       }
     });
   }
@@ -62,9 +62,9 @@ export class HomeComponent implements OnInit{
 
           // Now send this data to the '/login' API
           const loginData = {
-            id: this.db_user_id,
-            email: this.user_email,
-            secret_key: this.user_id
+            "id": this.db_user_id,
+            "email": this.user_email,
+            "secret_key": this.user_id
           };
 
           this.http.post<{token: string}>('http://localhost:3000/login', loginData)
@@ -73,9 +73,11 @@ export class HomeComponent implements OnInit{
                 console.log("token: ", rec.token);
                 this.Chatbot.setAuthorizationHeader(rec.token)
               },
-              (err) => console.error(err)
+              (err) => {
+                console.error('Error with http://localhost:3001/api/DatabasePOST:', err);
+              }
             );
-            
+
         },
         (err) => {
           console.error(err);

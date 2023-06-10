@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_cors import CORS
 import aiohttp
 import asyncio
@@ -6,11 +6,14 @@ from GithubAPI import GithubRepos, GithubIssues, GithubPulls
 from OutlookAPI import OutlookWeekEvents, OutlookMonthEvents, OutlookScheduleMeeting, OutlookAllEvents, OutlookGroups, OutlookDelete, OutlookFindMeetingTime
 from AzureAPI import AzureCreateItem, AzureOneItem, AzureWorkItems
 from CVAPI import getCV, getGPTtext, upload
-from dbApi import obtener_usuarios, guardar_usuario, check_if_user_is_hr
+from dbApi import obtener_usuarios, guardar_usuario, check_if_user_is_hr, guardar_tokens, obtener_tokens
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='dist', static_url_path='')
 CORS(app, resources={r"/*": {"origins": "*"}})
 
+@app.route('/')
+def index():
+    return app.send_static_file('index.html')
 @app.route('/upload/<user_id>', methods=['POST'])
 def uploadCV(user_id):
     loop = asyncio.new_event_loop()
@@ -567,6 +570,15 @@ def mandarU():
 @app.route('/api/CheckHR', methods=['GET'])
 def checkHR():
     return check_if_user_is_hr()
+
+@app.route('/api/DatabasePOSTTokens', methods=['POST'])
+def postoken():
+    return guardar_tokens()
+
+@app.route('/api/DatabaseGETTokens/<sub>')
+def obtokens(sub):
+    return obtener_tokens(sub)
+
 
 
 

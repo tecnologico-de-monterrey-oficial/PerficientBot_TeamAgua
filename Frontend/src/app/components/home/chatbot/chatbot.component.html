@@ -8,14 +8,17 @@
                 <div *ngFor="let message of messages" [ngClass]="message.type === 'user' ? 'message prueba' : 'message'">
                     
                         <img *ngIf="message.type === 'assistant'" class="chatpic" src="..\assets\img\botPic.png" alt="Bot">
-
-                        <div [class]="message.type">  {{message.message}} </div>
-
+                        
+                       
+                        <div [class]="message.type" > <span [innerHTML]="message.message"></span> </div>
+                        
                         <img *ngIf="message.type === 'user' && (user$ | async) as user; else defaultImage" [src]="user?.picture || './assets/img/profilePic.png'" class="chatpic" alt="UserPictureProfile" />
 
                         <ng-template #defaultImage>
                         <img *ngIf="message.type === 'user'" class="chatpic" src="./assets/img/profilePic.png" alt="UserPictureProfile">
                         </ng-template>
+                            
+
 
                 </div>
                 <div *ngIf="loading" class="message" >

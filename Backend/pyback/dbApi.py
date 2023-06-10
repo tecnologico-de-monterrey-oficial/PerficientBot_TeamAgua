@@ -2,6 +2,9 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import traceback
 import pyodbc
+from AzureAPI import setAzureKey
+from GithubAPI import setGitKey
+from OutlookAPI import setOutKey
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -125,3 +128,73 @@ def check_if_user_is_hr():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/DatabasePOSTTokens', methods=['POST'])
+def guardar_tokens():
+    server = 'agua-perficientbot-server.database.windows.net'
+    database = 'Agua_PerficientBot-db'
+    username = 'Agua'
+    password = '3l4guaM0ja'
+    driver = '{ODBC Driver 17 for SQL Server}'
+    conexion_str = f"DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}"
+
+    try:
+        datos_tokens = request.get_json()
+
+        sub = datos_tokens['sub']
+        outlook_key = datos_tokens['outlookToken']
+        github_key = datos_tokens['githubToken']
+        azure_key = datos_tokens['azureToken']
+
+        conexion = pyodbc.connect(conexion_str)
+        cursor = conexion.cursor()
+
+        cursor.execute("EXEC dbo.UpdateOutlookKey ?, ?", sub, outlook_key)
+
+        cursor.execute("EXEC dbo.UpdateGithubKey ?, ?", sub, github_key)
+
+        cursor.execute("EXEC dbo.UpdateAzureKey ?, ?", sub, azure_key)
+
+        conexion.commit()
+        conexion.close()
+
+        return jsonify({'mensaje': 'Claves actualizadas exitosamente'})
+
+    except Exception as e:
+        return jsonify({'error': str(e), 'trace': traceback.format_exc()}), 500
+    
+@app.route('/api/DatabaseGETTokens/<sub>')
+def obtener_tokens(sub):
+    server = 'agua-perficientbot-server.database.windows.net'
+    database = 'Agua_PerficientBot-db'
+    username = 'Agua'
+    password = '3l4guaM0ja'
+    driver = '{ODBC Driver 17 for SQL Server}'
+    conexion_str = f"DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}"
+
+    try:
+        conexion = pyodbc.connect(conexion_str)
+        cursor = conexion.cursor()
+
+        cursor.execute("SELECT outlook_key, github_key, azure_key FROM dbo.fn_GetUserKeysBySub(?)", sub)
+        resultado = cursor.fetchone()
+
+        conexion.close()
+
+        if resultado:
+            setAzureKey(resultado[2])
+            setGitKey(resultado[1])
+            setOutKey(resultado[0])
+            print(resultado[2])
+            return jsonify({
+                'outlookToken': resultado[0],
+                'githubToken': resultado[1],
+                'azureToken': resultado[2]
+            })
+        else:
+            return jsonify({'mensaje': 'No se encontraron tokens para el usuario'})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    

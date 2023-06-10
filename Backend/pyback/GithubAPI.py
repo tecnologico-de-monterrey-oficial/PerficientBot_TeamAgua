@@ -1,12 +1,20 @@
 from flask import Flask, jsonify, request
-from dotenv import load_dotenv
+#from dotenv import load_dotenv #original
 import requests, os
-load_dotenv("tokens.env")
+#load_dotenv("tokens.env") #original
 
 # Header content types
 CONTENT_TYPE = 'application/json'
 # Header access tokens
-API_GIT_KEY = os.environ.get("API_GIT_KEY")
+#API_GIT_KEY = os.environ.get("API_GIT_KEY") #original
+API_GIT_KEY = ""
+
+#funcion prueba 
+def setGitKey(key):
+    global API_GIT_KEY
+    API_GIT_KEY = key
+
+
 # Links para hacer los API calls
 API_GIT_REPOS = 'https://api.github.com/user/repos'
 
@@ -23,7 +31,7 @@ def GithubRepos():
         for item in json_response:
             repo = {
                 "name": item.get('name'),
-                "url": item.get('url')
+                "url": item.get('html_url')
             }
             repos.append(repo)
         return repos
@@ -54,7 +62,7 @@ def GithubIssues():
                 values = {
                     "title": item.get('title'),
                     "body": item.get('body'),
-                    "url": item.get('url')
+                    "url": item.get('html_url')
                 }
                 issue.append(values)
     return issue
@@ -83,7 +91,7 @@ def GithubPulls():
                 values = {
                     "title": item.get('title'),
                     "body": item.get('body'),
-                    "url": item.get('url')
+                    "url": item.get('html_url')
                 }
                 pulls.append(values)
     return pulls
