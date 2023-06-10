@@ -11,7 +11,7 @@ RUN apt-get clean && \
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-ENV FLASK_APP AguaAPI.py
+ENV FLASK_APP run.py
 
 WORKDIR /app
 COPY requirements.txt .
