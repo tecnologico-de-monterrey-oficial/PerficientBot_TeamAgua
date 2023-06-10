@@ -79,6 +79,13 @@ export class SendTokensComponent implements OnInit {
   toggleShowToken() {
     this.showtoken = !this.showtoken;
   }
+
+  copyToken(tokenId: string) {
+    const tokenElement = document.getElementById(tokenId) as HTMLInputElement;
+    tokenElement.select();
+    document.execCommand('copy');
+  }
+  
 }
 
 

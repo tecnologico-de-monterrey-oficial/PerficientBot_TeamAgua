@@ -63,7 +63,7 @@ async function EnglishOrNot(input) {
       // Request to Outlook
       case 2:
         const validationOutlook = await validationClassification(input, 'Outlook'); // Calls this function in order to fully assure that the user's request can be made in Outlook.
-        console.log('Validacion', validationOutlook);
+        console.log('Validacion Outlook Request', validationOutlook);
   
         // If the user's request can be made in Outlook, it calls the respective function.
         if(validationOutlook) {
@@ -74,7 +74,8 @@ async function EnglishOrNot(input) {
       // Request to Azure DevOps
       case 3:
         const validationAzureDevOps = await validationClassification(input, 'AzureDevOps'); // Calls this function in order to fully assure that the user's request can be made in Azure DevOps.
-  
+        console.log('Validacion Azure DevOps Request', validationAzureDevOps);
+
         // If the user's request can be made in Azure DevOps, it calls the respective function.
         if(validationAzureDevOps) {
           decision = await devops.azureClassification(input, requestStatus);
@@ -83,7 +84,7 @@ async function EnglishOrNot(input) {
       // Request to GitHub
       case 4:
         const validationGitHub = await validationClassification(input, 'GitHub'); // Calls this function in order to fully assure that the user's request can be made in GitHub.
-        // console.log(validationGitHub);
+        console.log('Validacion GitHub Request', validationGitHub);
   
         // If the user's request can be made in GitHub, it calls the respective function.
         if(validationGitHub) {
@@ -117,7 +118,7 @@ async function EnglishOrNot(input) {
   async function validationClassification(input, service) {
     const response = await openai.createCompletion({
       model: 'text-davinci-003',
-      prompt: `Is it really possible to make this "${input}" happen in ${service}? Please return a boolean saying if it's 0 or 1. Just return the number.`,
+      prompt: `Can you confirm the feasibility of achieving "${input}" within ${service}? Please note, when considering services like Outlook, the feature to verify a partner's calendar availability should be taken into account. Provide a response in the form of a boolean value, represented as 0 or 1. Please ensure to only return the numeric value.`,
       max_tokens: 150,
       temperature: 0,
       n: 1,

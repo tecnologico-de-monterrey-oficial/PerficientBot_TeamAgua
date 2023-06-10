@@ -3,6 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { OpenaiService } from '../../../services/openai.service';
 import { AuthService } from '@auth0/auth0-angular';
 import { Token } from '@angular/compiler';
+import { HttpClient } from '@angular/common/http';
 
 export interface Message {
   type: string,
@@ -34,9 +35,14 @@ export class ChatbotComponent implements OnInit {
   } */
 
   secretkey: string = '';
+  outlookToken: string = '';
+  githubToken: string = '';
+  azureToken: string = '';
 
+  tokensSubidos: boolean = false;
+  
   constructor(public authService: AuthService,
-    private Chatbot : OpenaiService) {}
+    private Chatbot : OpenaiService, private http: HttpClient) {}
 
   ngOnInit(): void {
     this.messages.push({
@@ -47,9 +53,10 @@ export class ChatbotComponent implements OnInit {
     this.authService.user$.subscribe(user => {
       if (user) {
         this.secretkey = user.sub || '';
+        this.getTokens();
       }
     });
-
+    
   }
 
   result: string = "";
@@ -116,4 +123,28 @@ export class ChatbotComponent implements OnInit {
       } catch(err) {}
     }, 150);
   }
+
+  getTokens(): void {
+    const sub = this.secretkey;
+
+    this.http
+      .get(`http://localhost:3001/api/DatabaseGETTokens/${sub}`)
+      .subscribe(
+        (response: any) => {
+          if (response.outlookToken && response.githubToken && response.azureToken) {
+            this.outlookToken = response.outlookToken;
+            this.githubToken = response.githubToken;
+            this.azureToken = response.azureToken;
+            this.tokensSubidos = true;
+            console.log('Tokens del usuario:', response);
+          } else {
+            console.log('No tokens found for the user');
+          }
+        },
+        (error: any) => {
+          console.error(error.error);
+        }
+      );
+  }
+
 }

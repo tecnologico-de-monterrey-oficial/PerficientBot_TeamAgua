@@ -6,7 +6,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
 
-const { port, openai, getCurrentDateAndHour } = require('../functions/imports');
+const { port, openai, getCurrentDateAndHour, hasNullValues } = require('../functions/imports');
 
 const chatbot = require('../functions/chatbot');
 const devops = require('../functions/devops');
@@ -107,8 +107,12 @@ app.post('/', async (req, res, next) => {
   if(req.user.current_service === 'Outlook') {
     const dateAndHour = getCurrentDateAndHour(); // Gets the current date and hour.
 
+    const validationOutlookTopic = await outlook.checksConversationTopic(user_message, req.user.conversation, dateAndHour);
+
+    console.log('Este es el resultado de la validación del tema de la conversación:', validationOutlookTopic);
+
     // Checks if the user's message has anything to do with the initial request
-    if(!outlook.checksConversationTopic(user_message, req.user.conversation, dateAndHour)) {
+    if(!validationOutlookTopic) {
       const response = 'It seems that you want to change your conversation topic. I will reset your request to create a meeting and forget everything about it. If you want to create a meeting, please phrase your request from scratch. If you do not want to happen this by accident, please remember to use related words to your request.';
 
       req.user.conversation.push({role: "assistant", content: response}); // Saves the messages into the history of conversation
@@ -129,7 +133,7 @@ app.post('/', async (req, res, next) => {
     }
 
     // Validates the date and hour of the meeting.
-    const validationSchedule = await outlook.validatesSchedule(user_message, dateAndHour);
+    const validationSchedule = await outlook.validatesSchedule(user_message, req.user.current_data, dateAndHour);
 
     if(!validationSchedule) {
       const response = 'Remember, you cannot schedule a meeting in the past nor in the next 31 days. For internal logical purposes, I will reset your request to create a meeting and forget everything about it. If you want to create a meeting, please phrase your request from scratch.';
@@ -162,6 +166,12 @@ app.post('/', async (req, res, next) => {
 
     console.log('Historial - Outlook Service');
     console.log(req.user.conversation);
+
+    if(hasNullValues(req.user.current_data)) {
+      req.user.request_status = false;
+      req.user.current_data = null;
+      req.user.current_service = null;
+    }
 
     const newToken = generateNewToken(req.user, secret_key); // Generates a new token for the next message.
 
