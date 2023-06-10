@@ -188,8 +188,8 @@ def OutlookScheduleMeeting():
 
     # Extraigo la información del JSON de entrada
     subject = request.json.get('subject')
-    dateStart = request.json.get('dateStart')
-    dateEnd = request.json.get('dateEnd')
+    dateStart = request.json.get('startDate')
+    dateEnd = request.json.get('endDate')
 
     # Construyo el cuerpo del JSON para mandar en el POST
     data = {

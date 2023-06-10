@@ -167,9 +167,9 @@ async function scheduleMeeting(input, dateAndHour) {
   // If the JSON has all fields with a value, it modifies the JSON itself in order to send it to the Outlook API.
   const correctedTimeJSON = correctTimeFormat(obj);
 
-  const postResponse = scheduleMeetingOutlook(correctedTimeJSON);
+  const postResponse = await scheduleMeetingOutlook(correctedTimeJSON);
 
-  const confirmResponse = displayMeetingInfo(correctTimeFormat, postResponse.url);
+  const confirmResponse = displayMeetingInfo(correctedTimeJSON, postResponse);
 
   return [confirmResponse, requestStatus, correctedTimeJSON, currentService];
 }
@@ -227,9 +227,9 @@ async function scheduleMeetingContinue(input, currentData, dateAndHour) {
   // If the JSON has all fields with a value, it modifies the JSON itself in order to send it to the Outlook API.
   const correctedTimeJSON = correctTimeFormat(mergedJSON);
 
-  const postResponse = scheduleMeetingOutlook(correctedTimeJSON);
+  const postResponse = await scheduleMeetingOutlook(correctedTimeJSON);
 
-  const confirmResponse = displayMeetingInfo(correctedTimeJSON, postResponse.url);
+  const confirmResponse = displayMeetingInfo(correctedTimeJSON, postResponse);
 
   return [confirmResponse, mergedJSON];
 }
@@ -279,6 +279,7 @@ function removeLastEightCharacters(str) {
 
 // Function that displays the information of the meeting or event in a more natural way.
 function displayMeetingInfo(currentData, url) {
+  console.log('url creada de schedule:', url);
   const startDateTime = splitStringByT(currentData.startDate);
   const startDate = startDateTime[0];
   const startTime = removeLastFiveCharacters(startDateTime[1]);
@@ -288,7 +289,7 @@ function displayMeetingInfo(currentData, url) {
   const endTime = removeLastFiveCharacters(endDateTime[1]);
 
   return `You can view in Outlook in detail the creation of the meeting or event you requested with the following information:
-  Subject: <a href="${url}>"${currentData.subject}></a>
+  Subject: <a href="${url}">${currentData.subject}></a>
   Start Date: ${startDate} | ${startTime} UTC
   End Date: ${endDate} | ${endTime} UTC`;
 }
@@ -435,7 +436,7 @@ function formatJSONOutResponse(response) {
     const endDate = endDateTime[0];
     const endTime = removeLastEightCharacters(endDateTime[1]);
 
-    resultString += `\nSubject: <a href="${obj.web}">${obj.subject}</a>
+    resultString += `Subject: <a href="${obj.web}">${obj.subject}</a>
     Start Date: ${startDate} | ${startTime} ${obj.start.timeZone}
     End Date: ${endDate} | ${endTime} ${obj.end.timeZone}
     Attendees: ${obj.attendees}
@@ -452,10 +453,11 @@ function formatJSONOutResponse(response) {
 async function scheduleMeetingOutlook(JSONData) {
   let result = '';
 
-  axios.post('http://127.0.0.1:3001/Outlook/ScheduleMeeting', JSONData)
+  const response = await axios.post('http://127.0.0.1:3001/Outlook/ScheduleMeeting', JSONData)
   .then(response => {
-    console.log('Response:', response.data);
-    result = response.data;
+    console.log('Response Schedule Meeting Outlook:', response.data);
+    console.log('Response Schedule Meeting Outlook URL:', response.data.url);
+    result = response.data.url;
   })
   .catch(error => {
     console.error('Error:', error);
