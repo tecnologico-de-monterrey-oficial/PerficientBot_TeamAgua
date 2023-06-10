@@ -2,12 +2,13 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import traceback
 import pyodbc
+from AzureAPI import setAzureKey
+from GithubAPI import setGitKey
+from OutlookAPI import setOutKey
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-
-@app.route('/api/DatabaseGET')
 def obtener_usuarios():
     server = 'agua-perficientbot-server.database.windows.net'
     database = 'Agua_PerficientBot-db'
@@ -49,9 +50,6 @@ def obtener_usuarios():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
-
-@app.route('/api/DatabasePOST', methods=['POST'])
 def guardar_usuario():
     server = 'agua-perficientbot-server.database.windows.net'
     database = 'Agua_PerficientBot-db'
@@ -96,9 +94,6 @@ def guardar_usuario():
     except Exception as e:
         return jsonify({'error': str(e), 'trace': traceback.format_exc()}), 500
 
-
-
-@app.route('/api/CheckHR', methods=['GET'])
 def check_if_user_is_hr():
     server = 'agua-perficientbot-server.database.windows.net'
     database = 'Agua_PerficientBot-db'
@@ -132,8 +127,6 @@ def check_if_user_is_hr():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
-@app.route('/api/DatabasePOSTTokens', methods=['POST'])
 def guardar_tokens():
     server = 'agua-perficientbot-server.database.windows.net'
     database = 'Agua_PerficientBot-db'
@@ -166,8 +159,7 @@ def guardar_tokens():
 
     except Exception as e:
         return jsonify({'error': str(e), 'trace': traceback.format_exc()}), 500
-    
-@app.route('/api/DatabaseGETTokens/<sub>')
+
 def obtener_tokens(sub):
     server = 'agua-perficientbot-server.database.windows.net'
     database = 'Agua_PerficientBot-db'
@@ -186,6 +178,10 @@ def obtener_tokens(sub):
         conexion.close()
 
         if resultado:
+            setAzureKey(resultado[2])
+            setGitKey(resultado[1])
+            setOutKey(resultado[0])
+            print(resultado[2])
             return jsonify({
                 'outlookToken': resultado[0],
                 'githubToken': resultado[1],
@@ -197,10 +193,3 @@ def obtener_tokens(sub):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-@app.route('/api/helloworld', methods=['GET'])
-def hello_world():
-    return 'Hola mundo'
-
-
-if __name__ == '__main__':
-    app.run(port=6324)
