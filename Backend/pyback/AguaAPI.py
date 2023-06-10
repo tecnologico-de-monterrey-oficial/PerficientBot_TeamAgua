@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask
 from flask_cors import CORS
 import aiohttp
 import asyncio
@@ -8,7 +8,7 @@ from AzureAPI import AzureCreateItem, AzureOneItem, AzureWorkItems
 from CVAPI import getCV, getGPTtext, upload
 from dbApi import obtener_usuarios, guardar_usuario, check_if_user_is_hr, guardar_tokens, obtener_tokens
 
-app = Flask(__name__, static_folder='dist', static_url_path='')
+app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route('/')
