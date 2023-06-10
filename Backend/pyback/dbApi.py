@@ -2,6 +2,9 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import traceback
 import pyodbc
+from AzureAPI import setAzureKey
+from GithubAPI import setGitKey
+from OutlookAPI import setOutKey
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -186,6 +189,10 @@ def obtener_tokens(sub):
         conexion.close()
 
         if resultado:
+            setAzureKey(resultado[2])
+            setGitKey(resultado[1])
+            setOutKey(resultado[0])
+            print(resultado[2])
             return jsonify({
                 'outlookToken': resultado[0],
                 'githubToken': resultado[1],

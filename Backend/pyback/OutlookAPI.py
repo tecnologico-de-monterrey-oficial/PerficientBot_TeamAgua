@@ -1,16 +1,24 @@
 from flask import Flask, jsonify, request
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 import requests, os
 
-load_dotenv("tokens.env")
+#load_dotenv("tokens.env")
 
 app = Flask(__name__)
 
 # Header content types
 CONTENT_TYPE = 'application/json'
 # Header access tokens
-API_OUT_KEY = os.environ.get("API_OUT_KEY")
+#API_OUT_KEY = os.environ.get("API_OUT_KEY")
+
+
+API_OUT_KEY = ""
+
+#prueba funcion
+def setOutKey(key):
+    global API_OUT_KEY
+    API_OUT_KEY = key
 
 # Links para hacer los API calls
 API_OUT_POSTMEETING = 'https://graph.microsoft.com/v1.0/me/events'
@@ -74,7 +82,6 @@ def OutlookAllEvents():
             subject = item['subject']
             start = item['start']
             end = item['end']
-            web = item['webLink']
             id = item['id']
 
             attendees = []
@@ -86,7 +93,6 @@ def OutlookAllEvents():
                 "attendees": attendees,
                 "start": start,
                 "end": end,
-                "web": web,
                 "id": id
             })
         
