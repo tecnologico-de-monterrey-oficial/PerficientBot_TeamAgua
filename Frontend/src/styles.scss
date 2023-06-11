@@ -31,7 +31,7 @@ body {
 
 .withLinks {
    
-        color: #ffbdbd;
+        color: #ffbdbd; //#F7A3A3; //#ffbdbd;
         //color: white !important;
         // text-decoration: none !important;
         font-weight: bold;
@@ -49,8 +49,14 @@ body {
 }
 
 .withIcon {
-    width: 15px;
+    width: 18px;
     margin: 3px;
     padding-bottom: 2px;
+}
+
+.withGo {
+    width: 12px;
+    margin: 3px;
+    padding-bottom: 3px;
 }
 
