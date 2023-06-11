@@ -12,6 +12,7 @@ import {UploadFormComponent} from "./upload-form/upload-form.component";
 export class ProfileComponent implements OnInit{
 
   selectedComponent: string = 'main-info';
+  isHR: boolean = false;  // This new variable will hold the HR status
 
   title = 'Decoded ID Token';
   code= '';
@@ -40,7 +41,12 @@ export class ProfileComponent implements OnInit{
         this.postDataToDatabase();
       }
     });
+
+    this.fetchIsHR();
+    
   }
+
+  
 
 
   postDataToDatabase() {
@@ -64,6 +70,23 @@ export class ProfileComponent implements OnInit{
       );
   }
 
+  //validation for HR authorized 
+  fetchIsHR(): void {
+    this.auth.user$
+      // @ts-ignore
+      .pipe(filter(user => user !== null && user.sub !== null))
+      .subscribe(user => {
+        // @ts-ignore
+        const userId = user.sub.replace('|', '_');  // replace | with _ in user ID
+        this.http.get(`http://localhost:3001/api/CheckHR`, { params: { sub: userId } }).subscribe((response: any) => {
+
+          if (response.length > 0) {
+            console.log(response[0].IsHR);
+            this.isHR = response[0].IsHR;
+          }
+        });
+      });
+  }
 
 
  
