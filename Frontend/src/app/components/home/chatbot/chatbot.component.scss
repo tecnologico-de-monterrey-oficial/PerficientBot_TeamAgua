@@ -66,9 +66,12 @@
             textarea:focus {
                 outline: none;
                 padding: 8%;
-                
+                resize: none;
                
-              }
+            }
+            textarea {
+                resize: none;
+            }
 
             #Smartbot__footer--submitButton {
                 align-items: end;
