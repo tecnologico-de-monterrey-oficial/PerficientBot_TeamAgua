@@ -34,13 +34,24 @@
                 <img src="../assets/img/BroomW.svg" alt="Clear">
             </button>
 
-            <textarea 
+            <!-- <textarea 
                 formControlName="message"
                 type="text"
                 id="Smartbot__footer--input"
                 name="myprompt"
                 placeholder="Send message to PerficientBot..."
                 [(ngModel)] = 'myprompt'>
+                (keydown.enter)="onEnterPressed($event)">
+            </textarea> -->
+
+            <textarea 
+                formControlName="message"
+                type="text"
+                id="Smartbot__footer--input"
+                name="myprompt"
+                placeholder="Send message to PerficientBot..."
+                [(ngModel)] = 'myprompt'
+                (keydown.enter)="onEnterPressed($event)">
             </textarea>
             
             <button id="Smartbot__footer--submitButton" [disabled]="!chatForm.valid" (click)="sendMessage()">

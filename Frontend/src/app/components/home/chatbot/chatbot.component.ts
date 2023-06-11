@@ -147,4 +147,13 @@ export class ChatbotComponent implements OnInit {
       );
   }
 
+  // En tu componente TypeScript
+onEnterPressed(event: Event) {
+  if (this.chatForm.valid) {
+    this.sendMessage();
+    event.preventDefault(); 
+  }
+}
+
+
 }
