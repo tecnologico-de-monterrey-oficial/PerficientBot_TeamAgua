@@ -113,7 +113,7 @@ app.post('/', async (req, res, next) => {
 
     // Checks if the user's message has anything to do with the initial request
     if(!validationOutlookTopic) {
-      const response = 'It seems that you want to change your conversation topic. I will reset your request to create a meeting and forget everything about it. If you want to create a meeting, please phrase your request from scratch. If you do not want to happen this by accident, please remember to use related words to your request.';
+      const response = 'It seems that you want to change your conversation topic. I will reset your request to create a new meeting and forget everything about the last one. If you want to create a meeting, please phrase your request from scratch. If you do not want this to happen by accident, please remember to always use related words in your request.';
 
       req.user.conversation.push({role: "assistant", content: response}); // Saves the messages into the history of conversation
 

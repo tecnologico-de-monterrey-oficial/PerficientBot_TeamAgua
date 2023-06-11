@@ -290,10 +290,10 @@ function displayMeetingInfo(currentData, url) {
   const endDate = endDateTime[0];
   const endTime = removeLastFiveCharacters(endDateTime[1]);
 
-  return `You can view in Outlook in detail the creation of the meeting or event you requested with the following information:
-  Subject: <a href="${url}" class="withLinks">${currentData.subject}></a>
-  Start Date: <span> <${startDate} | ${startTime} UTC </span>
-  End Date: <span> ${endDate} | ${endTime} UTC </span>`; 
+  return `Created!<br>You can access the detailed information of the meeting/event in Outlook. <br>Here is a summary of the specifics: <hr>
+  <i>Subject: </i> <a href="${url}" class="withLinks" target="_blank">${currentData.subject}</a> <br>
+  <b>Start Date: </b> ${startDate} | ${startTime} UTC <br>
+  <b>End Date:  </b>${endDate} | ${endTime} UTC <br>`; 
 }
 
 async function checksConversationTopic(input, currentData, currentDateAndHour) {
@@ -477,10 +477,10 @@ function formatJSONOutResponse(response) {
     const endDate = endDateTime[0];
     const endTime = removeLastEightCharacters(endDateTime[1]);
 
-    resultString += `<hr><b>Subject:</b> <a href="${obj.web}" class="withLinks">${obj.subject}</a> <br>
+    resultString += `<hr><b>Subject:</b> <a href="${obj.web}" target="_blank" class="withLinks">${obj.subject}</a> <br>
     <b> Start Date: </b> ${startDate} | ${startTime} ${obj.start.timeZone} <br>
     <b> End Date: </b> ${endDate} | ${endTime} ${obj.end.timeZone} <br>
-    <b> Attendees: </b> ${obj.attendees}
+    <b> Attendees: </b> ${obj.attendees.join(', ')}
     `;
 
     console.log('Esto es lo que va del Result String:', resultString);

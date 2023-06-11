@@ -23,7 +23,13 @@
                 </div>
                 <div *ngIf="loading" class="message" >
                     <img class="chatpic" src="..\assets\img\botPic.png" alt="Bot">
-                    <div [class]="'assistant'">...</div>
+                    <div [class]="'assistant'">
+                        <div id="loading">
+                        <span class="dot one"></span>
+                        <span class="dot two"></span>
+                        <span class="dot three"></span>
+                    </div>
+                </div>
                 </div>
             </div>
         </div>

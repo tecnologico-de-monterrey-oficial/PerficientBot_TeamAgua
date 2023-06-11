@@ -149,7 +149,6 @@
                     padding: 10px;
                     border-radius: 5px 5px 0px 5px; //up-left up-right down-right down-left;
                     margin-bottom: 10px;
-                    display: inline-block;
                     max-width: 80%;
                     word-wrap: break-word;
                     text-align: left;
@@ -159,3 +158,35 @@
         }
     }
 }
+
+//animation for writting test
+#loading .dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    margin-right: 3px;
+    background: #e0e0e0;;
+    animation: writing 1s ease infinite;
+    animation-delay: -0.8s;
+  }
+  #loading .dot.two {
+    animation-delay: -0.7s;
+  }
+  #loading .dot.three {
+    animation-delay: -0.6s;
+  }
+  
+  @keyframes writing {
+    0%,
+      60%, 
+      90%,
+      100% {
+      transform: initial;
+    }
+    30% {
+      transform: translateY(-6px);
+    }
+  }
+  
+  

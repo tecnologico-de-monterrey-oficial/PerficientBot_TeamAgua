@@ -83,11 +83,12 @@ def OutlookAllEvents():
             start = item['start']
             end = item['end']
             id = item['id']
-
-            attendees = []
+            
+            
+            attendees = [item['organizer']['emailAddress']['name']] #Added organizer to list of attendees
             for i in item['attendees']:
                 attendees.append(i['emailAddress']['name'])
-
+            
             subjects.append({
                 "subject": subject,
                 "attendees": attendees,
