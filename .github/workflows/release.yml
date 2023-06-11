@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: [ "release"]
 jobs:
-  Release-frontend:
+  Image-frontend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -62,7 +62,7 @@ jobs:
           docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-frontend:${{github.sha}}
           docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-frontend:latest
 
-  Release-backend-Flask:
+  Image-backend-Flask:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -89,7 +89,7 @@ jobs:
           docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-flask:${{github.sha}}
           docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-flask:latest
 
-  Release-backend-NodeJS:
+  Image-backend-NodeJS:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -140,7 +140,7 @@ jobs:
           docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-nodejs:latest
       
   Deploy-frontend:
-    needs: [Release-frontend, Release-backend-Flask, Release-backend-NodeJS]
+    needs: [Image-frontend, Image-backend-Flask, Image-backend-NodeJS]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -186,7 +186,7 @@ jobs:
 
     
   Deploy-backend-flask:
-    needs: [Release-frontend, Release-backend-Flask, Release-backend-NodeJS]
+    needs: [Image-frontend, Image-backend-Flask, Image-backend-NodeJS]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
