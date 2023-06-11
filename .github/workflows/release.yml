@@ -1,9 +1,9 @@
-name: release CI, CD workflow 
+name: Image CI, CD workflow 
 on: 
   push:
-    branches: [ "release"]
+    branches: [ "Image"]
   pull_request:
-    branches: [ "release"]
+    branches: [ "Image"]
 jobs:
   Image-frontend:
     runs-on: ubuntu-latest
@@ -223,7 +223,7 @@ jobs:
 
 
   Deploy-backend-nodejs:
-    needs: [Release-frontend, Release-backend-Flask, Release-backend-NodeJS]
+    needs: [Image-frontend, Image-backend-Flask, Image-backend-NodeJS]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
