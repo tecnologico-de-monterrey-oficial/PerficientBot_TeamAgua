@@ -199,7 +199,7 @@ function formatJSONOutResponseWI(response) {
     console.log('Objeto:', obj);
 
     resultString += `<a href="${obj.url}" target="_blank" class="withLinks"> ${obj.WItype} with ID: ${obj.ID}</a>
-    This work item refers to <span class="withTitle">${obj.Title}<span> <hr> <br>
+    This work item refers to <span class="withTitle">${obj.Title}</span> <hr> <br>
     `;
   });
   return resultString; 
@@ -209,7 +209,7 @@ function formatJSONOutResponseOneWI(response) {
   let resultString = '';
 
   resultString = `<a href="${response.url}" target="_blank" class="withLinks"> ${response.WItype} with ID: ${response.ID}</a><br>
-  This work item refers to <span class="withTitle">${response.Title}<span><br>
+  This work item refers to <span class="withTitle">${response.Title}</span><br>
   <hr>`;
   return resultString;  
 }

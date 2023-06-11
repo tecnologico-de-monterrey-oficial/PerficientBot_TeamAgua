@@ -132,10 +132,10 @@
                 }
 
                 .assistant {
-                    background-color: #6c6c6c;
-                    color: white;
+                    background-color: #545c63; //opciones: #545c63, #535b62 #596169 #495057, #6c757d, rgba(255, 255, 255, 0.15), #4a5a68, #6c6c6c
+                    color: #e0e0e0;
                     padding: 10px;
-                    border-radius: 5px;
+                    border-radius: 5px 5px 5px 0px; //up-left up-right down-right down-left;
                     margin-bottom: 10px;
                     display: inline-block;
                     max-width: 80%;
@@ -143,11 +143,11 @@
     
                 .user {
                     white-space: pre-wrap;
-                    border: 0.5px solid #333;
-                    background-color: #D18585;
-                    color: #F5F5F5;
+                    border: 0.5px solid #333;  
+                    background-color: #b56e6e; //opciones: #b56e6e, #b16262, #D18585;
+                    color: #e0e0e0;
                     padding: 10px;
-                    border-radius: 5px;
+                    border-radius: 5px 5px 0px 5px; //up-left up-right down-right down-left;
                     margin-bottom: 10px;
                     display: inline-block;
                     max-width: 80%;

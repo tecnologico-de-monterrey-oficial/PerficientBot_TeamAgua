@@ -45,7 +45,7 @@
         background-color:#B65151;
         border-width: 0px;
         .navbar-title-text {
-            color: #D18585;
+          color: #ffbbbb; //opciones: #ffbbbb, #ffb7b7, #b56e6e, #b16262, #D18585; 
         }
       }
       
@@ -70,13 +70,13 @@
         background-color:#B65151;
         border-width: 0px;
         span {
-            color: #D18585;
+            color: #ffbbbb; //opciones: #ffbbbb, #ffb7b7, #b56e6e, #b16262, #D18585; 
         }
       }
       img {
         border-radius: 50%;
         height: 45px;
-        margin-left: 20;
+//        margin-left: 20;
         min-width: 45px;
       }
   
@@ -104,12 +104,12 @@
         
         .navbar-title-text {
             font-size: 1.1em;
-            color: #fff;
+            color: #e0e0e0;;
             font-family: 'Lato', sans-serif;
             font-weight: bold;
 
         }span{
-            color: #F5F5F5;
+            color: #e0e0e0;
         }
     }
   }
