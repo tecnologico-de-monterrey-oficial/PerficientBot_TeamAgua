@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {AuthService} from '@auth0/auth0-angular';
 import {map} from "rxjs";
 import { HttpClient } from '@angular/common/http';
-import {UploadFormComponent} from "./upload-form/upload-form.component";
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-profile',
@@ -29,7 +29,7 @@ export class ProfileComponent implements OnInit{
   constructor(private http: HttpClient, public auth: AuthService) { }
 
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.auth.user$.subscribe(user => {
       if (user) {
         this.user_givenname = user.given_name || '';
@@ -41,9 +41,7 @@ export class ProfileComponent implements OnInit{
         this.postDataToDatabase();
       }
     });
-
     this.fetchIsHR();
-    
   }
 
   
