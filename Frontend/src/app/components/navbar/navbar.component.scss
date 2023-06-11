@@ -23,7 +23,11 @@
         padding: 1%;
       }
 
-      
+      .hour {
+        float: right;
+        color: #D18585;
+        font-family:'Courier New', Courier, monospace; //monospace
+      }
       .navbar-title-text {
         color: #D18585;
         font-family: 'Lato', sans-serif;
@@ -33,6 +37,7 @@
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+        width: 40%;
   
         @media (max-width: 456px) {
           margin-inline-start: 5%;
@@ -44,9 +49,10 @@
         cursor: pointer;
         background-color:#B65151;
         border-width: 0px;
-        .navbar-title-text {
+        .navbar-title-text, .hour {
           color: #ffbbbb; //opciones: #ffbbbb, #ffb7b7, #b56e6e, #b16262, #D18585; 
         }
+
       }
       
     }
@@ -104,12 +110,15 @@
         
         .navbar-title-text {
             font-size: 1.1em;
-            color: #e0e0e0;;
+            color: #e0e0e0;
             font-family: 'Lato', sans-serif;
             font-weight: bold;
 
         }span{
             color: #e0e0e0;
+        }
+        .hour{
+          color: #e0e0e0;
         }
     }
   }

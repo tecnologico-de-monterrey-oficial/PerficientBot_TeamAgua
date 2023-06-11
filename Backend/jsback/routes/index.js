@@ -72,8 +72,19 @@ app.post('/login', (req, res) => {
 
 
 app.get('/datetime', (req, res) => {
-  return getCurrentDateAndHour();
+  currentD = getCurrentDateAndHour();
+  const index = currentD.indexOf('T');
+  
+  firstHalf = currentD.slice(0, index);
+  secondHalf = currentD.slice(index + 1);
+  
+  
+  currentD = firstHalf + " | " + secondHalf.slice(0,-5);
+  
+
+  res.json({ currentD });
 });
+
 
 // Endpoint that handles everything of the chatbot.
 app.post('/', async (req, res, next) => {
