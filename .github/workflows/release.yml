@@ -1,9 +1,9 @@
-name: Image CI, CD workflow 
+name: Release CI, CD workflow 
 on: 
   push:
-    branches: [ "Image"]
+    branches: [ "release"]
   pull_request:
-    branches: [ "Image"]
+    branches: [ "release"]
 jobs:
   Image-frontend:
     runs-on: ubuntu-latest
