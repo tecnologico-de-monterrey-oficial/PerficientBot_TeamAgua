@@ -25,7 +25,7 @@ metadata:
   name: {model_name}-service-backend-flask
 spec:
   ports:
-  - name: backend-flask
+  - name: "backend-flask"
     port: 5000
   selector:
     app: {model_name}-backend-flask
