@@ -7,7 +7,7 @@
                 
                 <div *ngFor="let message of messages" [ngClass]="message.type === 'user' ? 'message prueba' : 'message'">
                     
-                        <img *ngIf="message.type === 'assistant'" class="chatpic" src="..\assets\img\botPic.png" alt="Bot">
+                        <img *ngIf="message.type === 'assistant'" class="chatpic" src="..\assets\img\ChatBot\botPic.png" alt="Bot">
                         
                        
                         <div [class]="message.type" > <span [innerHTML]="message.message"></span> </div>
@@ -22,7 +22,7 @@
 
                 </div>
                 <div *ngIf="loading" class="message" >
-                    <img class="chatpic" src="..\assets\img\botPic.png" alt="Bot">
+                    <img class="chatpic" src="..\assets\img\ChatBot\botPic.png" alt="Bot">
                     <div [class]="'assistant'">
                         <div id="loading">
                         <span class="dot one"></span>
@@ -37,7 +37,7 @@
        
         <form id="Smartbot__footer" [formGroup]="chatForm">
             <button type="button" id="Smartbot__footer--clearButton" (click)="clearConversation()">
-                <img src="../assets/img/BroomW.svg" alt="Clear">
+                <img src="../assets/img/ChatBot/BroomW.svg" alt="Clear">
             </button>
 
             <!-- <textarea 
@@ -61,7 +61,7 @@
             </textarea>
             
             <button id="Smartbot__footer--submitButton" [disabled]="!chatForm.valid" (click)="sendMessage()">
-                <img src="../assets/img/Sent.svg" alt="Send"/>
+                <img src="../assets/img/ChatBot\Sent.svg" alt="Send"/>
             </button>
         </form>
    </div> 

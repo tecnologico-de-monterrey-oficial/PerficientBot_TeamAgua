@@ -30,6 +30,7 @@ export class ProfileComponent implements OnInit{
 
 
   ngOnInit(): void {
+    this.fetchIsHR();
     this.auth.user$.subscribe(user => {
       if (user) {
         this.user_givenname = user.given_name || '';
@@ -41,7 +42,7 @@ export class ProfileComponent implements OnInit{
         this.postDataToDatabase();
       }
     });
-    this.fetchIsHR();
+    
   }
 
   
