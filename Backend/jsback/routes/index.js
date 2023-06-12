@@ -33,8 +33,8 @@ router.post('/login', controllers.login )
 
 
 //chatbot route
-// router.post('/chat', userAuth.validateToken, conversation);
-router.post('/chat', conversation);
+router.post('/chat', userAuth.validateToken, conversation);
+// router.post('/chat', conversation);
 
 router.get('/dateTime', dateTime);
 
