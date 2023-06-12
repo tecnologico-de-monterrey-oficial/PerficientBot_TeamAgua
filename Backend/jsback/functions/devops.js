@@ -2,7 +2,7 @@
 const axios = require('axios');
 
 // OpenAI API
-const { openai, hasNullValues, mergeJSONObjects } = require('../functions/imports');
+const { openai, hasNullValues, mergeJSONObjects } = require('./imports');
 
 async function azureClassification(input, requestStatus) {
     const response = await openai.createCompletion({

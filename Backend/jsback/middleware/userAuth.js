@@ -36,6 +36,7 @@ try
 				console.log('sucess ');
 				console.log(decoded);
 
+				req.user = decoded;
                                 next();
 
 			// is everything is good, save to request for use in other routes
@@ -65,6 +66,27 @@ try
 
 };
 
+
+// Middleware to authenticate the token
+/* function authenticateToken(req, res, next) {
+	const token = req.headers.authorization.split(' ')[1];
+  
+	const secretKey = req.key;
+  
+	if (!token) {
+	  return res.status(401).json({ message: 'No token provided' });
+	}
+  
+	jwt.verify(token, secretKey, (err, decoded) => {
+	  if (err) {
+		return res.status(403).json({ message: 'Invalid token' });
+	  }
+  
+	  // Token is valid
+	  req.user = decoded;
+	  next();
+	});
+  } */
 
 //Function to check if username or email already exist in the database
 //this is to avoid having two users with the same username and email

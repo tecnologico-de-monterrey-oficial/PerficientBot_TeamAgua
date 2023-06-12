@@ -2,7 +2,7 @@
 const axios = require('axios');
 
 // OpenAI API
-const { openai, hasNullValues, mergeJSONObjects } = require('../functions/imports');
+const { openai, hasNullValues, mergeJSONObjects } = require('./imports');
 
 // Main function that classifies the user's response in one of the options that can be made with Outlook's API.
 async function outlookClassification(input, requestStatus, dateAndHour) {

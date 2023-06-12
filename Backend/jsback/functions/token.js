@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+
 // Example function to generate a new token with updated claims
 function generateNewToken(user, secret_key) {
     // Generate a new JWT token with updated claims

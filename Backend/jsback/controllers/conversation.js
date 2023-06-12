@@ -1,8 +1,17 @@
-const { generateNewToken } = require('../functions/token');
+const generateNewToken = require('../functions/token');
+
+const outlook = require('../functions/outlook');
+const devops = require('../functions/devops');
+const github = require('../functions/github');
+const chatbot = require('../functions/chatbot');
+
+const { openai, getCurrentDateAndHour } = require('../functions/imports');
 
 const conversation = async(req, res) => {
   	// check header or url parameters or post parameters for token
-    res.set('Access-Control-Allow-Origin', '*');
+    // res.set('Access-Control-Allow-Origin', '*');
+
+    console.log('req:', req.user);
 
   //  res.setHeader('Access-Control-Allow-Origin', '*');
   //  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
@@ -127,7 +136,7 @@ const conversation = async(req, res) => {
 
     const newToken = generateNewToken(req.user,secret_key);
 
-    res.send({ response: {role: 'assistant', content: 'I apologize, but I am having trouble understanding your request. Could you please rephrase it or provide more specific details so that I can assist you better?'}}); // Returns the response to the user.
+    res.send({ response: {role: 'assistant', content: 'I apologize, but I am having trouble understanding your request. Could you please rephrase it or provide more specific details so that I can assist you better?'}, new_token: newToken}); // Returns the response to the user.
 
     return; // Ends execution of this endpoint.
   }

@@ -46,7 +46,6 @@ const createUser = async (req, res) => {
 //login authentication
 
 const login = async (req, res) => {
- try {
 // In a real scenario, you would validate the user's credentials here
 const { id, email, secret_key } = req.body;
 
@@ -61,20 +60,28 @@ const user = {
   current_service: null
 };
 
-let token = jwt.sign({ id: user.id }, secret_key, {
-  expiresIn: 1 * 24 * 60 * 60 * 1000,
-});
+const token = jwt.sign(user, secret_key);
 
-  res.cookie("jwt", token, { maxAge: 1 * 24 * 60 * 60, httpOnly: true });
-       console.log("user", JSON.stringify(user, null, 2));
-       console.log(token);
-       //send user data
-       //return res.status(201).send(user);
-       return res.status(201).send({"token": token});
- } catch (error) {
-   console.log(error);
- }
+res.json({ token });
+
+
 };
+
+// const user = {
+//   id: id,
+//   username: email,
+//   conversation: [],
+//   request_status: false,
+//   current_data: null,
+//   current_service: null
+// };
+
+// const secretKey = secret_key;
+
+// // Create the JWT token with additional claims
+// const token = jwt.sign(user, secretKey);
+
+// res.json({ token });
 
 
 

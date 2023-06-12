@@ -1,5 +1,5 @@
 // OpenAI API
-const { openai, getCurrentDateAndHour } = require('../functions/imports');
+const { openai, getCurrentDateAndHour } = require('./imports');
 const outlook = require('./outlook');
 const devops = require('./devops');
 const github = require('./github');
