@@ -53,7 +53,7 @@ export class ProfileComponent implements OnInit{
       sub: this.user_id
     }
 
-    this.http.post(' https://perficient-bot-service-dannyjr08.cloud.okteto.net:8000/api/DatabasePOST', data)
+    this.http.post(' https://perficient-bot-service-backend-flask-dannyjr08.cloud.okteto.net/api/DatabasePOST', data)
       .subscribe(
         (res) => {
           console.log(res);

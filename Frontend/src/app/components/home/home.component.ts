@@ -64,7 +64,7 @@ export class HomeComponent implements OnInit{
     }
     */
 
-    this.http.post<{mensaje: string, user_id: string}>(' https://perficient-bot-service-dannyjr08.cloud.okteto.net:8000/api/DatabasePOST', data)
+    this.http.post<{mensaje: string, user_id: string}>(' https://perficient-bot-service-backend-flask-dannyjr08.cloud.okteto.net/api/DatabasePOST', data)
       .subscribe(
         (res) => {
           console.log(res);
@@ -79,14 +79,14 @@ export class HomeComponent implements OnInit{
 
           console.log('Estoy haciendo Login a NodeJS');
 
-          this.http.post<{ token: string }>('http://localhost:3000/login', loginData)
+          this.http.post<{ token: string }>('https://perficient-bot-service-backend-nodejs-dannyjr08.cloud.okteto.net/api/login', loginData)
             .subscribe(
               (rec) => {
                 console.log("token: ", rec.token);
                 this.Chatbot.setAuthorizationHeader(rec.token)
               },
               (err) => {
-                console.error('Error with  https://perficient-bot-service-dannyjr08.cloud.okteto.net:8000/api/DatabasePOST:', err);
+                console.error('Error with  https://perficient-bot-service-backend-flask-dannyjr08.cloud.okteto.net/api/DatabasePOST:', err);
               }
             );
 

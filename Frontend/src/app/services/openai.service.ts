@@ -10,7 +10,7 @@ import { BehaviorSubject } from 'rxjs/';
 export class OpenaiService {
 
   constructor(private http: HttpClient) { }
-  apiURL = 'http://localhost:3000/';
+  apiURL = 'https://perficient-bot-service-backend-nodejs-dannyjr08.cloud.okteto.net/api/chat';
 
   // Http Options
   httpOptions = {
