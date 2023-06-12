@@ -9,7 +9,7 @@ const { openai, getCurrentDateAndHour } = require('../functions/imports');
 
 const conversation = async(req, res) => {
   	// check header or url parameters or post parameters for token
-    // res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Origin', '*');
 
     console.log('req:', req.user);
 
