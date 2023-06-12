@@ -23,7 +23,10 @@ metadata:
   labels:
     run: {model_name}-service-backend-flask
   name: {model_name}-service-backend-flask
+  annotations:
+    dev.okteto.com/auto-ingress: "true"
 spec:
+  type: ClusterIP  
   ports:
   - name: "backend-flask"
     port: 5000
