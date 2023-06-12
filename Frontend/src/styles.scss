@@ -3,17 +3,6 @@
 /* Importing Bootstrap SCSS file. */
 @import 'bootstrap/scss/bootstrap';
 
-/* html {
-    height: 100%;
-    margin: 0;
-    padding: 2%;
-    padding-inline: 10%;
-    background-color: #202020;
-    overflow-x: hidden;
-    justify-content: center;
-    border-color: #202020;
-} */
-
 html {
     
     padding: 2%;
@@ -29,6 +18,7 @@ body {
 
 }
 
+//style for text links
 .withLinks {
    
         color: #ffbdbd; //#F7A3A3; //#ffbdbd;
@@ -38,7 +28,8 @@ body {
 
     
 }
-  
+
+//style for special titles
 .withTitle {
    
     color: white !important;
@@ -48,15 +39,36 @@ body {
 
 }
 
+//For icons included in bot responses such as github icon etc
 .withIcon {
     width: 18px;
     margin: 3px;
     padding-bottom: 2px;
 }
 
+//For chain icon in links, indicates link
 .withGo {
     width: 12px;
     margin: 3px;
     padding-bottom: 3px;
 }
 
+
+//change scroll bar style
+::-webkit-scrollbar{
+    width: 5px;
+    transition: opacity 0.2s ease-in-out;
+}
+
+::-webkit-scrollbar-thumb{
+    background: #adb5bd; //#b56e6e, #adb5bd
+    border-radius: 6px;
+    margin: 2px;
+}
+
+::-webkit-scrollbar-track{
+    background: #6c757d; //#6c757d; 
+    border-radius: 6px;
+}
+
+//transition: opacity 0.2s ease-in-out;
