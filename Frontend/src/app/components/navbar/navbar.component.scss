@@ -15,7 +15,7 @@
       border-color: #D18585;
       border-width: 1px;
       border-style: solid;
-
+      padding: 3px;
       img {
         height: 60px;
         min-width: 60px;
@@ -27,28 +27,30 @@
         float: right;
         color: #D18585;
         font-family:'Courier New', Courier, monospace; //monospace
+        width: -webkit-fill-available
       }
       .navbar-title-text {
         color: #D18585;
         font-family: 'Lato', sans-serif;
         font-weight: bold;
         font-size: 1.1em;
-        margin-inline: 5%;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        width: 40%;
+        width: -webkit-fill-available;
   
         @media (max-width: 456px) {
           margin-inline-start: 5%;
+         
         }
         
       }
 
       &:hover {
         cursor: pointer;
-        background-color:#B65151;
-        border-width: 0px;
+        background-color:#B65151;;
+        border-color: transparent;
+        transition: 0.75s;
         .navbar-title-text, .hour {
           color: #ffbbbb; //opciones: #ffbbbb, #ffb7b7, #b56e6e, #b16262, #D18585; 
         }
@@ -70,11 +72,13 @@
       border-width: 1px;
       border-style: solid;
       justify-items: center;
+      width: 25%;
   
       &:hover {
         cursor: pointer;
         background-color:#B65151;
         border-width: 0px;
+        transition: 0.75s;
         span {
             color: #ffbbbb; //opciones: #ffbbbb, #ffb7b7, #b56e6e, #b16262, #D18585; 
         }
@@ -93,6 +97,7 @@
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+       
 
         @media (max-width: 400px) {
             display: none;
