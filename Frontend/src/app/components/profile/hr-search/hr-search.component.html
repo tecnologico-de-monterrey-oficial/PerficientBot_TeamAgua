@@ -28,9 +28,8 @@
 
 <div class="overlay" *ngIf="selectedPersona">
   <div class="overlay-content">
-    <h2>{{ selectedPersona.nombrecompleto }}</h2> 
-
-    
+    <h3>{{ selectedPersona.nombrecompleto }}</h3> 
+    <hr>
     <button class="hrButton" (click)="showOverlay('cv')">Get CV</button>
     <button class="hrButton" (click)="showOverlay('summary')">Summary</button> 
 

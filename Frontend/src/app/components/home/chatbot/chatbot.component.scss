@@ -42,6 +42,7 @@
                 border-radius: 10px;
                 width: 100%;
                 padding: 1%;
+                margin-inline: 1%;
                 
                 border: 1px solid #F5F5F5;
 
@@ -49,7 +50,9 @@
                 font-size: 1em;
                 color: #343541;
                 margin-left: 2%;
-               
+                &:focus{
+                    border: 1px solid #d18585d4
+                }
                 
             }
     
@@ -68,6 +71,7 @@
                 outline: none;
                 padding: 8%;
                 resize: none;
+                border: 1px solid #d18585d4
                
             }
             textarea {

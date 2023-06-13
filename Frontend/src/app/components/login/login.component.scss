@@ -36,7 +36,7 @@ html {
     border-style:double;
     max-height: fit-content;
     padding: 8% 5% 5% 5%; //8% 5% 5% 5%
-    width: max-content;
+    //width: max-content;
     z-index: 1;
 
     &:hover{
@@ -100,11 +100,11 @@ html {
   left: 0;
   width: 100vw;
   height: 100vh;
-  //background-color: #D18585;
-//  background: linear-gradient(to bottom, #202020,  #202020, #ffbdbd, );
-//background: linear-gradient(to bottom, #202020,  #202020 , #ff9696);
-background: linear-gradient(to bottom, #202020,  #ff9696, #202020);
-//background:  #ffbdbd;
+
+//background: linear-gradient(to bottom, #202020,  #202020 , #ff9696); //Option 1
+background: linear-gradient(to bottom, #202020,  #ff9696, #202020); //Option2
+
+  animation: backgroundAnimation 5s infinite;
   z-index: 0;
   opacity: 0.30;
   display: flex;
@@ -115,15 +115,15 @@ background: linear-gradient(to bottom, #202020,  #ff9696, #202020);
     position: relative;
     display: block;
     width: 100rem;
-    //height: 2.5rem;
+   
     background:#202020;
     z-index: 2;
     transition: 1s;
     &:hover {
-      //background: transparent;// #ff9696;
+      
       background: #ffbdbd;
       transition: 0.2s;
-      //box-shadow: 0 0 1px #ffbdbd ;
+      
     }
    
   }
