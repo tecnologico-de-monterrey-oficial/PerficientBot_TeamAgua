@@ -14,6 +14,7 @@ html {
 }
 
 .container{
+  
   justify-content: center;
   align-items: center;
   display: flex;
@@ -36,6 +37,8 @@ html {
     max-height: fit-content;
     padding: 8% 5% 5% 5%; //8% 5% 5% 5%
     width: max-content;
+    z-index: 1;
+    box-shadow: 0 0 3px #ff9696 
   }
   
   .logo {
@@ -82,3 +85,46 @@ html {
     outline: none;
   }
   
+//background animation test
+.background-animation {
+ 
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  //background-color: #D18585;
+//  background: linear-gradient(to bottom, #202020,  #202020, #ffbdbd, );
+background: linear-gradient(to bottom, #202020,  #202020 , #ff9696);
+  z-index: 0;
+  opacity: 0.75;
+  display: flex;
+  gap: 1.5px;
+  flex-wrap: wrap;
+
+  span {
+    position: relative;
+    display: block;
+    width: 100rem;
+    height: 2.5rem;
+    background:#202020;
+    z-index: 2;
+    transition: 1s;
+    &:hover {
+      background: transparent;// #ff9696;
+      //background: #ffbdbd;
+      transition: 0.2s;
+      box-shadow: 0 0 5px #ffbdbd ;
+    }
+   
+  }
+
+  //optional image
+  img {
+    width: 400px;
+  }
+}
+
+
+
