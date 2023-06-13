@@ -3,11 +3,27 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs/';
+import { Message } from '../components/home/chatbot/chatbot.component';
 
 @Injectable({
   providedIn: 'root'
 })
+
+
+
 export class OpenaiService {
+
+  /* Test de guardado de conversacion */
+  private conversation: Message[] = []; 
+  
+  saveConversation(conversation: Message[]): void {
+    this.conversation = conversation;
+  }
+
+  getConversation(): Message[] {
+    return this.conversation;
+  }
+ /* --------------------------------- */
 
   constructor(private http: HttpClient) { }
   apiURL = 'http://localhost:3000/';
