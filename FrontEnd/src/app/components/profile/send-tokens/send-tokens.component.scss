@@ -38,7 +38,7 @@
   
   .btn-submit {
     display: block;
-    width: 100%;
+    width: 30%;
     padding: 10px;
     background-color: #B65151;
     color: #dee2e6;
@@ -57,7 +57,7 @@
     border: none;
     border-radius: 3px;
     cursor: pointer;
-    max-width: max-content;
+    width: -webkit-fill-available;
   }
 
   .btn-copy {
@@ -75,11 +75,12 @@
   
     display: flex;
     flex-direction: row;
-    
-    
-    align-items: flex-end;
-    align-content: flex-end;
+    align-items: flex-start;
+    align-content: flex-start;
     gap: 10%;
+    width: 100vh;
+    flex-wrap: nowrap;
+    justify-content: start;
   }
 
 
