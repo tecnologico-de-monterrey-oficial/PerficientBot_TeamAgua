@@ -101,8 +101,8 @@ html {
   width: 100vw;
   height: 100vh;
 
-//background: linear-gradient(to bottom, #202020,  #202020 , #ff9696); //Option 1
-background: linear-gradient(to bottom, #202020,  #ff9696, #202020); //Option2
+  background: linear-gradient(to bottom, #202020,  #202020 , #ff9696); //Option 1
+  //background: linear-gradient(to bottom, #202020,  #ff9696, #202020); //Option2
 
   animation: backgroundAnimation 5s infinite;
   z-index: 0;
