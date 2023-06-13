@@ -1,1 +1,33 @@
-<p>dev-tutorial works!</p>
+<div>
+    <p>Before you can access DevOps services using <b style="color: #ffbdbd;">PerficientBot</b> and interact with work items, you need to generate a personal access token. Follow the steps below:</p>
+
+    <ol>
+        <li>First, go to the <a href="https://dev.azure.com/" class="withLinks" target="_blank">Azure DevOps 
+            <img src="./assets/img/Link.svg" class="withGo" alt=""></a> website and make sure you are logged in. Select the organization you want to work with from the left sidebar.</li>
+
+        <img src="..\assets\img\DevTut\SelectOrg.png" alt="Azure DevOps Sidebar">
+
+        <li>In the top-right corner, click on the user settings icon <img src="..\assets\img\DevTut\UserSettings.png" alt="User Settings" style="width: 3%;"> and select <b>Personal Access Tokens</b>.</li>
+
+        
+        <img src="..\assets\img\DevTut\PersonalAccess.png"  style="width: 60%;" alt="Personal Access Token">
+
+        <li>You will be redirected to the personal access tokens page. Click on <b>New Token</b> to create a new token.</li>
+
+        <img src="..\assets\img\DevTut\NewToken.png" alt="New Token">
+
+        <li>Fill in the token form with the required information, such as the name and expiration date. For the scope, you can either choose full access (recommended) or select the specific permissions required for PerficientBot to work with work items, such as <b>Work Items - Read, Write, & Manage</b>.</li>
+
+        <img src="..\assets\img\DevTut\EditToken.png" style="width: 60%;" alt="Token Form">
+
+        <li>Click on <b>Create</b> and you will see a success message indicating that the token was created. Make sure to click on the copy symbol to copy the token to your clipboard. This will be your only chance to copy it.</li>
+
+        <img src="..\assets\img\DevTut\Success.png" style="width: 40%;" alt="Token Created">
+
+        <li>Now, go back to PerficientBot's <b>My Services</b> page and clear the content of the <i>DevOps Token</i> field. Paste the newly generated token into the field using <b>Ctrl</b> + <b>V</b>.</li>
+
+        <img src="..\assets\img\OutTut\MyServices.png" style="width: 95%;" alt="PerficientBot Tokens">
+
+        <h6>That's it! You have successfully obtained your DevOps personal access token and can now access DevOps services and interact with work items using <b style="color: #ffbdbd;">PerficientBot</b>.</h6>
+    </ol>
+</div>
