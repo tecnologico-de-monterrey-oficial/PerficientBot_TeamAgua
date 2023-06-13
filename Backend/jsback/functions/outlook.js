@@ -64,7 +64,7 @@ async function outlookDecisionClassification(responseOpenAI, input, requestStatu
         // finalStringResponse = formatJSONOutResponse(resultString);
         resultString = formatJSONOutResponse(response.data);
 
-        normalResponse = 'Here is your request: ' + '\n' + resultString; // Assuming the response is JSON data
+        normalResponse = 'Here is your request: ' + '<br>' + resultString + '<br><br>'; // Assuming the response is JSON data
       })
       .catch(error => {
         // Handle any errors that occurred during the request
@@ -290,10 +290,10 @@ function displayMeetingInfo(currentData, url) {
   const endDate = endDateTime[0];
   const endTime = removeLastFiveCharacters(endDateTime[1]);
 
-  return `You can view in Outlook in detail the creation of the meeting or event you requested with the following information:
-  Subject: <a href="${url}">${currentData.subject}></a>
-  Start Date: ${startDate} | ${startTime} UTC
-  End Date: ${endDate} | ${endTime} UTC`;
+  return `Created!<br>You can access the detailed information of the meeting/event in Outlook. <br>Here is a summary of the specifics: <hr>
+  <i>Subject: </i> <a href="${url}" class="withLinks" target="_blank">${currentData.subject}</a> <br>
+  <b>Start Date: </b> ${startDate} | ${startTime} UTC <br>
+  <b>End Date:  </b>${endDate} | ${endTime} UTC <br>`; 
 }
 
 async function checksConversationTopic(input, currentData, currentDateAndHour) {
@@ -477,11 +477,11 @@ function formatJSONOutResponse(response) {
     const endDate = endDateTime[0];
     const endTime = removeLastEightCharacters(endDateTime[1]);
 
-    resultString += `Subject: <a href="${obj.web}">${obj.subject}</a>
-    Start Date: ${startDate} | ${startTime} ${obj.start.timeZone}
-    End Date: ${endDate} | ${endTime} ${obj.end.timeZone}
-    Attendees: ${obj.attendees}
-    ___________________________________________________________________`;
+    resultString += `<hr><b>Subject:</b> <a href="${obj.web}" target="_blank" class="withLinks">${obj.subject}</a> <br>
+    <b> Start Date: </b> ${startDate} | ${startTime} ${obj.start.timeZone} <br>
+    <b> End Date: </b> ${endDate} | ${endTime} ${obj.end.timeZone} <br>
+    <b> Attendees: </b> ${obj.attendees.join(', ')}
+    `;
 
     console.log('Esto es lo que va del Result String:', resultString);
   });

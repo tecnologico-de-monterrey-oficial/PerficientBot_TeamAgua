@@ -1,7 +1,6 @@
 import { Component, OnInit} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {AuthService} from '@auth0/auth0-angular';
-import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-hr-search',
@@ -12,7 +11,6 @@ export class HrSearchComponent implements OnInit{
   textoBusqueda: string = '';
   resultados: any[] = [];
   noResults: boolean = true;
-  isHR: boolean = false;  // This new variable will hold the HR status
   selectedPersona: any; // show employee
   show = "";
 
@@ -21,26 +19,7 @@ export class HrSearchComponent implements OnInit{
   constructor(private http: HttpClient, public auth: AuthService) { }
 
   ngOnInit(): void {
-    this.fetchIsHR();
   }
-
-  fetchIsHR(): void {
-    this.auth.user$
-      // @ts-ignore
-      .pipe(filter(user => user !== null && user.sub !== null))
-      .subscribe(user => {
-        // @ts-ignore
-        const userId = user.sub.replace('|', '_');  // replace | with _ in user ID
-        this.http.get(`http://localhost:3001/api/CheckHR`, { params: { sub: userId } }).subscribe((response: any) => {
-
-          if (response.length > 0) {
-            console.log(response[0].IsHR);
-            this.isHR = response[0].IsHR;
-          }
-        });
-      });
-  }
-
 
 
   onInputChange(): void {

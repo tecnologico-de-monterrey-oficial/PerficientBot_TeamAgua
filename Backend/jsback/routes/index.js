@@ -72,8 +72,19 @@ app.post('/login', (req, res) => {
 
 
 app.get('/datetime', (req, res) => {
-  return getCurrentDateAndHour();
+  currentD = getCurrentDateAndHour();
+  const index = currentD.indexOf('T');
+  
+  firstHalf = currentD.slice(0, index);
+  secondHalf = currentD.slice(index + 1);
+  
+  
+  currentD = firstHalf + " | " + secondHalf.slice(0,-5);
+  
+
+  res.json({ currentD });
 });
+
 
 // Endpoint that handles everything of the chatbot.
 app.post('/', async (req, res, next) => {
@@ -104,6 +115,25 @@ app.post('/', async (req, res, next) => {
   console.log('Este es el estado de la request actual:', req.user.request_status);
   console.log('Este es el current data actual:', req.user.current_data);
 
+  if(req.user.current_service === 'AzureDevOps') {
+    console.log('Vamos a continuar con este request de Azure.');
+
+    // Checks if the user's message has anything to do with the initial request
+    const devopsResponse = await devops.CreateWorkItemContinue(user_message, req.user.current_data);
+
+    req.user.conversation.push({role: "assistant", content: outlookResponse[0]});
+
+    req.user.current_data = devopsResponse[1];
+
+    console.log(req.user.conversation);
+
+    const newToken = generateNewToken(req.user, secret_key); // Generates a new token for the next message.
+
+    res.send({ response: {role: 'assistant', content: devopsResponse[0]}, new_token: newToken}); // Returns the response to the user.
+
+    return; // Ends execution of this endpoint.
+  }
+
   if(req.user.current_service === 'Outlook') {
     const dateAndHour = getCurrentDateAndHour(); // Gets the current date and hour.
 
@@ -113,7 +143,7 @@ app.post('/', async (req, res, next) => {
 
     // Checks if the user's message has anything to do with the initial request
     if(!validationOutlookTopic) {
-      const response = 'It seems that you want to change your conversation topic. I will reset your request to create a meeting and forget everything about it. If you want to create a meeting, please phrase your request from scratch. If you do not want to happen this by accident, please remember to use related words to your request.';
+      const response = 'It seems that you want to change your conversation topic. I will reset your request to create a new meeting and forget everything about the last one. If you want to create a meeting, please phrase your request from scratch. If you do not want this to happen by accident, please remember to always use related words in your request.';
 
       req.user.conversation.push({role: "assistant", content: response}); // Saves the messages into the history of conversation
 

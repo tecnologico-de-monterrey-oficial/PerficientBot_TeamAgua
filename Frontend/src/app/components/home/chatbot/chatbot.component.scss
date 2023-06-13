@@ -33,6 +33,7 @@
             border-radius: 10px;
             display: inline-flex;
             width: 100%;
+            height: 16%;
             position:static;
             padding: 2%;
 
@@ -41,6 +42,7 @@
                 border-radius: 10px;
                 width: 100%;
                 padding: 1%;
+                margin-inline: 1%;
                 
                 border: 1px solid #F5F5F5;
 
@@ -48,7 +50,9 @@
                 font-size: 1em;
                 color: #343541;
                 margin-left: 2%;
-               
+                &:focus{
+                    border: 1px solid #d18585d4
+                }
                 
             }
     
@@ -66,9 +70,13 @@
             textarea:focus {
                 outline: none;
                 padding: 8%;
-                
+                resize: none;
+                border: 1px solid #d18585d4
                
-              }
+            }
+            textarea {
+                resize: none;
+            }
 
             #Smartbot__footer--submitButton {
                 align-items: end;
@@ -129,29 +137,109 @@
                 }
 
                 .assistant {
-                    background-color: #6c6c6c;
-                    color: white;
+                    background-color: #545c63; //opciones: #545c63, #535b62 #596169 #495057, #6c757d, rgba(255, 255, 255, 0.15), #4a5a68, #6c6c6c
+                    color: #e0e0e0;
                     padding: 10px;
-                    border-radius: 5px;
+                    border-radius: 10px 10px 10px 0px; //up-left up-right down-right down-left;
                     margin-bottom: 10px;
                     display: inline-block;
                     max-width: 80%;
                 }
     
                 .user {
-                    border: 0.5px solid #333;
-                    background-color: #D18585;
-                    color: #F5F5F5;
+                    white-space: pre-wrap;
+                    border: 0.5px solid #333;  
+                    background-color: #b56e6e; //opciones: #b56e6e, #b16262, #D18585;
+                    color: #e0e0e0;
                     padding: 10px;
-                    border-radius: 5px;
+                    border-radius: 10px 10px 0px 10px; //up-left up-right down-right down-left;
                     margin-bottom: 10px;
-                    display: inline-block;
                     max-width: 80%;
                     word-wrap: break-word;
-                    text-align: right;
+                    text-align: left;
                     float: right;
                 }
             }
         }
     }
 }
+//overlay
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000000c2;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items:center;
+  }
+  
+  .overlay-content {
+    background-color: #343541;
+    padding: 2%;
+    max-height: 100%;
+    max-width: 100%;
+    //color: #D18585;
+    color: #ccc;
+    margin: 5% 20% 5% 20%;
+    border-radius: 10px;
+  }
+ 
+  
+  .cancelButton {
+    margin-right: 10px;
+    padding: 5px 10px;
+    font-size: 14px;
+    border-radius: 4px;
+    background-color: #495057;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+
+  .confirmButton {
+    margin-right: 10px;
+    padding: 5px 10px;
+    font-size: 14px;
+    border-radius: 4px;
+    background-color: #B65151;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+
+//animation for writting test
+#loading .dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    margin-right: 3px;
+    background: #e0e0e0;;
+    animation: writing 1s ease infinite;
+    animation-delay: -0.8s;
+  }
+  #loading .dot.two {
+    animation-delay: -0.7s;
+  }
+  #loading .dot.three {
+    animation-delay: -0.6s;
+  }
+  
+  @keyframes writing {
+    0%,
+      60%, 
+      90%,
+      100% {
+      transform: initial;
+    }
+    30% {
+      transform: translateY(-6px);
+    }
+  }
+  
+  

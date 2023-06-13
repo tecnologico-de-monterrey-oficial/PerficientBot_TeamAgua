@@ -2,33 +2,30 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
 
-<app-navbar></app-navbar>
+<div class="appSection">
+  <app-navbar></app-navbar>
 
-
-<div class="container">
+  <div class="container">
+    
+    <div class="sidebar">
+      <ul>
+        <li (click)="selectedComponent = 'main-info'" [class.active]="selectedComponent === 'main-info'">My Data</li>
+        <li (click)="selectedComponent = 'upload'" [class.active]="selectedComponent === 'upload'">My Documents</li>
+        <li (click)="selectedComponent = 'send-tokens'" [class.active]="selectedComponent === 'send-tokens'">My Services</li>
+        <hr *ngIf="isHR">
+        <li *ngIf="isHR" (click)="selectedComponent = 'hr-search'" [class.active]="selectedComponent === 'hr-search'">HH.RR. Search</li>
+      </ul>
+    </div>
   
-  <div class="sidebar">
-    <ul>
-      <li (click)="selectedComponent = 'main-info'" [class.active]="selectedComponent === 'main-info'">My Data</li>
-      <li (click)="selectedComponent = 'upload'" [class.active]="selectedComponent === 'upload'">My Documents</li>
-      <li (click)="selectedComponent = 'send-tokens'" [class.active]="selectedComponent === 'send-tokens'">My Services</li>
-      <li (click)="selectedComponent = 'hr-search'" [class.active]="selectedComponent === 'hr-search'">HH.RR. Search</li>
-    </ul>
-  </div>
-
-  <div class="content">
-    <ng-container [ngSwitch]="selectedComponent">
-      <app-main-info *ngSwitchCase="'main-info'"></app-main-info>
-      <app-upload-form *ngSwitchCase="'upload'"></app-upload-form>
-      <app-hr-search *ngSwitchCase="'hr-search'"></app-hr-search>
-      <app-send-tokens *ngSwitchCase="'send-tokens'"> </app-send-tokens>
-    </ng-container>
+    <div class="content">
+      <ng-container [ngSwitch]="selectedComponent">
+        <app-main-info *ngSwitchCase="'main-info'"></app-main-info>
+        <app-upload-form *ngSwitchCase="'upload'"></app-upload-form>
+        <app-hr-search *ngSwitchCase="'hr-search'"></app-hr-search>
+        <app-send-tokens *ngSwitchCase="'send-tokens'"> </app-send-tokens>
+      </ng-container>
+    </div>
+    
   </div>
   
 </div>
-
-
-
-
-
-

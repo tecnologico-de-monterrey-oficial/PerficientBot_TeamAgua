@@ -14,9 +14,10 @@
     align-items: center;
     background-color: transparent;
     padding: 20px;
-    border: 2px solid #d18585;
+    border: 1.5px solid #d18585;
     border-radius: 10px;
-    max-height: 45vh;
+    justify-content: space-evenly;
+    height: 75%
   }
   
   .profile__header {
@@ -27,8 +28,8 @@
   }
   
   .profile__avatar {
-    width: 100px;
-    height: 100px;
+    width: 100px; //none
+    height: 100px; //4rem
     border-radius: 50%;
     border: 2px solid #d18585;
   }
@@ -42,6 +43,7 @@
     flex-direction: column;
     align-items: center;
     margin-top: 10px;
+    max-height: 100%;
   
     .titleInfo {
       font-weight: bold;
@@ -53,7 +55,7 @@
   }
   
   .out {
-    justify-content: end;
+    justify-content: center;
     flex-direction: column-reverse;
     
   }

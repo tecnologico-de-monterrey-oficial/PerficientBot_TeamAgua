@@ -3,6 +3,7 @@ import {AuthService} from '@auth0/auth0-angular';
 import { OpenaiService } from 'src/app/services/openai.service';
 import {map} from "rxjs";
 import { HttpClient } from '@angular/common/http';import { ChatbotComponent } from './chatbot/chatbot.component';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -25,21 +26,30 @@ export class HomeComponent implements OnInit{
   user_id!: string; //Sub
   db_user_id!: string;  // New variable to store user_id from the response
 
-  constructor(private http: HttpClient, public auth: AuthService, private Chatbot: OpenaiService) { }
+  constructor(private http: HttpClient, public auth: AuthService, 
+    private Chatbot: OpenaiService, private router: Router) { }
 
 
   ngOnInit() {
-    this.auth.user$.subscribe(user => {
-      if (user) {
-        this.user_givenname = user.given_name || '';
-        this.user_familyname = user.family_name || '';
-        this.user_name = user.name || '';
-        this.user_email = user.email || '';
-        this.user_id = user.sub || '';
-
-        this.postDataToDatabase();
-
+    this.auth.isAuthenticated$.subscribe(isAuthenticated => {
+      if(!isAuthenticated){
+        //protects route using auth service and route module
+        this.router.navigate(['/login']).then(r => console.log(r));
       }
+      
+      this.auth.user$.subscribe(user => {
+        if (user) {
+          this.user_givenname = user.given_name || '';
+          this.user_familyname = user.family_name || '';
+          this.user_name = user.name || '';
+          this.user_email = user.email || '';
+          this.user_id = user.sub || '';
+  
+          this.postDataToDatabase();
+  
+        }
+      });
+  
     });
   }
 
@@ -84,8 +94,5 @@ export class HomeComponent implements OnInit{
         }
       );
   }
-
-
-
 
 }

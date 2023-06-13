@@ -15,7 +15,7 @@
       border-color: #D18585;
       border-width: 1px;
       border-style: solid;
-
+      //padding: 3px;
       img {
         height: 60px;
         min-width: 60px;
@@ -23,30 +23,40 @@
         padding: 1%;
       }
 
-      
+      .hour {
+        float: right;
+        color: #D18585;
+        font-family:'Courier New', Courier, monospace; //monospace
+        width: -webkit-fill-available;
+        margin-inline: 5%;
+      }
       .navbar-title-text {
         color: #D18585;
         font-family: 'Lato', sans-serif;
         font-weight: bold;
         font-size: 1.1em;
-        margin-inline: 5%;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+        width: -webkit-fill-available;
+        margin-inline: 5%;
   
         @media (max-width: 456px) {
           margin-inline-start: 5%;
+         
         }
         
       }
 
       &:hover {
         cursor: pointer;
-        background-color:#B65151;
-        border-width: 0px;
-        .navbar-title-text {
-            color: #D18585;
+        background-color:#B65151;;
+        border-color: transparent;
+        transition: 0.75s;
+        .navbar-title-text, .hour {
+          color: #ffbbbb; //opciones: #ffbbbb, #ffb7b7, #b56e6e, #b16262, #D18585; 
         }
+
       }
       
     }
@@ -64,19 +74,21 @@
       border-width: 1px;
       border-style: solid;
       justify-items: center;
+      width: 25%;
   
       &:hover {
         cursor: pointer;
         background-color:#B65151;
-        border-width: 0px;
+        border-color: transparent;
+        transition: 0.75s;
         span {
-            color: #D18585;
+            color: #ffbbbb; //opciones: #ffbbbb, #ffb7b7, #b56e6e, #b16262, #D18585; 
         }
       }
       img {
         border-radius: 50%;
         height: 45px;
-        margin-left: 20;
+//        margin-left: 20;
         min-width: 45px;
       }
   
@@ -87,6 +99,7 @@
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+       
 
         @media (max-width: 400px) {
             display: none;
@@ -104,12 +117,15 @@
         
         .navbar-title-text {
             font-size: 1.1em;
-            color: #fff;
+            color: #e0e0e0;
             font-family: 'Lato', sans-serif;
             font-weight: bold;
 
         }span{
-            color: #F5F5F5;
+            color: #e0e0e0;
+        }
+        .hour{
+          color: #e0e0e0;
         }
     }
   }

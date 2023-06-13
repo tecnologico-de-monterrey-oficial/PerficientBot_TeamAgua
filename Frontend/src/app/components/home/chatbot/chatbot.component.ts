@@ -18,6 +18,7 @@ export interface Message {
 export class ChatbotComponent implements OnInit {
    user$ = this.authService.user$;
 
+  showOverlay = false;
   loading = false; //animation waiting for bot response
   messages: Message[] = []; //chat history
   chatForm = new FormGroup({
@@ -25,14 +26,6 @@ export class ChatbotComponent implements OnInit {
   });
   @ViewChild('scrollMe') private myScrollContainer: any;
 
-  
-  /* constructor(private Chatbot : OpenaiService) {
-    this.messages.push({
-      type: 'assistant',
-      message: 'Hello, I am your personal assistant for Perficient. How can I help you today?'
-    });
-
-  } */
 
   secretkey: string = '';
   outlookToken: string = '';
@@ -45,10 +38,15 @@ export class ChatbotComponent implements OnInit {
     private Chatbot : OpenaiService, private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.messages.push({
-      type: 'assistant',
-      message: 'Hello, I am your personal assistant for Perficient. How can I help you today?'
-    });
+    
+    this.messages = this.Chatbot.getConversation();
+    if(this.messages.length==0){
+      this.messages.push({
+        type: 'assistant',
+        message: 'Hello, I am your personal assistant for Perficient. How can I help you today?'
+      });
+    }
+
 
     this.authService.user$.subscribe(user => {
       if (user) {
@@ -64,12 +62,12 @@ export class ChatbotComponent implements OnInit {
 
 
 
-  clearConversation(){
+  deleteOverlay(){
+    this.showOverlay = !this.showOverlay;
+  }
 
-    //Alert confirmation before deleting conversation
-    const confirmDelete = confirm('Are you sure you want to clear the conversation?');
-
-    if(confirmDelete) {
+  confirmDelete(){
+    
       this.messages = [];
       this.loading = false
 
@@ -78,21 +76,24 @@ export class ChatbotComponent implements OnInit {
         type: 'assistant',
         message: 'Hello, I am your personal assistant for Perficient. How can I help you today?'
       });
-      this.Chatbot.clearConversation()
-    }
+      this.deleteOverlay();
+      this.Chatbot.saveConversation(this.messages);
+      this.Chatbot.clearConversation();
 
   }
 
   sendMessage() : void {
     console.log('Activar send Message');
-    const sentMessage = this.chatForm.value.message!;
+    const sentMessage = this.chatForm.value.message!.trim();
+    console.log(sentMessage);
+    
     this.loading = true;
     this.messages.push({
       type: 'user',
       message: sentMessage
     });
 
-      let body = { user_message: this.myprompt, secret_key: this.secretkey }
+      let body = { user_message: this.myprompt.trim(), secret_key: this.secretkey }
 
       this.chatForm.reset();
       this.scrollToBottom();
@@ -114,6 +115,8 @@ export class ChatbotComponent implements OnInit {
         });
         this.scrollToBottom();
       });
+
+      this.Chatbot.saveConversation(this.messages);
   }
 
   scrollToBottom() : void {
@@ -146,5 +149,14 @@ export class ChatbotComponent implements OnInit {
         }
       );
   }
+
+  // Code for send message on Enter key
+onEnterPressed(event: Event) {
+  if (this.chatForm.valid) {
+    this.sendMessage();
+    event.preventDefault(); 
+  }
+}
+
 
 }
