@@ -67,7 +67,7 @@
    </div> 
 </section>
 
-<div class="overlay" *ngIf="showOverlay">
+<div class="overlay" *ngIf="showOverlay" (click)="deleteOverlay()">
     <div class="overlay-content">
       <p> Are you sure you want to delete this conversation? </p> 
       <hr>
