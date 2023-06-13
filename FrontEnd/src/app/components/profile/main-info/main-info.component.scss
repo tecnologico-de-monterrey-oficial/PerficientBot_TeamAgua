@@ -16,7 +16,8 @@
     padding: 20px;
     border: 2px solid #d18585;
     border-radius: 10px;
-    height: 70%; //14rem
+    justify-content: space-evenly;
+    height: 75%
   }
   
   .profile__header {
@@ -54,7 +55,7 @@
   }
   
   .out {
-    justify-content: end;
+    justify-content: center;
     flex-direction: column-reverse;
     
   }
