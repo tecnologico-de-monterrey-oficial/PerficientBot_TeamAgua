@@ -85,14 +85,16 @@ export class ChatbotComponent implements OnInit {
 
   sendMessage() : void {
     console.log('Activar send Message');
-    const sentMessage = this.chatForm.value.message!;
+    const sentMessage = this.chatForm.value.message!.trim();
+    console.log(sentMessage);
+    
     this.loading = true;
     this.messages.push({
       type: 'user',
       message: sentMessage
     });
 
-      let body = { user_message: this.myprompt, secret_key: this.secretkey }
+      let body = { user_message: this.myprompt.trim(), secret_key: this.secretkey }
 
       this.chatForm.reset();
       this.scrollToBottom();
@@ -146,5 +148,14 @@ export class ChatbotComponent implements OnInit {
         }
       );
   }
+
+  // En tu componente TypeScript
+onEnterPressed(event: Event) {
+  if (this.chatForm.valid) {
+    this.sendMessage();
+    event.preventDefault(); 
+  }
+}
+
 
 }

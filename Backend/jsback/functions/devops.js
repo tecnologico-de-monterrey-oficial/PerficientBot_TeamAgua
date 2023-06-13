@@ -263,8 +263,8 @@ function formatJSONOutResponseWI(response) {
     // Iterate over each key in the object
     console.log('Objeto:', obj);
 
-    resultString += `<a href="${obj.url}" target="_blank" class="withLinks"> ${obj.WItype} with ID: ${obj.ID}</a>
-    This work item refers to <span class="withTitle">${obj.Title}<span> <hr> <br>
+    resultString += `<hr> <a href="${obj.url}" target="_blank" class="withLinks"> ${obj.WItype} with ID: ${obj.ID}</a>
+    This work item refers to <span class="withTitle">${obj.Title}</span> <br>
     `;
   });
   return resultString; 
@@ -274,7 +274,7 @@ function formatJSONOutResponseOneWI(response) {
   let resultString = '';
 
   resultString = `<a href="${response.url}" target="_blank" class="withLinks"> ${response.WItype} with ID: ${response.ID}</a><br>
-  This work item refers to <span class="withTitle">${response.Title}<span><br>
+  This work item refers to <span class="withTitle">${response.Title}</span><br>
   <hr>`;
   return resultString;  
 }
@@ -283,7 +283,7 @@ function formatJSONOutResponse(response) {
   let resultString = '';
 
   console.log(response)
-  resultString = `Work Item created successfully! <br>  
+  resultString = `<hr>Work Item created successfully!
   <a href="${response.url}" target="_blank" class="withLinks"> ID: ${response.ID}</a> <br>
     <hr>`;
   return resultString; 

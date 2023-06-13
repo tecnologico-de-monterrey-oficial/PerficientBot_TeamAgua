@@ -37,7 +37,7 @@ async function githubDecisionClassification(responseOpenAI, input) {
       console.log(response1.data);
       finalStringResponse = formatJSONOutResponseRepo(response1.data);
 
-      normalResponse = 'Here is your request: ' + '<br>' + finalStringResponse; // Assuming the response is JSON data
+      normalResponse = 'Here is your request: ' + '<br>' + finalStringResponse + '<br><br>'; // Assuming the response is JSON data
       return [normalResponse, false, null, null];
       }).catch(error => {
         console.error(error)
@@ -51,7 +51,7 @@ async function githubDecisionClassification(responseOpenAI, input) {
       console.log(response2.data);
       finalStringResponse = formatJSONOutResponse(response2.data);
 
-      normalResponse = 'Here is your request: ' + '<br>' + finalStringResponse; // Assuming the response is JSON data
+      normalResponse = 'Here is your request: ' + '<br>' + finalStringResponse + '<br>'; // Assuming the response is JSON data
       return [normalResponse, false, null, null];
       }).catch(error => {
         console.error(error)
@@ -63,9 +63,9 @@ async function githubDecisionClassification(responseOpenAI, input) {
     case 3:
       const response3 = await axios.get(`http://127.0.0.1:3001/Github/Pulls`).then(async response3 => {
       console.log(response3.data);
-      finalStringResponse = formatJSONOutResponse(response3.data);
+      finalStringResponse = formatJSONOutResponsePull(response3.data);
 
-      normalResponse = 'Here is your request: ' + '<br>' + finalStringResponse; // Assuming the response is JSON data
+      normalResponse = 'Here is your request: ' + '<br>' + finalStringResponse + '<br><br>'; // Assuming the response is JSON data
       return [normalResponse, false, null, null];
       }).catch(error => {
         console.error(error)
@@ -95,10 +95,9 @@ function formatJSONOutResponseRepo(response) {
     console.log('Objeto:', obj);
 
     
-    resultString += `<img src="./assets/img/GitHub.png" class="withIcon" alt="">
-    <a href="${obj.url}" target="_blank" class="withLinks">${obj.name}</a>
-    <img src="./assets/img/Link.png" class="withIcon" alt="">
-    <hr>`;
+    resultString += `<hr><img src="./assets/img/Repository.svg" class="withIcon" alt="">
+    <a href="${obj.url}" target="_blank" class="withLinks">${obj.name} <img src="./assets/img/Link.svg" class="withGo" alt=""> </a>
+    `;
   });
   return resultString;
 }
@@ -111,9 +110,31 @@ function formatJSONOutResponse(response) {
     // Iterate over each key in the object
     console.log('Objeto:', obj);
 
-    resultString += `Issue title: <a href="${obj.url}" target="_blank" class="withLinks"> ${obj.title}</a>
-    Description of the issue: ${obj.body}
-    <hr><br>`;
+    resultString += `<hr><img src="./assets/img/GitHub.svg" class="withIcon" alt=""> Issue title: 
+    <a href="${obj.url}" target="_blank" class="withLinks"> ${obj.title} 
+    <img src="./assets/img/Link.svg" class="withGo" alt=""> 
+    </a> <br>
+    <img src="./assets/img/Description.svg" class="withIcon" alt=""> Description: <i>${obj.body}</i>
+    `;
+  });
+  return resultString;
+}
+
+//Added specific function for pull requests
+function formatJSONOutResponsePull(response) {
+  let resultString = '';
+
+  // Iterate over each object in the array
+  response.forEach(function(obj) {
+    // Iterate over each key in the object
+    console.log('Objeto:', obj);
+
+    resultString += `<hr><img src="./assets/img/Pull Request.svg" class="withIcon" alt=""> Pull request: 
+    <a href="${obj.url}" target="_blank" class="withLinks"> ${obj.title} 
+    <img src="./assets/img/Link.svg" class="withGo" alt=""> 
+    </a> <br>
+    <img src="./assets/img/Description.svg" class="withIcon" alt=""> Description: <i>${obj.body}</i>
+    `;
   });
   return resultString;
 }

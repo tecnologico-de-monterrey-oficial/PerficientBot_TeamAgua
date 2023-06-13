@@ -18,6 +18,9 @@ import {UploadFormComponent} from "./components/profile/upload-form/upload-form.
 import { HrSearchComponent } from './components/profile/hr-search/hr-search.component';
 import { MainInfoComponent } from './components/profile/main-info/main-info.component';
 import { SendTokensComponent } from './components/profile/send-tokens/send-tokens.component';
+import { GitTutorialComponent } from './components/profile/send-tokens/git-tutorial/git-tutorial.component';
+import { DevTutorialComponent } from './components/profile/send-tokens/dev-tutorial/dev-tutorial.component';
+import { OutTutorialComponent } from './components/profile/send-tokens/out-tutorial/out-tutorial.component';
 
 
 
@@ -33,6 +36,9 @@ import { SendTokensComponent } from './components/profile/send-tokens/send-token
     HrSearchComponent,
     MainInfoComponent,
     SendTokensComponent,
+    GitTutorialComponent,
+    DevTutorialComponent,
+    OutTutorialComponent,
   ],
   imports: [
     BrowserModule,
