@@ -107,7 +107,7 @@ jobs:
         with:
           envKey_APP_VERSION: ${{ secrets.APP_VERSION }}
           envKey_STAGE: ${{ secrets.STAGE }}
-          envkey_NG_APP_KEY: ${{ secrets.OPENAI_API_KEY }}
+          envkey_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           envKey_PORT: ${{ secrets.PORT }}
           envKey_PORT_BIN: ${{ secrets.PORT_BIN }}
           envkey_DEV_DATABASE_URL : ${{ secrets.DEV_DATABASE_URL }}
