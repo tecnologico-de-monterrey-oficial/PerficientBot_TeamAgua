@@ -119,6 +119,9 @@ jobs:
         run: |
           ls -la 
 
+      - name: checar env
+        run: cat .env
+
       - name: docker login
         env:
           DOCKER_USER: ${{secrets.DOCKER_USER}}
