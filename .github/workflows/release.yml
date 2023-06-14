@@ -111,6 +111,7 @@ jobs:
           envKey_PORT: ${{ secrets.PORT }}
           envKey_PORT_BIN: ${{ secrets.PORT_BIN }}
           envkey_DEV_DATABASE_URL : ${{ secrets.DEV_DATABASE_URL }}
+          envkey_DATABASE_URL: ${{ secrets.DATABASE_URL }}
           file_name: .env
           fail_on_empty: false
 
