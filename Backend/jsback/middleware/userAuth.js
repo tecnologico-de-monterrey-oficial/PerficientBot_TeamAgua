@@ -18,6 +18,8 @@ try
 
 {
     var token = req.headers.authorization.split(' ')[1];
+
+	console.log('Este es el token de NodeJS', token);
 	// decode token
     if (token)	{
 		// verifies secret and checks up
