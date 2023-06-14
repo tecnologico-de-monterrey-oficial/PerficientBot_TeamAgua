@@ -14,11 +14,10 @@ async function outlookClassification(input, requestStatus, dateAndHour) {
     
     1.- Retrieve scheduled events starting today.
     2.- Arrange a new meeting or event.
-    3.- Check the availability of your colleagues.
     
     Consider this is the current date and time: ${dateAndHour}
 
-    Remember, there are only these 5 options, there are no others available. Just answer with the number of the option, without the period.
+    Remember, there are only these 2 options, there are no others available. Just answer with the number of the option, without the period.
     Answer format: "[number]"
     Example: "2"
     
