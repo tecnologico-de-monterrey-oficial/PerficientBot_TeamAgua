@@ -112,6 +112,7 @@ jobs:
           envKey_PORT_BIN: ${{ secrets.PORT_BIN }}
           envkey_DEV_DATABASE_URL : ${{ secrets.DEV_DATABASE_URL }}
           envkey_DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          directory: Backend/jsback/
           file_name: .env
           fail_on_empty: false
 
@@ -121,7 +122,7 @@ jobs:
           ls -la 
 
       - name: checar env
-        run: cat .env
+        run: cat Backend/jsback/.env
 
       - name: docker login
         env:
