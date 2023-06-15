@@ -7,6 +7,8 @@ const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+console.log(configuration);
+
 const port = process.env.PORT;
 const openai = new OpenAIApi(configuration);
 
