@@ -52,7 +52,7 @@ export class OpenaiService {
   }
 
   clearConversation(): Observable<any> {
-    return this.http.post<any>(this.apiURL + 'login', this.httpOptions)
+    return this.http.post<any>(this.apiURL + 'api/login', this.httpOptions)
     .pipe(
       retry(1),
       catchError(this.handleError)
