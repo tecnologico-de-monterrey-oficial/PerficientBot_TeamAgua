@@ -3,11 +3,27 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs/';
+import { Message } from '../components/home/chatbot/chatbot.component';
 
 @Injectable({
   providedIn: 'root'
 })
+
+
+
 export class OpenaiService {
+
+  /* Test de guardado de conversacion */
+  private conversation: Message[] = []; 
+  
+  saveConversation(conversation: Message[]): void {
+    this.conversation = conversation;
+  }
+
+  getConversation(): Message[] {
+    return this.conversation;
+  }
+ /* --------------------------------- */
 
   constructor(private http: HttpClient) { }
   apiURL = 'https://perficient-bot-service-backend-nodejs-dannyjr08.cloud.okteto.net/api/chat';
@@ -36,7 +52,7 @@ export class OpenaiService {
   }
 
   clearConversation(): Observable<any> {
-    return this.http.post<any>(this.apiURL + 'clear-conversation', this.httpOptions)
+    return this.http.post<any>(this.apiURL + 'login', this.httpOptions)
     .pipe(
       retry(1),
       catchError(this.handleError)

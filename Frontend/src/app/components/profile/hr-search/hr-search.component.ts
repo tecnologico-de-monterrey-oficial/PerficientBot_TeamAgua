@@ -1,7 +1,6 @@
 import { Component, OnInit} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {AuthService} from '@auth0/auth0-angular';
-import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-hr-search',
@@ -11,32 +10,16 @@ import { filter } from 'rxjs/operators';
 export class HrSearchComponent implements OnInit{
   textoBusqueda: string = '';
   resultados: any[] = [];
-  isHR: boolean = false;  // This new variable will hold the HR status
+  noResults: boolean = true;
+  selectedPersona: any; // show employee
+  show = "";
+
 
 
   constructor(private http: HttpClient, public auth: AuthService) { }
 
   ngOnInit(): void {
-    this.fetchIsHR();
   }
-
-  fetchIsHR(): void {
-    this.auth.user$
-      // @ts-ignore
-      .pipe(filter(user => user !== null && user.sub !== null))
-      .subscribe(user => {
-        // @ts-ignore
-        const userId = user.sub.replace('|', '_');  // replace | with _ in user ID
-        this.http.get(` https://perficient-bot-service-backend-flask-dannyjr08.cloud.okteto.net/api/CheckHR`, { params: { sub: userId } }).subscribe((response: any) => {
-
-          if (response.length > 0) {
-            console.log(response[0].IsHR);
-            this.isHR = response[0].IsHR;
-          }
-        });
-      });
-  }
-
 
 
   onInputChange(): void {
@@ -44,9 +27,15 @@ export class HrSearchComponent implements OnInit{
       this.http.get(' https://perficient-bot-service-backend-flask-dannyjr08.cloud.okteto.net/api/DatabaseGET', { params: { fullname: this.textoBusqueda } })
         .subscribe((response: any) => {
           this.resultados = response;
+          
+          if(this.resultados.length==0) this.noResults = true;
+          else {
+            this.noResults = false;
+          }
         });
     } else {
       this.resultados = [];
+      this.noResults = true;
     }
   }
 
@@ -79,6 +68,23 @@ export class HrSearchComponent implements OnInit{
         console.log('Error retrieving summary:', error);
       }
     );
+  }
+
+  //Employee view functions overlay
+  openOverlay(persona: any) {
+    this.selectedPersona = persona;
+    this.getImage(persona);
+    this.getSummary(persona);
+  }
+
+  closeOverlay() {
+    this.selectedPersona = null;
+    this.show = "";
+  }
+
+  //Choose what to show in overlay
+  showOverlay(content: string) {
+    this.show = content;
   }
 
 }

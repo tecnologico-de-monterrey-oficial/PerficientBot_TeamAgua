@@ -7,32 +7,48 @@
                 
                 <div *ngFor="let message of messages" [ngClass]="message.type === 'user' ? 'message prueba' : 'message'">
                     
-                        <img *ngIf="message.type === 'assistant'" class="chatpic" src="..\assets\img\botPic.png" alt="Bot">
+                        <img *ngIf="message.type === 'assistant'" class="chatpic" src="..\assets\img\ChatBot\botPic.png" alt="Bot">
                         
-                        <!-- style="white-space: pre-line" -->
-                        <!-- <div [class]="message.type" >  {{message.message}} </div> -->
+                       
                         <div [class]="message.type" > <span [innerHTML]="message.message"></span> </div>
                         
-
                         <img *ngIf="message.type === 'user' && (user$ | async) as user; else defaultImage" [src]="user?.picture || './assets/img/profilePic.png'" class="chatpic" alt="UserPictureProfile" />
 
                         <ng-template #defaultImage>
                         <img *ngIf="message.type === 'user'" class="chatpic" src="./assets/img/profilePic.png" alt="UserPictureProfile">
                         </ng-template>
+                            
+
 
                 </div>
                 <div *ngIf="loading" class="message" >
-                    <img class="chatpic" src="..\assets\img\botPic.png" alt="Bot">
-                    <div [class]="'assistant'">...</div>
+                    <img class="chatpic" src="..\assets\img\ChatBot\botPic.png" alt="Bot">
+                    <div [class]="'assistant'">
+                        <div id="loading">
+                        <span class="dot one"></span>
+                        <span class="dot two"></span>
+                        <span class="dot three"></span>
+                    </div>
+                </div>
                 </div>
             </div>
         </div>
 
        
         <form id="Smartbot__footer" [formGroup]="chatForm">
-            <button type="button" id="Smartbot__footer--clearButton" (click)="clearConversation()">
-                <img src="../assets/img/BroomW.svg" alt="Clear">
+            <button type="button" id="Smartbot__footer--clearButton" (click)="deleteOverlay()">
+                <img src="../assets/img/ChatBot/BroomW.svg" alt="Clear">
             </button>
+
+            <!-- <textarea 
+                formControlName="message"
+                type="text"
+                id="Smartbot__footer--input"
+                name="myprompt"
+                placeholder="Send message to PerficientBot..."
+                [(ngModel)] = 'myprompt'>
+                (keydown.enter)="onEnterPressed($event)">
+            </textarea> -->
 
             <textarea 
                 formControlName="message"
@@ -40,12 +56,22 @@
                 id="Smartbot__footer--input"
                 name="myprompt"
                 placeholder="Send message to PerficientBot..."
-                [(ngModel)] = 'myprompt'>
+                [(ngModel)] = 'myprompt'
+                (keydown.enter)="onEnterPressed($event)">
             </textarea>
             
             <button id="Smartbot__footer--submitButton" [disabled]="!chatForm.valid" (click)="sendMessage()">
-                <img src="../assets/img/Sent.svg" alt="Send"/>
+                <img src="../assets/img/ChatBot\Sent.svg" alt="Send"/>
             </button>
         </form>
    </div> 
 </section>
+
+<div class="overlay" *ngIf="showOverlay" (click)="deleteOverlay()">
+    <div class="overlay-content">
+      <p> Are you sure you want to delete this conversation? </p> 
+      <hr>
+      <button class="confirmButton" (click)="confirmDelete()">Yes, delete</button>
+      <button class="cancelButton" (click)="deleteOverlay()">Cancel</button> 
+  
+  </div>

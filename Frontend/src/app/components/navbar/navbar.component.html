@@ -2,8 +2,9 @@
 
     <!-- Chat Button -->
     <div class="navbar-logo" routerLink="/home" routerLinkActive="active">
-      <img src="./assets/img/PerficientButton.png" alt="PerficientBotLogo">
+      <img src="./assets/img/PerficientButton.svg" alt="PerficientBotLogo">
         <span class="navbar-title-text">PerficientBot</span>
+        <span class="hour"> {{ currentDateAndHour }}</span>
     </div>
 
 
@@ -12,7 +13,7 @@
 
         <img *ngIf="user$ | async as user; else defaultImage" [src]="user?.picture" alt="UserPictureProfile" />
         <ng-template #defaultImage>
-          <img src="./assets/img/profilePic.png" alt="UserPictureProfile">
+          <img src="./assets/img/profilePic.svg" alt="UserPictureProfile">
         </ng-template>
 
       <!-- <span>Hello, {{ username }}.</span> -->

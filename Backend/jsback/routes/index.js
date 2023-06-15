@@ -8,11 +8,10 @@ const conversation = require('../controllers/conversation');
 // Imports
 const axios = require('axios');
 
-const { port, openai, getCurrentDateAndHour } = require('../functions/imports');
+const { port, openai, getCurrentDateAndHour, hasNullValues } = require('../functions/imports');
 
 const chatbot = require('../functions/chatbot');
 const devops = require('../functions/devops');
-const github = require('../functions/github');
 const outlook = require('../functions/outlook');
 
 const router = Router();

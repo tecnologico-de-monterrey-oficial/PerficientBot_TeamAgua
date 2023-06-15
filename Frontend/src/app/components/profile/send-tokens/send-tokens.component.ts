@@ -13,7 +13,8 @@ export class SendTokensComponent implements OnInit {
   azureToken: string = '';
   user_sub!: string; // Sub
   tokensSubidos: boolean = false;
-  showtoken: boolean = false;
+  showtoken: boolean = false; //variable for toggle show/hiden tokens
+  guideSelected: string = ''; //variable for tutorial in how obtain tokens
 
   constructor(private http: HttpClient, public auth: AuthService) {}
 
@@ -79,6 +80,23 @@ export class SendTokensComponent implements OnInit {
   toggleShowToken() {
     this.showtoken = !this.showtoken;
   }
+
+  copyToken(tokenId: string) {
+    const tokenElement = document.getElementById(tokenId) as HTMLInputElement;
+    tokenElement.select();
+    document.execCommand('copy');
+  }
+
+  //Employee view functions overlay
+  openOverlay(selected: string) {
+    this.guideSelected = selected;
+    
+  }
+
+  closeOverlay() {
+    this.guideSelected = "";
+  }
+  
 }
 
 

@@ -1,9 +1,9 @@
 from flask import Flask, jsonify, request
-#from dotenv import load_dotenv
+#from dotenv import load_dotenv #original
 import requests, base64, json, os
 
 app = Flask(__name__)
-#load_dotenv("tokens.env")
+#load_dotenv("tokens.env") #original
 ORGANIZATION = 'EquipoAgua'
 PROJECT = 'Agua'
 
@@ -12,8 +12,13 @@ CONTENT_TYPE = 'application/json'
 CONTENT_TYPE2 = 'application/json-patch+json'
 
 # Header access tokens
+#API_DEV_KEY = os.environ.get("API_DEV_KEY") #original
+
+#sub = "windowslive|f6a8eb57361df774" #borrar
+
 API_DEV_KEY = ""
 
+#funcion prueba 
 def setAzureKey(key):
     global API_DEV_KEY
     API_DEV_KEY = key
@@ -65,6 +70,7 @@ def AzureWorkItems():
     for id in idWI():
         API_DEV_ITEMS = f"https://dev.azure.com/{ORGANIZATION}/{PROJECT}/_apis/wit/workitems/{id}?api-version=7.0"
         response = requests.get(API_DEV_ITEMS, headers=headers)
+        wi = {}
         try:
             data = response.json()
 
@@ -72,7 +78,8 @@ def AzureWorkItems():
                 "ID" : data['id'],
                 "Title": data['fields']['System.Title'],
                 "WItype": data['fields']['System.WorkItemType'],
-                "url": data['url']
+                #"url": data['url'] #TAPI URL, it returns a JSON
+                "url": data['_links']['html']['href']  #HTML URL, it returns the actual link for browsers -E
             }
 
             WI.append(wi)
@@ -96,6 +103,7 @@ def AzureOneItem(id):
     headers = {'Authorization': f'Basic {auth_token}', 'Content-Type': CONTENT_TYPE2}
     API_DEV_ITEMS = f"https://dev.azure.com/{ORGANIZATION}/{PROJECT}/_apis/wit/workitems/{id}?api-version=7.0"
     response = requests.get(API_DEV_ITEMS, headers=headers)
+    wi={}
     try:
         data = response.json()
 
@@ -103,7 +111,8 @@ def AzureOneItem(id):
             "ID" : data['id'],
             "Title": data['fields']['System.Title'],
             "WItype": data['fields']['System.WorkItemType'],
-            "url": data['url']
+            #"url": data['url'] #API URL, it returns a JSON -E
+            "url": data['_links']['html']['href']  #HTML URL, it returns the actual link for browsers -E
         }
     except json.JSONDecodeError as e:
         print(f"Error decoding JSON response: {e}")
@@ -153,7 +162,9 @@ def AzureCreateItem():
     # Check the response status code
     if response.status_code == 200:
         data = response.json()
-        url = data['url']
+        #url = data['url']
+        url = data['_links']['html']['href'] #Modified to return html link for web browsers
+
         id_wi = data['id']
         return jsonify({"message": "Work item created successfully.",
                         "url": f"{url}",

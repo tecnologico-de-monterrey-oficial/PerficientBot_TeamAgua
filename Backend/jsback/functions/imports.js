@@ -26,9 +26,9 @@ const openai = new OpenAIApi(configuration);
     const seconds = String(currentDate.getSeconds()).padStart(2, '0');
 
     // Print the current date and hour
-    console.log(`Current date: ${year}-${month}-${day}`);
-    console.log(`Current time: ${hours}:${minutes}:${seconds}`);
-
+    // console.log(`Current date: ${year}-${month}-${day}`);
+    // console.log(`Current time: ${hours}:${minutes}:${seconds}`);
+    // console.log(`${year}-${month}-${day}T${hours}:${minutes}:${seconds}.099Z`)
     return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.099Z`; // Returns the current date and hour in a concatenated string.
   }
 

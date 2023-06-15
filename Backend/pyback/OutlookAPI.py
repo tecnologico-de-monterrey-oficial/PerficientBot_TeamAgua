@@ -9,6 +9,9 @@ app = Flask(__name__)
 
 # Header content types
 CONTENT_TYPE = 'application/json'
+# Header access tokens
+#API_OUT_KEY = os.environ.get("API_OUT_KEY")
+
 
 API_OUT_KEY = ""
 
@@ -79,19 +82,18 @@ def OutlookAllEvents():
             subject = item['subject']
             start = item['start']
             end = item['end']
-            web = item['webLink']
             id = item['id']
-
-            attendees = []
+            
+            
+            attendees = [item['organizer']['emailAddress']['name']] #Added organizer to list of attendees
             for i in item['attendees']:
                 attendees.append(i['emailAddress']['name'])
-
+            
             subjects.append({
                 "subject": subject,
                 "attendees": attendees,
                 "start": start,
                 "end": end,
-                "web": web,
                 "id": id
             })
         
@@ -193,8 +195,8 @@ def OutlookScheduleMeeting():
 
     # Extraigo la información del JSON de entrada
     subject = request.json.get('subject')
-    dateStart = request.json.get('dateStart')
-    dateEnd = request.json.get('dateEnd')
+    dateStart = request.json.get('startDate')
+    dateEnd = request.json.get('endDate')
 
     # Construyo el cuerpo del JSON para mandar en el POST
     data = {

@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_cors import CORS
 import aiohttp
 import asyncio
@@ -8,13 +8,12 @@ from AzureAPI import AzureCreateItem, AzureOneItem, AzureWorkItems
 from CVAPI import getCV, getGPTtext, upload
 from dbApi import obtener_usuarios, guardar_usuario, check_if_user_is_hr, guardar_tokens, obtener_tokens
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='dist', static_url_path='')
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route('/')
 def index():
-    return 'Hola Josemi'
-
+    return app.send_static_file('index.html')
 @app.route('/upload/<user_id>', methods=['POST'])
 def uploadCV(user_id):
     loop = asyncio.new_event_loop()

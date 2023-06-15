@@ -13,12 +13,11 @@ async function outlookClassification(input, requestStatus, dateAndHour) {
     Visualize where this action would ideally take place, considering the optimal option for execution. Then, determine which of the following options best fits the action described in the statement:
     
     1.- Retrieve scheduled events starting today.
-    2.- Arrange a new meeting.
-    3.- Check the availability of your colleagues.
+    2.- Arrange a new meeting or event.
     
     Consider this is the current date and time: ${dateAndHour}
 
-    Remember, there are only these 5 options, there are no others available. Just answer with the number of the option, without the period.
+    Remember, there are only these 2 options, there are no others available. Just answer with the number of the option, without the period.
     Answer format: "[number]"
     Example: "2"
     
@@ -43,14 +42,12 @@ async function outlookDecisionClassification(responseOpenAI, input, requestStatu
     // Get all scheduled events starting today.
     case 1:
       // Validates
-      const validationPast = await validatesGetPast(input, dateAndHour);
-      const validationFuture = await validatesGetFuture(input, dateAndHour);
+      const validationGet = await validatesGet(input, dateAndHour);
 
-      console.log('Validación GET pasado:', validationPast);
-      console.log('Validación GET futuro:', validationFuture);
+      console.log('Validación GET:', validationGet);
 
-      if(!validationPast || !validationFuture) {
-        decision = ['Remember, you cannot request to see past events nor events that past 7 days from today.', false, null, null];
+      if(!validationGet) {
+        decision = ['Remember, you cannot request to see past events/meetings nor events/meetings that past 7 days from today.', false, null, null];
         break;
       }
 
@@ -66,7 +63,7 @@ async function outlookDecisionClassification(responseOpenAI, input, requestStatu
         // finalStringResponse = formatJSONOutResponse(resultString);
         resultString = formatJSONOutResponse(response.data);
 
-        normalResponse = 'Here is your request: ' + '\n' + resultString; // Assuming the response is JSON data
+        normalResponse = 'Here is your request: ' + '<br>' + resultString + '<br><br>'; // Assuming the response is JSON data
       })
       .catch(error => {
         // Handle any errors that occurred during the request
@@ -75,19 +72,17 @@ async function outlookDecisionClassification(responseOpenAI, input, requestStatu
 
       decision = [normalResponse, false, null, null];
       break;
-    // Schedule a meeting.
+    // Schedule a meeting or event.
     case 2:
-      // If a request to schedule a meeting has not been made, it calls this function in order to start one.
+      // If a request to schedule a meeting or event has not been made, it calls this function in order to start one.
       if(!requestStatus) {
         console.log('Aún no tiene una request.');
         // Validates
-        const validationSchedulePast = await validatesSchedulePast(input, dateAndHour);
-        const validationScheduleFuture = await validatesScheduleFuture(input, dateAndHour);
+        const validationSchedule = await validatesSchedule(input, dateAndHour);
 
-        console.log('Validación Schedule pasado:', validationSchedulePast);
-        console.log('Validación Schedule futuro:', validationScheduleFuture);
+        console.log('Validación Schedule:', validationSchedule);
 
-        if(!validationSchedulePast || !validationScheduleFuture) {
+        if(!validationSchedule) {
           decision = ['Remember, you cannot schedule a meeting in the past nor in the next 31 days.', false, null, null];
           break;
         }
@@ -100,10 +95,14 @@ async function outlookDecisionClassification(responseOpenAI, input, requestStatu
       // Validates
       const validationCheckColleague = await validatesCheckColleague(input, dateAndHour);
 
+      console.log('Validación Check Colleague:', validationCheckColleague);
+
       if(validationCheckColleague) {
-        decision = ['This is the availability of your colleagues: ', false, null, null];
+        const resultCheckColleague = await checkColleague(input, dateAndHour);
+
+        decision = ['This is the availability of your colleagues: ' + resultCheckColleague, false, null, null];
       } else {
-        decision = ['Remember, as this is a complicated request, please write anything in one message. If you want to check a colleague\'s availability, please refer to that person with their e-mail. Please also include in your message a start and end date and hour.', false, null, null];
+        decision = ['Remember, you can only check the availability of your colleagues in a single message due to the complexity of the request. All the information regarding the email, start date and time range, end date and time range, and desired duration of the meeting/event.', false, null, null];
       }
       break;
     // In such case that none of the options are related to the sentence, write "I am sorry, can you rephrase your request?".
@@ -125,17 +124,17 @@ async function scheduleMeeting(input, dateAndHour) {
   // This response will be displayed to the user.
   const normalResponse = await openai.createCompletion({
     model:'text-davinci-003',
-    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this sentence "${input}", determine if there is a subject, start date, and end date. If something is missing, please ask for those details, do not tell what you got, just what you are missing.`,
+    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting or event. Given this sentence "${input}", determine if there is a subject, start date, and end date. If something is missing, please ask for those details, do not tell what you got, just what you are missing.`,
     max_tokens: 150,
     temperature: 0,
     n: 1,
     stream: false
   });
 
-  // This response is sent to the function that creates a meeting in Outlook.
+  // This response is sent to the function that creates a meeting or event in Outlook.
   const JSONresponse = await openai.createCompletion({
     model:'text-davinci-003',
-    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this sentence "${input}", determine if there is a subject, start date, and end date. Consider this is the current date and hour: ${dateAndHour} , but it does not necessarily mean that this is the start date. Remember, just determine the information based on the given sentence.
+    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting or event. Given this sentence "${input}", determine if there is a subject, start date, and end date. Consider this is the current date and hour: ${dateAndHour} , but it does not necessarily mean that this is the start date. Remember, just determine the information based on the given sentence.
     
     Please use camelCase for the fields. If a field is missing, write it in the JSON as null. Return the JSON without any prefacing statement - the output should be the JSON and nothing else.`,
     max_tokens: 256,
@@ -161,15 +160,17 @@ async function scheduleMeeting(input, dateAndHour) {
     console.log('No está completa la request');
     requestStatus = true;
     currentService = 'Outlook';
-    return [normalResponse.data.choices[0].text, requestStatus, obj, currentService]; // Returns the response that will be displayed to the user.
+
+    const fullResponse = normalResponse.data.choices[0].text + '\nRemember to specify the subject of the meeting/event if you have not done it.';
+    return [fullResponse, requestStatus, obj, currentService]; // Returns the response that will be displayed to the user.
   }
 
   // If the JSON has all fields with a value, it modifies the JSON itself in order to send it to the Outlook API.
   const correctedTimeJSON = correctTimeFormat(obj);
 
-  const postResponse = scheduleMeetingOutlook(correctedTimeJSON);
+  const postResponse = await scheduleMeetingOutlook(correctedTimeJSON);
 
-  const confirmResponse = displayMeetingInfo(correctTimeFormat, postResponse.url);
+  const confirmResponse = displayMeetingInfo(correctedTimeJSON, postResponse);
 
   return [confirmResponse, requestStatus, correctedTimeJSON, currentService];
 }
@@ -177,10 +178,10 @@ async function scheduleMeeting(input, dateAndHour) {
 // Function that anaylyzes the user's message in order to prepare the information to make the request to Outlook's API.
 // This function is only when there is a request going on.
 async function scheduleMeetingContinue(input, currentData, dateAndHour) {
-  // This response is sent to the function that creates a meeting in Outlook.
+  // This response is sent to the function that creates a meeting or event in Outlook.
   const JSONresponse = await openai.createCompletion({
     model:'text-davinci-003',
-    prompt: `As a chatbot for Perficient, you're designed to automate Outlook-related workflow tasks, like scheduling meetings. Your task is to analyze the sentence "${input}" to see if it supplies missing information for this JSON: "${currentData}". Verify whether the sentence refers to specific fields in the JSON. If the sentence does not mention an end date, keep the "endDate" field null only if it already is null in the JSON you received, if not, leave it like it was as you originally received it.
+    prompt: `As a chatbot for Perficient, you're designed to automate Outlook-related workflow tasks, like scheduling meetings or events. Your task is to analyze the sentence "${input}" to see if it supplies missing information for this JSON: "${currentData}". Verify whether the sentence refers to specific fields in the JSON. If the sentence does not mention an end date, keep the "endDate" field null only if it already is null in the JSON you received, if not, leave it like it was as you originally received it.
 
     Additionally, discern whether the sentence suggests modifications to the existing information in the JSON. The current date and time are "${dateAndHour}", but they aren't the startDate or endDate, so please do not update those values in the new JSON with the current date and time.
     
@@ -206,11 +207,11 @@ async function scheduleMeetingContinue(input, currentData, dateAndHour) {
   const mergedJSON = mergeJSONObjects(currentData, obj);
   console.log('JSON merge:', mergedJSON);
 
-  // If the user's message completes the request, it modifies the request's status and calls the function to create the meeting in Outlook.
+  // If the user's message completes the request, it modifies the request's status and calls the function to create the meeting or event in Outlook.
   if(hasNullValues(mergedJSON)) {
     const normalResponse = await openai.createCompletion({
       model:'text-davinci-003',
-      prompt: `Consider this scenario: You are an automated assistant for Perficient, a company capable of streamlining tasks related to Microsoft Outlook, including setting up meetings. Using the phrase "${input}", discern if it pertains to missing information comparing this exisitng dataset (old) "${currentData}" with this one (new) "${mergedJSON}". Investigate whether the phrase discusses certain fields. If no mention of a conclusion time is given, the corresponding field must be kept empty. Additionally, ascertain if the phrase intends to alter any data already present in the dataset. If a field is left vacant, be sure to highlight this (none of the fields should be empty, investigate whether the phrase talks about specific fields, yet if a closing time is not specified, that field must be empty). Please also remember that this is the current date and time: ${dateAndHour}.
+      prompt: `Consider this scenario: You are an automated assistant for Perficient, a company capable of streamlining tasks related to Microsoft Outlook, including setting up meetings or events. Using the phrase "${input}", discern if it pertains to missing information comparing this exisitng dataset (old) "${currentData}" with this one (new) "${mergedJSON}". Investigate whether the phrase discusses certain fields. If no mention of a conclusion time is given, the corresponding field must be kept empty. Additionally, ascertain if the phrase intends to alter any data already present in the dataset. If a field is left vacant, be sure to highlight this (none of the fields should be empty, investigate whether the phrase talks about specific fields, yet if a closing time is not specified, that field must be empty). Please also remember that this is the current date and time: ${dateAndHour}.
   
       Your answer should avoid the use of the following terms: "JSON", "object", "sentence", "null", "startDate", "dataset", "based", "phrase" and "endDate". You also should avoid mentioning the JSON as dataset, just call it information or somehting related.`,
       max_tokens: 150,
@@ -219,15 +220,17 @@ async function scheduleMeetingContinue(input, currentData, dateAndHour) {
       stream: false
     });
 
-    return [normalResponse.data.choices[0].text, mergedJSON]; // Returns the response that will be displayed to the user.
+    const fullResponse = normalResponse.data.choices[0].text + '\nRemember to specify the subject of the meeting/event if you have not done it.';
+
+    return [fullResponse, mergedJSON]; // Returns the response that will be displayed to the user.
   }
 
   // If the JSON has all fields with a value, it modifies the JSON itself in order to send it to the Outlook API.
   const correctedTimeJSON = correctTimeFormat(mergedJSON);
 
-  const postResponse = scheduleMeetingOutlook(correctedTimeJSON);
+  const postResponse = await scheduleMeetingOutlook(correctedTimeJSON);
 
-  const confirmResponse = displayMeetingInfo(correctedTimeJSON, postResponse.url);
+  const confirmResponse = displayMeetingInfo(correctedTimeJSON, postResponse);
 
   return [confirmResponse, mergedJSON];
 }
@@ -243,6 +246,7 @@ function correctTimeFormat(input) {
 
 // Function that divides the value of the startDate or endDate in two strings, one for the date, and the other for the time.
 function splitStringByT(str) {
+  console.log('str antes del split string', str);
   const index = str.indexOf('T');
   
   if (index === -1) {
@@ -256,7 +260,7 @@ function splitStringByT(str) {
   return [firstHalf, secondHalf];
 }
 
-// Function that removes the last 5 characters of a string in order to display in a more natural way the times of the JSON of the meeting.
+// Function that removes the last 5 characters of a string in order to display in a more natural way the times of the JSON of the meeting or event.
 function removeLastFiveCharacters(str) {
   if (str.length <= 5) {
     return '';
@@ -265,7 +269,7 @@ function removeLastFiveCharacters(str) {
   }
 }
 
-// Function that removes the last 8 characters of a string in order to display in a more natural way the times of the JSON of the meeting.
+// Function that removes the last 8 characters of a string in order to display in a more natural way the times of the JSON of the meeting or event.
 function removeLastEightCharacters(str) {
   if (str.length <= 8) {
     return '';
@@ -274,8 +278,9 @@ function removeLastEightCharacters(str) {
   }
 }
 
-// Function that displays the information of the meeting in a more natural way.
+// Function that displays the information of the meeting or event in a more natural way.
 function displayMeetingInfo(currentData, url) {
+  console.log('url creada de schedule:', url);
   const startDateTime = splitStringByT(currentData.startDate);
   const startDate = startDateTime[0];
   const startTime = removeLastFiveCharacters(startDateTime[1]);
@@ -284,77 +289,129 @@ function displayMeetingInfo(currentData, url) {
   const endDate = endDateTime[0];
   const endTime = removeLastFiveCharacters(endDateTime[1]);
 
-  return `You can view in Outlook in detail the creation of the meeting you requested with the following information:
-  Subject: <a href="${url}>"${currentData.subject}></a>
-  Start Date: ${startDate} | ${startTime} UTC
-  End Date: ${endDate} | ${endTime} UTC`;
+  return `Created!<br>You can access the detailed information of the meeting/event in Outlook. <br>Here is a summary of the specifics: <hr>
+  <i>Subject: </i> <a href="${url}" class="withLinks" target="_blank">${currentData.subject}</a> <br>
+  <b>Start Date: </b> ${startDate} | ${startTime} UTC <br>
+  <b>End Date:  </b>${endDate} | ${endTime} UTC <br>`; 
 }
 
 async function checksConversationTopic(input, currentData, currentDateAndHour) {
   const normalResponse = await openai.createCompletion({
     model:'text-davinci-003',
-    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this sentence "${input}", determine if it has to do anything with creating the meeting. For more context, this is the the current JSON to create the meeting "${currentData}", and this is the current date and time: ${currentDateAndHour}
-    
-    Please return just the integer 0 in case the given sentence is not related with creating the current meeting. If it is not the case, please just return the integer 1. Remember that your answer must exlcusively the integer. Its length must be one character.`,
+    prompt: `Given this sentence "${input}". Please return just the integer 0 in case the given sentence is specifies that wants to cancel an action or change of subject. If it is not the case, please just return the integer 1. Remember that your answer must exlcusively the integer. Its length must be one character.`,
     max_tokens: 150,
     temperature: 0,
     n: 1,
     stream: false
   });
 
-  return normalResponse.data.choices[0].text;
+  return Boolean(parseInt(normalResponse.data.choices[0].text));
 }
 
-async function validatesGetPast(input, currentDateAndHour) {
+async function validatesGet(input, currentDateAndHour) {
   const response = await openai.createCompletion({
     model:'text-davinci-003',
-    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to get the information of specific meetings. Given this sentence "${input}", determine if it possible or logical to schedule considering you cannot get information of previous meetings. This is the current date and time: ${currentDateAndHour}
-    
-    Please return just the integer 0 it would not be possible or logical to complete that request. If it is not the case, please just return the integer 1. Remember that your answer must exlcusively the integer. Its length must be one character.`,
+    prompt: `Based on the following input from a user "${input}", and this is the current date and time: ${currentDateAndHour}. If the user specifies a date in the past or it is more than 31 days on the future from today, return 0, if not, return 1. If the user does not specify any date, automatically return 1. Remember that your answer must exlcusively the integer. Its length must be one character.`,
     max_tokens: 150,
     temperature: 0,
     n: 1,
     stream: false
   });
 
-  return response.data.choices[0].text;
+  return Boolean(parseInt(response.data.choices[0].text));
 }
 
-async function validatesGetFuture(input, currentDateAndHour) {
+async function validatesSchedule(input, currentData, currentDateAndHour) {
+  if(!currentData) {
+    currentData = {
+      subject: '',
+      startDate: '',
+      endDate: ''
+    }
+  }
+
   const response = await openai.createCompletion({
     model:'text-davinci-003',
-    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to get the information of specific meetings. Given this sentence "${input}", determine if it possible or logical to schedule considering you cannot get information of meetings past 7 days from today. This is the current date and time: ${currentDateAndHour}
-    
-    Please return just the integer 0 it would not be possible or logical to complete that request. If it is not the case, please just return the integer 1. Remember that your answer must exlcusively the integer. Its length must be one character.`,
+    prompt: `Based on the following input from a user "${input}", and this is the current date and time: ${currentDateAndHour}. This is the current JSON regarding that meeting ${currentData}. If the meeting start date or end date is in the past or is more than 31 days on the future from today, return 0, if not, return 1. If the user does not specify any date, automatically return 1. Remember that your answer must exlcusively the integer. Its length must be one character.`,
     max_tokens: 150,
     temperature: 0,
     n: 1,
     stream: false
   });
 
-  return response.data.choices[0].text;
+  return Boolean(parseInt(response.data.choices[0].text));
 }
 
-async function validatesSchedulePast(input, currentDateAndHour) {
+async function validatesCheckColleague(input, dateAndHour) {
   const response = await openai.createCompletion({
     model:'text-davinci-003',
-    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this sentence "${input}", determine if it possible or logical to schedule considering this is the current date and time: ${currentDateAndHour}
+    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting or event. Given this sentence "${input}", determine if it is possible to schedule a meeting or event with a colleague considering this JSON can be filled:
+
+    {
+      "attendees": [
+        {"emailAddress": {"address": "A00831316@tec.mx"}},
+        {"emailAddress": {"address": "A01411625@tec.mx"}}
+      ],
+      "startDateTime": "2023-05-24T09:00:00",
+      "finishDateTime": "2023-05-26T09:00:00",
+      "duration": "PT1H"
+    }
+
+    This is the explanation of that example:
+    This JSON represents an event or meeting with the following properties:
+
+    1. 'attendees': It is an array containing information about the attendees of the event. Each attendee is represented as an object with a property 'emailAddress', which itself is an object containing the email address of the attendee. In this example, there are two attendees with email addresses "A00831316@tec.mx" and "A01411625@tec.mx".
+
+    2. 'startDateTime': It represents the start date and time of the event. The value "2023-05-24T09:00:00" indicates that the event starts on May 24, 2023, at 09:00:00 (in 24-hour format).
+
+    3. 'finishDateTime': It represents the end date and time of the event. The value "2023-05-26T09:00:00" indicates that the event finishes on May 26, 2023, at 09:00:00 (in 24-hour format).
+
+    4. 'duration': It represents the duration of the event. The value "PT1H" indicates that the event lasts for 1 hour. The duration is specified using the ISO 8601 duration format, where "PT" stands for "period of time" and "1H" represents 1 hour.
+
+
+    Consider this is the current date and time: ${{dateAndHour}}
+
+    Please return just the integer 0 it would not be possible to schedule the current  or event. If it is not the case, please just return the integer 1. Remember that your answer must exlcusively the integer. Its length must be one character.`,
     
-    Please return just the integer 0 it would not be possible or logical to schedule the current meeting. If it is not the case, please just return the integer 1. Remember that your answer must exlcusively the integer. Its length must be one character.`,
     max_tokens: 150,
     temperature: 0,
     n: 1,
     stream: false
   });
 
-  return response.data.choices[0].text;
+  return Boolean(parseInt(response.data.choices[0].text));
 }
 
-async function validatesScheduleFuture(input, currentDateAndHour) {
+async function checkColleagues(input, dateAndHour) {
   const response = await openai.createCompletion({
     model:'text-davinci-003',
-    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting. Given this sentence "${input}", determine if it possible or logical to schedule considering you cannot schedule meetings past 31 days from today. This is the current date and time: ${currentDateAndHour}
-    Please return just the integer 0 it would not be possible or logical to schedule the current meeting. If it is not the case, please just return the integer 1. Remember that your answer must exlcusively the integer. Its length must be one character.`,
+    prompt: `Imagine that you are a chatbot for a company called Perficient, which is capable of automating workflow-related tasks with Outlook. In this case your task is to create a meeting or event. Given this sentence "${input}", determine if it is possible to schedule a meeting or event with a colleague considering this JSON can be filled:
+
+    {
+      "attendees": [
+        {"emailAddress": {"address": "A00831316@tec.mx"}},
+        {"emailAddress": {"address": "A01411625@tec.mx"}}
+      ],
+      "startDateTime": "2023-05-24T09:00:00",
+      "finishDateTime": "2023-05-26T09:00:00",
+      "duration": "PT1H"
+    }
+
+    This is the explanation of that example:
+    This JSON represents an event or meeting with the following properties:
+
+    1. 'attendees': It is an array containing information about the attendees of the event. Each attendee is represented as an object with a property 'emailAddress', which itself is an object containing the email address of the attendee. In this example, there are two attendees with email addresses "A00831316@tec.mx" and "A01411625@tec.mx".
+
+    2. 'startDateTime': It represents the start date and time of the event. The value "2023-05-24T09:00:00" indicates that the event starts on May 24, 2023, at 09:00:00 (in 24-hour format).
+
+    3. 'finishDateTime': It represents the end date and time of the event. The value "2023-05-26T09:00:00" indicates that the event finishes on May 26, 2023, at 09:00:00 (in 24-hour format).
+
+    4. 'duration': It represents the duration of the event. The value "PT1H" indicates that the event lasts for 1 hour. The duration is specified using the ISO 8601 duration format, where "PT" stands for "period of time" and "1H" represents 1 hour.
+
+
+    Consider this is the current date and time: ${{dateAndHour}}
+
+    Please return the JSON considering the information of the given sentence without any prefacing statement - the output should be the JSON and nothing else.`,
     max_tokens: 150,
     temperature: 0,
     n: 1,
@@ -455,16 +512,20 @@ function formatJSONOutResponse(response) {
     const startDate = startDateTime[0];
     const startTime = removeLastEightCharacters(startDateTime[1]);
 
-    const endDateTime = splitStringByT(obj.end.dateFTime);
+    const endDateTime = splitStringByT(obj.end.dateTime);
     const endDate = endDateTime[0];
     const endTime = removeLastEightCharacters(endDateTime[1]);
 
-    resultString += `Subject: <a href="${obj.web}">${obj.subject}</a>
-    Start Date: ${startDate} | ${startTime} ${obj.start.timeZone}
-    End Date: ${endDate} | ${endTime} ${obj.end.timeZone}
-    Attendees: ${obj.attendees}
-    ___________________________________________________________________`;
+    resultString += `<hr><b>Subject:</b> <a href="${obj.web}" target="_blank" class="withLinks">${obj.subject}</a> <br>
+    <b> Start Date: </b> ${startDate} | ${startTime} ${obj.start.timeZone} <br>
+    <b> End Date: </b> ${endDate} | ${endTime} ${obj.end.timeZone} <br>
+    <b> Attendees: </b> ${obj.attendees.join(', ')}
+    `;
+
+    console.log('Esto es lo que va del Result String:', resultString);
   });
+
+  console.log('Result String:', resultString);
 
   return resultString;
 }
@@ -472,10 +533,11 @@ function formatJSONOutResponse(response) {
 async function scheduleMeetingOutlook(JSONData) {
   let result = '';
 
-  axios.post('http://127.0.0.1:3001/Outlook/ScheduleMeeting', JSONData)
+  const response = await axios.post('http://127.0.0.1:3001/Outlook/ScheduleMeeting', JSONData)
   .then(response => {
-    console.log('Response:', response.data);
-    result = response.data;
+    console.log('Response Schedule Meeting Outlook:', response.data);
+    console.log('Response Schedule Meeting Outlook URL:', response.data.url);
+    result = response.data.url;
   })
   .catch(error => {
     console.error('Error:', error);
@@ -490,6 +552,5 @@ module.exports = {
   outlookClassification,
   scheduleMeetingContinue,
   checksConversationTopic,
-  validatesSchedulePast,
-  validatesScheduleFuture
+  validatesSchedule,
 };

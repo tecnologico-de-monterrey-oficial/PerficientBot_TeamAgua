@@ -71,6 +71,7 @@ async function AzureDecisionClassification(responseOpenAI, input, requestStatus)
         decision = await CreateWorkItem(input);
       }
 
+
       payload = decision[2]
       const response3 = await axios.post(`http://127.0.0.1:3001/Azure/CreateItem`, payload ).then(response3 => {
         console.log(response3.data);
@@ -139,7 +140,7 @@ async function getWorkItem(input) {
     return [normalResponse.data.choices[0].text, requestStatus, obj, currentService]; // Returns the response that will be displayed to the user.
   }
 
-  return [null, requestStatus, obj, currentService];
+  return [obj, requestStatus, obj, currentService];
 }
 
 async function CreateWorkItem(input) {
@@ -186,7 +187,71 @@ async function CreateWorkItem(input) {
     return [normalResponse.data.choices[0].text, requestStatus, obj, currentService]; // Returns the response that will be displayed to the user.
   }
 
-  return [null, requestStatus, obj, currentService];
+  return [obj, requestStatus, obj, currentService];
+}
+
+async function CreateWorkItemContinue(input, currentData) {
+  
+  const JSONresponse = await openai.createCompletion({
+    model:'text-davinci-003',
+    prompt: `As a chatbot for Perficient, you're designed to automate Azure DevOps-related workflow tasks, like creating a work item. Your task is to analyze the sentence "${input}" to see if it supplies missing information for this JSON: "${currentData}". Verify whether the sentence refers to specific fields in the JSON. If the sentence does not mention a title, keep the "title" field null only if it already is null in the JSON you received, if not, leave it like it was as you originally received it.
+
+    Additionally, discern whether the sentence suggests modifications to the existing information in the JSON.
+    
+    Your task is to update the JSON based on the given sentence, ensuring you maintain its structure and order. If a field, like 'type', isn't mentioned in the sentence, include it in the JSON as null only if it already is null in the JSON you received, if not, leave it like it was as you originally received it. Please do not add extra fields or change field names in the JSON.
+    
+    Return the updated JSON without any prefacing statement - the output should be the JSON and nothing else.`,
+    max_tokens: 150,
+    temperature: 0,
+    n: 1,
+    stream: false
+  });
+
+  console.log('Antes de parsear JSON:', JSONresponse.data.choices[0].text);
+
+  // Parses the JSON that OpenAI returns.
+  const jsonString = JSONresponse.data.choices[0].text.trim();
+  const fixedJsonString = jsonString.replace(/([{,])(\s*)([A-Za-z0-9_\-]+?)\s*:/g, '$1"$3":');
+  const obj = JSON.parse(fixedJsonString);
+
+  console.log('Actual JSON Azure:', obj);
+
+  // Merge JSONs
+  const mergedJSON = mergeJSONObjects(currentData, obj);
+  console.log('JSON merge:', mergedJSON);
+
+  // If the user's message completes the request, it modifies the request's status and calls the function to create the meeting in Outlook.
+  if(hasNullValues(mergedJSON)) {
+    const normalResponse = await openai.createCompletion({
+      model:'text-davinci-003',
+      prompt: `Consider this scenario: You are an automated assistant for Perficient, a company capable of streamlining tasks related to Azure DevOps, including setting creating work items. Using the phrase "${input}", discern if it pertains to missing information comparing this exisitng dataset (old) "${currentData}" with this one (new) "${mergedJSON}". Investigate whether the phrase discusses certain fields. If no mention of a conclusion time is given, the corresponding field must be kept empty. Additionally, ascertain if the phrase intends to alter any data already present in the dataset. If a field is left vacant, be sure to highlight this (none of the fields should be empty, investigate whether the phrase talks about specific fields, yet if a closing time is not specified, that field must be empty).
+      `,
+      max_tokens: 150,
+      temperature: 0,
+      n: 1,
+      stream: false
+    });
+
+    return [normalResponse.data.choices[0].text, mergedJSON]; // Returns the response that will be displayed to the user.
+  }
+
+  const postResponse = CreateItemAzure(mergedJSON);
+
+  return [postResponse, mergedJSON];
+}
+
+async function CreateItemAzure(JSONData) {
+  let result = '';
+
+  const response = await axios.post(`http://10.22.210.77:3001/Azure/CreateItem`, JSONData ).then(response => {
+    console.log(response.data);
+    result = response.data;
+  }).catch(error => {
+    console.error(error)
+    result = error;
+  });
+
+  return result;
 }
 
 function formatJSONOutResponseWI(response) {
@@ -198,9 +263,9 @@ function formatJSONOutResponseWI(response) {
     // Iterate over each key in the object
     console.log('Objeto:', obj);
 
-    resultString += `<a href="${obj.url}" class="withLinks"> ${obj.WItype} with ID: ${obj.ID}</a>
-    This work item refers to <span class="withTitle">${obj.Title}<span> <br>
-    ___________________________________________________________________<br>`;
+    resultString += `<hr> <a href="${obj.url}" target="_blank" class="withLinks"> ${obj.WItype} with ID: ${obj.ID}</a>
+    This work item refers to <span class="withTitle">${obj.Title}</span> <br>
+    `;
   });
   return resultString; 
 }
@@ -208,9 +273,9 @@ function formatJSONOutResponseWI(response) {
 function formatJSONOutResponseOneWI(response) {
   let resultString = '';
 
-  resultString = `<a href="${response.url}" class="withLinks"> ${response.WItype} with ID: ${response.ID}</a><br>
-  This work item refers to <span class="withTitle">${response.Title}<span><br>
-  ___________________________________________________________________`;
+  resultString = `<a href="${response.url}" target="_blank" class="withLinks"> ${response.WItype} with ID: ${response.ID}</a><br>
+  This work item refers to <span class="withTitle">${response.Title}</span><br>
+  <hr>`;
   return resultString;  
 }
 
@@ -218,9 +283,9 @@ function formatJSONOutResponse(response) {
   let resultString = '';
 
   console.log(response)
-  resultString = `Work Item created successfully! <br>  
-  <a href="${response.url}" class="withLinks"> ID: ${response.ID}</a> <br>
-    ___________________________________________________________________`;
+  resultString = `<hr>Work Item created successfully!
+  <a href="${response.url}" target="_blank" class="withLinks"> ID: ${response.ID}</a> <br>
+    <hr>`;
   return resultString; 
 }
 

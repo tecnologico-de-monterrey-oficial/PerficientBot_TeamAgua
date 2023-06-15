@@ -3,40 +3,39 @@
 /* Importing Bootstrap SCSS file. */
 @import 'bootstrap/scss/bootstrap';
 
-/* html {
-    height: 100%;
-    margin: 0;
-    padding: 2%;
-    padding-inline: 10%;
-    background-color: #202020;
-    overflow-x: hidden;
-    justify-content: center;
-    border-color: #202020;
-} */
-
 html {
     
     padding: 2%;
     padding-inline: 10%;
     height: 100%;
     overflow-x: hidden;
+    overflow-y: hidden;
+    display: flex;
+    align-items: center;
     justify-content: center;
+
 }
 body {
+    
     background-color: #202020;
-    font-family: 'Lato', sans-serif;
+    font-family: "Lato", sans-serif;
     color: #F5F5F5;
-
-}
-
-.withLinks {
-   
-        color: white !important;
-        // text-decoration: none !important;
-        font-weight: bold;
+    width: 100vw;
     
 }
-  
+
+//style for text links
+.withLinks {
+   
+        color: #ffbdbd; //#F7A3A3; //#ffbdbd;
+        //color: white !important;
+        // text-decoration: none !important;
+        font-weight: bold;
+
+    
+}
+
+//style for special titles
 .withTitle {
    
     color: white !important;
@@ -44,4 +43,43 @@ body {
     font-style: italic !important;
     font-weight: 300;
 
+}
+
+//For icons included in bot responses such as github icon etc
+.withIcon {
+    width: 18px;
+    margin: 3px;
+    padding-bottom: 2px;
+}
+
+//For chain icon in links, indicates link
+.withGo {
+    width: 12px;
+    margin: 3px;
+    padding-bottom: 3px;
+}
+
+
+//change scroll bar style
+::-webkit-scrollbar{
+    width: 5px;
+    transition: opacity 0.2s ease-in-out;
+}
+
+::-webkit-scrollbar-thumb{
+    background: #adb5bd; //#b56e6e, #adb5bd
+    border-radius: 6px;
+    margin: 2px;
+}
+
+::-webkit-scrollbar-track{
+    background: #6c757d; //#6c757d; 
+    border-radius: 6px;
+}
+
+//transition: opacity 0.2s ease-in-out;
+
+
+.appSection {
+    transition: 1s;
 }

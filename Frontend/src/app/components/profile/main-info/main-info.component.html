@@ -1,16 +1,20 @@
-<button type="button" class="buttonLogOut" (click)="logout()">LogOut</button>
 
+<h2> My Data </h2>
+<p> Here, you will find your personal information linked to your Microsoft account. It's all about you! Let's take a quick look:
+</p>
+<hr>
 
 <ng-container *ngIf="user$ | async as user">
     <div class="profile-grid">
       <div class="profile__header">
         <img [src]="user.picture" alt="Profile" class="profile__avatar" />
         <div class="profile__headline">
-          <h2 class="profile__title">{{ user.name }}</h2>
+          <h3 class="profile__title">{{ user.name }}</h3>
           
 
           
           <!-- <h2 class="profile__title">{{ user.sub }}</h2> -->
+          <!-- sub: windowslive|f6a8eb57361df774 -->
         </div>
       </div>
 
@@ -21,7 +25,9 @@
         </p>
       </div>
       
-
+      <div class="out">
+        <button type="button" class="buttonLogOut" (click)="logout()">LogOut</button>
+      </div>  
       <!-- <ng-container *ngIf="code$ | async as code">
         <div class="profile__details">
           <div class="profile__detail">
@@ -32,3 +38,5 @@
       </ng-container> -->
     </div>
   </ng-container>
+
+
