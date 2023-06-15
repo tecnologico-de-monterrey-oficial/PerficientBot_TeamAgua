@@ -24,7 +24,7 @@ export class NavbarComponent implements OnInit {
   
     //http://localhost:3000/datetime
     updateCurrentDateAndHour() {
-      this.http.get<{currentD: string}>('http://localhost:3000/datetime').subscribe(
+      this.http.get<{currentD: string}>('https://perficient-bot-service-backend-nodejs-dannyjr08.cloud.okteto.net/datetime').subscribe(
         response => {
           this.currentDateAndHour = response.currentD + ' UTC';
         },

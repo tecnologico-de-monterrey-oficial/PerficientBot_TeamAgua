@@ -131,7 +131,7 @@ export class ChatbotComponent implements OnInit {
     const sub = this.secretkey;
 
     this.http
-      .get(`http://localhost:3001/api/DatabaseGETTokens/${sub}`)
+      .get(`https://perficient-bot-service-backend-flask-dannyjr08.cloud.okteto.net/api/DatabaseGETTokens/${sub}`)
       .subscribe(
         (response: any) => {
           if (response.outlookToken && response.githubToken && response.azureToken) {

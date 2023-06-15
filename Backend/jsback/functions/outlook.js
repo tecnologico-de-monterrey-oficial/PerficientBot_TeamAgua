@@ -55,7 +55,7 @@ async function outlookDecisionClassification(responseOpenAI, input, requestStatu
       let resultString = '';
       
       // Make a GET request to the Flask API
-      const response = await axios.get('http://127.0.0.1:3001/Outlook/WeekEvents')
+      const response = await axios.get('https://perficient-bot-service-backend-flask-dannyjr08.cloud.okteto.net/Outlook/WeekEvents')
       .then(async response => {
         console.log(response.data);
         // Handle the response from the Flask API
@@ -533,7 +533,7 @@ function formatJSONOutResponse(response) {
 async function scheduleMeetingOutlook(JSONData) {
   let result = '';
 
-  const response = await axios.post('http://127.0.0.1:3001/Outlook/ScheduleMeeting', JSONData)
+  const response = await axios.post('https://perficient-bot-service-backend-flask-dannyjr08.cloud.okteto.net/Outlook/ScheduleMeeting', JSONData)
   .then(response => {
     console.log('Response Schedule Meeting Outlook:', response.data);
     console.log('Response Schedule Meeting Outlook URL:', response.data.url);

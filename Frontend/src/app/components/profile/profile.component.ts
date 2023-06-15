@@ -81,7 +81,7 @@ export class ProfileComponent implements OnInit{
     //it takes userSub parameter obtain in ngOnInit
     //deleted validation since is already done in OnInit method
     const userId = userSub.replace('|', '_');  // replace | with _ in user ID
-        this.http.get(`http://localhost:3001/api/CheckHR`, { params: { sub: userId } }).subscribe((response: any) => {
+        this.http.get(`https://perficient-bot-service-backend-flask-dannyjr08.cloud.okteto.net/api/CheckHR`, { params: { sub: userId } }).subscribe((response: any) => {
 
           if (response.length > 0) {
             console.log(response[0].IsHR);

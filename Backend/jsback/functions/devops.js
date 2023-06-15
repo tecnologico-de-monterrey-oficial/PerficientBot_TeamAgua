@@ -33,7 +33,7 @@ async function AzureDecisionClassification(responseOpenAI, input, requestStatus)
   switch (responseOpenAI) {
 
     case 1:
-      const response1 = await axios.get('http://127.0.0.1:3001/Azure/AllWI').then(async response1 => {
+      const response1 = await axios.get('https://perficient-bot-service-backend-flask-dannyjr08.cloud.okteto.net/Azure/AllWI').then(async response1 => {
       console.log(response1.data);
       finalStringResponse = formatJSONOutResponseWI(response1.data);
 
@@ -53,7 +53,7 @@ async function AzureDecisionClassification(responseOpenAI, input, requestStatus)
         decision = await getWorkItem(input);
       }
 
-      const response2 = await axios.get(`http://127.0.0.1:3001/Azure/WI/${decision[2]['id']}`).then(response2 => {
+      const response2 = await axios.get(`https://perficient-bot-service-backend-flask-dannyjr08.cloud.okteto.net/Azure/WI/${decision[2]['id']}`).then(response2 => {
         console.log(response2.data);
         finalStringResponse = formatJSONOutResponseOneWI(response2.data);
 
@@ -73,7 +73,7 @@ async function AzureDecisionClassification(responseOpenAI, input, requestStatus)
 
 
       payload = decision[2]
-      const response3 = await axios.post(`http://127.0.0.1:3001/Azure/CreateItem`, payload ).then(response3 => {
+      const response3 = await axios.post(`https://perficient-bot-service-backend-flask-dannyjr08.cloud.okteto.net/Azure/CreateItem`, payload ).then(response3 => {
         console.log(response3.data);
         finalStringResponse = formatJSONOutResponse(response3.data);
         console.log(finalStringResponse);
