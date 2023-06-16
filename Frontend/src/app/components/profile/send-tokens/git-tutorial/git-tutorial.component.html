@@ -1,0 +1,55 @@
+<div>
+    <p>Before you can access GitHub services using <b style="color: #ffbdbd;">PerficientBot.</b>, you need to generate a personal access token. Follow the steps below:</p>
+
+    <ol>
+        <li>First, go to the <a href="https://github.com/settings/tokens" class="withLinks" target="_blank">GitHub Personal Access Token <img src="./assets/img/Link.svg" class="withGo" alt=""> </a> page.</li>
+        <li>Be sure to be logged in with your account. You will see a screen similar this:</li>
+
+        <img src="../assets/img/GitTut/GitPage.png" alt="GitHub Personal Access Token"> 
+
+        <li>Click on the <b>Generate new token</b> button, and a dropdown menu will appear. Select the option <b>Generate new token (classic)</b> <i> For general use</i> as shown below:</li>
+
+        <img src="../assets/img/GitTut/GenerateToken.png" style="width: 30%;" alt="Generate new token">
+
+        <li>You may be asked to enter your GitHub password for confirmation. Enter it and proceed.</li>
+
+        <img src="../assets/img/GitTut/Password.png" style="width: 30%;" alt="GitHub Password">
+
+        <li>You will be redirected to the token creation page. Start by providing a description or note to identify the purpose of the token, for example, "PerficientBot" or "Bot Token".</li>
+
+        <img src="../assets/img/GitTut/Note.png" style="width: 80%;"alt="Token Description">
+
+        <li>Next, choose an expiration date for the token. You can select a specific date or set it to have no expiration. It is recommended to set an expiration date to ensure better security.</li>
+
+        <img src="../assets/img/GitTut/Expiration.png" style="width: 60%;"alt="Token Expiration">
+
+        <li>Now, it's time to set the token scopes. Check the following permissions: <b>"repo"</b>, <b>"admin:public_key"</b>, <b>"admin:org"</b>, and <b>"user"</b>. These permissions align with the capabilities required by <b style="color: #ffbdbd;">PerficientBot.</b></li>
+        <br>
+        <ul>
+            <li><b>repo:</b> Grants full control of private repositories.</li>
+            <img src="../assets/img/GitTut/ScopeRepo.png" style="width: 90%;" alt="Token Scopes - repo">
+            <li><b>admin:public_key:</b> Provides full control of user public keys.</li>
+            <li><b>admin:org:</b> Offers full control of organizations and teams, including reading and writing organization projects.</li>
+            <img src="../assets/img/GitTut/ScopeAdmin.png" style="width: 90%;" alt="Token Scopes - admin">
+            <li><b>user:</b> Allows updating and reading of user data, including user profile information and email addresses.</li>
+            <img src="../assets/img/GitTut/ScopeUser.png" style="width: 90%;" alt="Token Scopes - user">
+        </ul>
+
+        <li>Once you have selected the necessary scopes, click the <b>Generate token</b> button at the bottom of the page </li>
+
+        <img src="../assets/img/GitTut/GenerateGreen.png" style="width: 30%;" alt="Generate Token">
+
+        <li>You will see a confirmation screen indicating that you have successfully created the token. Make sure to click on the <b>copy symbol</b> to copy the token to your clipboard. </li>
+
+        <img src="../assets/img/GitTut/CopyToken.png" alt="Copy Token">
+    
+        <img src="../assets/img/GitTut/Copied.png" alt="Token Copied">
+        <i>    This is the only chance you will have to copy it. If you don't, you will have to delete it and start the process again.</i>
+
+        <li>Return to <b>PerficientBot</b> > <b>My Services</b> and clear the content of the <i>GitHub Token</i> field. Paste the newly generated token into the field using <b>Ctrl</b> + <b>V</b>.</li>
+
+        <img src="..\assets\img\OutTut\MyServices.png" style="width: 95%;"alt="PerficientBot Tokens">
+
+        <h6>That's it! You have successfully updated your GitHub access token and can now access GitHub services using <b style="color: #ffbdbd;">PerficientBot.</b></h6>
+    </ol>
+</div>

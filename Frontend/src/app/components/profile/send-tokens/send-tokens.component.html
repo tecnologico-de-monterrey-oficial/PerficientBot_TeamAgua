@@ -1,0 +1,76 @@
+<h2>My services</h2>
+<p> Update your access tokens and unlock a world of possibilities with Perficient Bot! Seamlessly integrate additional services like GitHub, DevOps, and Outlook Calendar to supercharge your experience. Stay organized, collaborate effortlessly, and manage tasks with ease. Update your access tokens now and take Perficient Bot to the next level!</p>
+<hr>
+<div style="overflow-y: auto;">
+
+</div>
+<div class="token-form">
+  
+
+  <div class="form-group">
+    <label for="outlookToken">Outlook Token:</label>
+    <input type="password" [(ngModel)]="outlookToken" [type]="showtoken ? 'text' : 'password'" id="outlookToken">
+    <button class="btn-copy" (click)="copyToken('outlookToken')"> <!-- Copy token button-->
+      <img src="../assets/img/Copy.svg" alt="Copy">
+    </button>
+
+    <button class="btn-copy" (click)="guideSelected = 'Outlook'"> <!-- Help token button-->
+      <img src="../assets/img/Help.svg" alt="Help">
+    </button>
+
+
+    
+  </div>
+
+  <div class="form-group">
+    <label for="githubToken">GitHub Token:</label>
+    <input type="password" [(ngModel)]="githubToken" [type]="showtoken ? 'text' : 'password'" id="githubToken">
+    <button class="btn-copy" (click)="copyToken('githubToken')"> <!-- Copy token button-->
+      <img src="../assets/img/Copy.svg" alt="Copy">
+    </button>
+
+    <button class="btn-copy" (click)="guideSelected = 'GitHub'"> <!-- Help token button-->
+      <img src="../assets/img/Help.svg" alt="Help">
+    </button>
+  </div>
+
+  <div class="form-group">
+    <label for="azureToken">Azure Token:</label>
+    <input type="password" [(ngModel)]="azureToken" [type]="showtoken ? 'text' : 'password'" id="azureToken">
+    <button class="btn-copy" (click)="copyToken('azureToken')"> <!-- Copy token button-->
+      <img src="../assets/img/Copy.svg" alt="Copy">
+    </button> 
+
+    <button class="btn-copy" (click)="guideSelected = 'DevOps'"> <!-- Help token button-->
+      <img src="../assets/img/Help.svg" alt="Help">
+    </button>
+
+  </div>
+
+ 
+
+  <div class="form-options-foot">
+    <button class="btn-show-password" (click)="toggleShowToken()">
+      {{ showtoken ? 'Hide' : 'Show' }} tokens
+    </button>
+    <button class="btn-submit" (click)="enviarTokens()">Update</button>
+  </div>
+  
+</div>
+
+<!-- OVERLAY TUTORIAL-->
+<div class="overlay" *ngIf="guideSelected!=''">
+  <div class="overlay-content">
+    <h2>How to obtain your {{ guideSelected }} token </h2> 
+    <hr>
+    
+    <div class="scrollY">
+      <ng-container [ngSwitch]="guideSelected">
+        <app-git-tutorial *ngSwitchCase="'GitHub'"></app-git-tutorial>
+        <app-dev-tutorial *ngSwitchCase="'DevOps'"></app-dev-tutorial>
+        <app-out-tutorial *ngSwitchCase="'Outlook'"></app-out-tutorial>
+    </ng-container>
+    </div>
+    
+  <button class="closeButton" (click)="closeOverlay()"> x </button>
+</div>

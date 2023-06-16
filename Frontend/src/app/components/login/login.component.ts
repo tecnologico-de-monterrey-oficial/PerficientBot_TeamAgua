@@ -2,11 +2,13 @@ import {Component, OnInit} from '@angular/core';
 import {AuthService} from '@auth0/auth0-angular';
 import {Router} from '@angular/router';
 
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
+
 export class LoginComponent implements OnInit{
 
   constructor(public auth: AuthService, private router: Router) { }
@@ -23,6 +25,7 @@ export class LoginComponent implements OnInit{
 
   login(){
     this.auth.loginWithRedirect();
+    
   }
 
 

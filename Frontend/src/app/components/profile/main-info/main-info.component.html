@@ -1,0 +1,42 @@
+
+<h2> My Data </h2>
+<p> Here, you will find your personal information linked to your Microsoft account. It's all about you! Let's take a quick look:
+</p>
+<hr>
+
+<ng-container *ngIf="user$ | async as user">
+    <div class="profile-grid">
+      <div class="profile__header">
+        <img [src]="user.picture" alt="Profile" class="profile__avatar" />
+        <div class="profile__headline">
+          <h3 class="profile__title">{{ user.name }}</h3>
+          
+
+          
+          <!-- <h2 class="profile__title">{{ user.sub }}</h2> -->
+          <!-- sub: windowslive|f6a8eb57361df774 -->
+        </div>
+      </div>
+
+      <div  class="userInfo">
+         <p> <span class="titleInfo"> Given name: </span> {{ user.given_name }} <br>
+         <span class="titleInfo"> Family name: </span> {{ user.family_name }} <br>
+         <span class="titleInfo"> Email: </span> {{ user.email }}
+        </p>
+      </div>
+      
+      <div class="out">
+        <button type="button" class="buttonLogOut" (click)="logout()">LogOut</button>
+      </div>  
+      <!-- <ng-container *ngIf="code$ | async as code">
+        <div class="profile__details">
+          <div class="profile__detail">
+            <span class="profile__detail-title">Código</span>
+            <span class="profile__detail-value">{{ code }}</span>
+          </div>
+        </div>
+      </ng-container> -->
+    </div>
+  </ng-container>
+
+

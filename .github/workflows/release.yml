@@ -1,31 +1,21 @@
-name: release CI, CD workflow 
+name: Release CI, CD workflow 
 on: 
   push:
     branches: [ "release"]
   pull_request:
     branches: [ "release"]
 jobs:
-  Release-frontend:
+  Image-frontend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: make .env 
-        uses: SpicyPizza/create-envfile@v1.3
-        with:
-          envKey_APP_VERSION: ${{ secrets.APP_VERSION }}
-          envKey_STAGE: ${{ secrets.STAGE }}
-          envkey_NG_APP_KEY: ${{ secrets.OPENAI_KEY }}
-          envKey_PORT: ${{ secrets.PORT }}
-          file_name: .env
-          fail_on_empty: false
-
-      - name: Use Node.js 16.x
+      - name: Use Node.js 18.16
         uses: actions/setup-node@v1
         with:
-          node-version: 16.x
+          node-version: 18.16
 
       - name: CI
         run: |
@@ -36,10 +26,6 @@ jobs:
         run: |
           cd Frontend/
           npm run build
-      
-      - name: show dir, .env file
-        run: |
-          ls -la 
           
       - name: download, run httpd image, container name serving_base
         run: |
@@ -76,45 +62,90 @@ jobs:
           docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-frontend:${{github.sha}}
           docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-frontend:latest
 
-  Release-backend:
+  Image-backend-Flask:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
+      - name: docker login
+        env:
+          DOCKER_USER: ${{secrets.DOCKER_USER}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        run: |
+          cd Backend/pyback
+          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
+
+      - name: Build Docker Flask image
+        run: |
+          cd Backend/pyback
+          docker build -t ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-flask:${{github.sha}} .
+          docker build -t ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-flask:latest .
+
+      - name: Docker Push
+        run: |
+          cd Backend/pyback
+          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-flask:${{github.sha}}
+          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-flask:latest
+
+  Image-backend-NodeJS:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+
       - name: make .env 
         uses: SpicyPizza/create-envfile@v1.3
         with:
           envKey_APP_VERSION: ${{ secrets.APP_VERSION }}
           envKey_STAGE: ${{ secrets.STAGE }}
-          envkey_NG_APP_KEY: ${{ secrets.OPENAI_KEY }}
+          envkey_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           envKey_PORT: ${{ secrets.PORT }}
+          envKey_PORT_BIN: ${{ secrets.PORT_BIN }}
+          envkey_DEV_DATABASE_URL : ${{ secrets.DEV_DATABASE_URL }}
+          envkey_DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          directory: Backend/jsback/
           file_name: .env
           fail_on_empty: false
+
+
+      - name: show dir, .env file
+        run: |
+          ls -la 
+
+      - name: checar env
+        run: cat Backend/jsback/.env
 
       - name: docker login
         env:
           DOCKER_USER: ${{secrets.DOCKER_USER}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
         run: |
-          cd Frontend/
+          cd Backend/jsback
           docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
 
-      - name: Build Docker Backend image
+      - name: Build Docker NodeJS image
         run: |
-          cd Backend/
-          docker build -t ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend:${{github.sha}} .
-          docker build -t ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend:latest .
+          cd Backend/jsback
+          docker build -t ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-nodejs:${{github.sha}} .
+          docker build -t ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-nodejs:latest .
 
       - name: Docker Push
         run: |
-          cd Backend/
-          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend:${{github.sha}}
-          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend:latest
+          cd Backend/jsback
+          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-nodejs:${{github.sha}}
+          docker push ${{secrets.DOCKER_USER}}/${{secrets.MODEL_NAME}}-backend-nodejs:latest
       
-  Deploy:
-    needs: [Release-frontend, Release-backend]
+  Deploy-frontend:
+    needs: [Image-frontend, Image-backend-Flask, Image-backend-NodeJS]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -132,19 +163,19 @@ jobs:
           fail_on_empty: false
 
       - name: update docker user in k8 
-        run: sed -i 's/{docker_user}/${{secrets.DOCKER_USER}}/g' manifests/k8s.yaml
+        run: sed -i 's/{docker_user}/${{secrets.DOCKER_USER}}/g' manifests/k8s-frontend.yaml
 
       - name: update model name in k8 
-        run: sed -i 's/{model_name}/${{secrets.MODEL_NAME}}/g' manifests/k8s.yaml
+        run: sed -i 's/{model_name}/${{secrets.MODEL_NAME}}/g' manifests/k8s-frontend.yaml
 
       - name: update _ by - 
-        run: sed -i 's/_/-/g' manifests/k8s.yaml
+        run: sed -i 's/_/-/g' manifests/k8s-frontend.yaml
 
       - name: update sha in k8
-        run: sed -i 's/{github.sha}/${{github.sha}}/g' manifests/k8s.yaml
+        run: sed -i 's/{github.sha}/${{github.sha}}/g' manifests/k8s-frontend.yaml
 
       - name: ls -la 
-        run: cat manifests/k8s.yaml
+        run: cat manifests/k8s-frontend.yaml
       - uses: okteto/context@2.7.0
         with:
           token: ${{secrets.OKTETO_TOKEN }}
@@ -155,5 +186,89 @@ jobs:
           KUBECONFIG: ${{ steps.namespace.outputs.kubeconfig }}
         with:
           namespace: ${{ secrets.OKTETO_NAMESPACE }}
-          manifest: manifests/k8s.yaml
+          manifest: manifests/k8s-frontend.yaml
           tag: ${{ secrets.DOCKER_USERNAME }}/${{secrets.MODEL_NAME}}:${{github.sha}}
+
+    
+  Deploy-backend-flask:
+    needs: [Image-frontend, Image-backend-Flask, Image-backend-NodeJS]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+        
+        
+      - name: update docker user in k8 
+        run: sed -i 's/{docker_user}/${{secrets.DOCKER_USER}}/g' manifests/k8s-backend-flask.yaml
+        
+      - name: update model name in k8 
+        run: sed -i 's/{model_name}/${{secrets.MODEL_NAME}}/g' manifests/k8s-backend-flask.yaml
+        
+      - name: update _ by - 
+        run: sed -i 's/_/-/g' manifests/k8s-backend-flask.yaml
+        
+      - name: update sha in k8
+        run: sed -i 's/{github.sha}/${{github.sha}}/g' manifests/k8s-backend-flask.yaml
+        
+      - name: ls -la 
+        run: cat manifests/k8s-backend-flask.yaml
+      - uses: okteto/context@2.7.0
+        with:
+          token: ${{secrets.OKTETO_TOKEN }}
+        
+      - name: Deploy and Wait
+        uses: okteto/actions/deploy@v1
+        env:
+          KUBECONFIG: ${{ steps.namespace.outputs.kubeconfig }}
+        with:
+          namespace: ${{ secrets.OKTETO_NAMESPACE }}
+          manifest: manifests/k8s-backend-flask.yaml
+          tag: ${{ secrets.DOCKER_USERNAME }}/${{secrets.MODEL_NAME}}:${{github.sha}}
+
+
+  Deploy-backend-nodejs:
+    needs: [Image-frontend, Image-backend-Flask, Image-backend-NodeJS]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+                
+      - name: make .env 
+        uses: SpicyPizza/create-envfile@v1.3
+        with:
+          envKey_APP_VERSION: ${{ secrets.APP_VERSION }}
+          envKey_STAGE: ${{ secrets.STAGE }}
+          envkey_NG_APP_KEY: ${{ secrets.OPENAI_KEY }}
+          envKey_PORT: ${{ secrets.PORT }}
+          file_name: .env
+          fail_on_empty: false
+                
+      - name: update docker user in k8 
+        run: sed -i 's/{docker_user}/${{secrets.DOCKER_USER}}/g' manifests/k8s-backend-nodejs.yaml
+                
+      - name: update model name in k8 
+        run: sed -i 's/{model_name}/${{secrets.MODEL_NAME}}/g' manifests/k8s-backend-nodejs.yaml
+                
+      - name: update _ by - 
+        run: sed -i 's/_/-/g' manifests/k8s-backend-nodejs.yaml
+                
+      - name: update sha in k8
+        run: sed -i 's/{github.sha}/${{github.sha}}/g' manifests/k8s-backend-nodejs.yaml
+                
+      - name: ls -la 
+        run: cat manifests/k8s-backend-nodejs.yaml
+      - uses: okteto/context@2.7.0
+        with:
+          token: ${{secrets.OKTETO_TOKEN }}
+                
+      - name: Deploy and Wait
+        uses: okteto/actions/deploy@v1
+        env:
+          KUBECONFIG: ${{ steps.namespace.outputs.kubeconfig }}
+        with:
+          namespace: ${{ secrets.OKTETO_NAMESPACE }}
+          manifest: manifests/k8s-backend-nodejs.yaml
+          tag: ${{ secrets.DOCKER_USERNAME }}/${{secrets.MODEL_NAME}}:${{github.sha}}
+        

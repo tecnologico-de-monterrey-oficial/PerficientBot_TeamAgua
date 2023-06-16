@@ -1,0 +1,35 @@
+#manifest
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {model_name}-deployment-frontend
+spec:
+  selector:
+    matchLabels:
+      app: {model_name}-frontend
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {model_name}-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: docker.io/{docker_user}/{model_name}-frontend:{github.sha}
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: {model_name}-service-frontend
+  name: {model_name}-service-frontend
+spec:
+  ports:
+  - name: frontend
+    port: 80
+    targetPort: 80
+  selector:
+    app: {model_name}-frontend
+  type: LoadBalancer

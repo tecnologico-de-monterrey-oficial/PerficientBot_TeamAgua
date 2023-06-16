@@ -1,0 +1,46 @@
+
+
+
+<!-- Search view-->
+<h2>HH.RR. Search</h2>
+<p>Find employees, delve into their CVs, and gain valuable insights with our AI-powered text processor and language interpreter.</p>
+<hr>
+<div class="search-container">
+  <div class="input-group">
+    <input type="text" [(ngModel)]="textoBusqueda" (keyup)="onInputChange()" placeholder="Search employee...">
+  </div>
+  <ul>
+    <li *ngFor="let persona of resultados">
+      {{ persona.nombrecompleto }}
+      <div class="resultActions">
+        <button class="hrButton" (click)="openOverlay(persona)">Open</button>
+      </div>
+      
+    </li>
+  </ul>
+  <i *ngIf="noResults">No profile matches your search. Try again</i>
+</div>
+
+
+<!-- Employee details view -->
+
+<!-- Full-screen overlay -->
+
+<div class="overlay" *ngIf="selectedPersona">
+  <div class="overlay-content">
+    <h3>{{ selectedPersona.nombrecompleto }}</h3> 
+    <hr>
+    <button class="hrButton" (click)="showOverlay('cv')">Get CV</button>
+    <button class="hrButton" (click)="showOverlay('summary')">Summary</button> 
+
+    <!-- Additional details and content here -->
+
+    <div class="image-container" *ngIf="selectedPersona.cvImageData && show=='cv'">
+      <img [src]="selectedPersona.cvImageData">
+    </div>
+
+    <p *ngIf="selectedPersona.summary && show =='summary'">{{ selectedPersona.summary }}</p>
+    
+  </div>
+  <button class="closeButton" (click)="closeOverlay()"> X </button>
+</div>

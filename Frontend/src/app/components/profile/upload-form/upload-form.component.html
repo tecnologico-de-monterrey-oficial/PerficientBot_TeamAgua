@@ -1,0 +1,12 @@
+<h2> My Documents </h2>
+<p> This section allows you to securely submit important documents, such as your CV/Resume, to our HR Resources Department. Our advanced AI interpreters will analyze your profile and provide valuable insights.
+</p>
+<hr>
+
+<form (ngSubmit)="onSubmit()">
+  <h4> Resume </h4>
+  <p> Please select your resume file using the "Choose File" button below. Once selected, click the "Upload" button to submit your resume for review. </p>
+  <input type="file" name="file" id="file" (change)="onFileSelected($event)" accept="image/png, image/jpeg" />
+  <button type="submit" [disabled]="!selectedFile">Upload</button>
+</form>
+

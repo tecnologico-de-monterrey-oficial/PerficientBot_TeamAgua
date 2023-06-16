@@ -1,0 +1,135 @@
+.token-form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: transparent;
+    border-radius: 5px;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    align-content: flex-end;
+
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+    width: 80%;
+    display: inline-flex;
+
+  
+
+  }
+  
+  label {
+    display: block;
+    font-weight: bold;
+  }
+  
+  input{
+    width: 100%;
+    padding: 8px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    background-color: #dee2e6;
+  }
+  
+  .btn-submit {
+    display: block;
+    width: 30%;
+    padding: 10px;
+    background-color: #B65151;
+    color: #dee2e6;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    align-self: flex-end;
+  }
+  
+  .btn-show-password {
+    display: block;
+    margin-top: 10px;
+    padding: 5px;
+    background-color: #6c6c6c;
+    color:#dee2e6;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    width: -webkit-fill-available;
+  }
+
+  .btn-copy {
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .btn-copy img {
+    height: 22px;
+    width: 22px;
+  }
+  
+  .form-options-foot {
+  
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    align-content: flex-start;
+    gap: 10%;
+    width: 100vh;
+    flex-wrap: nowrap;
+    justify-content: start;
+  }
+
+
+  //overlay tutorial ----------------------------
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items:center;
+    
+  }
+  
+  .overlay-content {
+    background-color: #343541;
+    padding: 20px;
+    height: 90vh;
+    width: 80%;
+    //color: #D18585;
+    color: #ccc;
+    border-radius: 10px;
+  }
+
+  .closeButton {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+   
+    background-color: #B65151;
+    color: #fff;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    outline: none;
+    border-radius: 4px;
+
+  }
+
+
+  .scrollY{
+    padding: 15px;
+    height: 70vh;
+    width: 100%;
+    //color: #D18585;
+    color: #ccc;
+    overflow-y: auto;
+}

@@ -1,0 +1,27 @@
+<nav class="navbar-bar">
+
+    <!-- Chat Button -->
+    <div class="navbar-logo" routerLink="/home" routerLinkActive="active">
+      <img src="./assets/img/PerficientButton.svg" alt="PerficientBotLogo">
+        <span class="navbar-title-text">PerficientBot</span>
+        <span class="hour"> {{ currentDateAndHour }}</span>
+    </div>
+
+
+    <div class="navbar-profile" routerLink="/profile" routerLinkActive="active">
+        <!-- <img src="./assets/img/profilePic.png" alt="UserPictureProfile"> -->
+
+        <img *ngIf="user$ | async as user; else defaultImage" [src]="user?.picture" alt="UserPictureProfile" />
+        <ng-template #defaultImage>
+          <img src="./assets/img/profilePic.svg" alt="UserPictureProfile">
+        </ng-template>
+
+      <!-- <span>Hello, {{ username }}.</span> -->
+      <!-- <span>Hello, &#123; username. &#125;</span> -->
+      <span *ngIf="user$ | async; else defaultText">Hello, {{ (user$ | async)?.given_name || '[username]' }}.</span>
+      <ng-template #defaultText> <span> Hello, [username]. </span></ng-template>
+    
+    </div>
+  </nav>
+
+ 
